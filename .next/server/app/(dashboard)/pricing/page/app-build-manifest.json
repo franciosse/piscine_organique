@@ -1,0 +1,26 @@
+{
+  "pages": {
+    "/(dashboard)/pricing/page": [
+      "static/chunks/node_modules_next_dist_f0c7ae3c._.js",
+      "static/chunks/app_favicon_ico_mjs_961b5b2d._.js",
+      "static/chunks/[root-of-the-server]__48d1951a._.css",
+      "static/chunks/node_modules_ad5c142b._.js",
+      "static/chunks/app_layout_tsx_677eda6a._.js",
+      "static/chunks/node_modules_next_dist_b758c999._.js",
+      "static/chunks/app_not-found_tsx_b45d5ea6._.js",
+      "static/chunks/node_modules_d5683cb6._.js",
+      "static/chunks/_5ac3ba6b._.js",
+      "static/chunks/app_(dashboard)_layout_tsx_b45d5ea6._.js",
+      "static/chunks/_df7043ee._.js",
+      "static/chunks/app_(dashboard)_pricing_page_tsx_cdb10be0._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_af6240d9._.js",
+      "static/chunks/node_modules_next_dist_compiled_react-dom-experimental_375bf58e._.js",
+      "static/chunks/node_modules_next_dist_compiled_d87e34ab._.js",
+      "static/chunks/node_modules_next_dist_client_72eb3285._.js",
+      "static/chunks/node_modules_next_dist_2cf6886d._.js",
+      "static/chunks/node_modules_@swc_helpers_cjs_00636ac3._.js",
+      "static/chunks/_e69f0d32._.js",
+      "static/chunks/_40e1911e._.js"
+    ]
+  }
+}
