@@ -8,18 +8,18 @@ var { m: module, e: exports } = __turbopack_context__;
 if ("TURBOPACK compile-time falsy", 0) {
     "TURBOPACK unreachable";
 } else {
-    if ("TURBOPACK compile-time truthy", 1) {
+    if ("TURBOPACK compile-time falsy", 0) {
+        "TURBOPACK unreachable";
+    } else {
         if ("TURBOPACK compile-time truthy", 1) {
             if ("TURBOPACK compile-time truthy", 1) {
-                module.exports = __turbopack_context__.r("[externals]/next/dist/compiled/next-server/app-page-turbo-experimental.runtime.dev.js [external] (next/dist/compiled/next-server/app-page-turbo-experimental.runtime.dev.js, cjs)");
+                module.exports = __turbopack_context__.r("[externals]/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js [external] (next/dist/compiled/next-server/app-page-turbo.runtime.dev.js, cjs)");
             } else {
                 "TURBOPACK unreachable";
             }
         } else {
             "TURBOPACK unreachable";
         }
-    } else {
-        "TURBOPACK unreachable";
     }
 } //# sourceMappingURL=module.compiled.js.map
 }}),

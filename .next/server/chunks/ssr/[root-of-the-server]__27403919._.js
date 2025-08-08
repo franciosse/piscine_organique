@@ -616,47 +616,80 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$next$5d2f$internal$2f$font$2f$google$2f$manrope_73d9b590$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[next]/internal/font/google/manrope_73d9b590.js [app-rsc] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$queries$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/queries.ts [app-rsc] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$config$2d$client$2d$Bi4rgVRk$2e$mjs__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__S__as__SWRConfig$3e$__ = __turbopack_context__.i("[project]/node_modules/swr/dist/index/config-client-Bi4rgVRk.mjs [app-rsc] (ecmascript) <export S as SWRConfig>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$intl$2f$dist$2f$esm$2f$development$2f$index$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$exports$3e$__ = __turbopack_context__.i("[project]/node_modules/next-intl/dist/esm/development/index.react-server.js [app-rsc] (ecmascript) <exports>");
+;
 ;
 ;
 ;
 ;
 ;
 const metadata = {
-    title: 'Next.js SaaS Starter',
-    description: 'Get started quickly with Next.js, Postgres, and Stripe.'
+    title: 'Piscine Organique',
+    description: 'Construisez votre piscine organique avec nous'
 };
 const viewport = {
     maximumScale: 1
 };
-function RootLayout({ children }) {
+async function RootLayout({ children, params }) {
+    // Charger les messages de la locale demandée
+    let messages;
+    try {
+        messages = (await __turbopack_context__.f({
+            "../locales/ba.json": {
+                id: ()=>"[project]/locales/ba.json (json, async loader)",
+                module: ()=>__turbopack_context__.r("[project]/locales/ba.json (json, async loader)")(__turbopack_context__.i)
+            },
+            "../locales/en.json": {
+                id: ()=>"[project]/locales/en.json (json, async loader)",
+                module: ()=>__turbopack_context__.r("[project]/locales/en.json (json, async loader)")(__turbopack_context__.i)
+            },
+            "../locales/es.json": {
+                id: ()=>"[project]/locales/es.json (json, async loader)",
+                module: ()=>__turbopack_context__.r("[project]/locales/es.json (json, async loader)")(__turbopack_context__.i)
+            },
+            "../locales/fr.json": {
+                id: ()=>"[project]/locales/fr.json (json, async loader)",
+                module: ()=>__turbopack_context__.r("[project]/locales/fr.json (json, async loader)")(__turbopack_context__.i)
+            }
+        }).import(`../locales/${params.locale}.json`)).default;
+    } catch  {
+        // fallback en cas d'erreur (locale non trouvée)
+        messages = {};
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("html", {
-        lang: "en",
+        lang: params.locale,
         className: `bg-white dark:bg-gray-950 text-black dark:text-white ${__TURBOPACK__imported__module__$5b$next$5d2f$internal$2f$font$2f$google$2f$manrope_73d9b590$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].className}`,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("body", {
             className: "min-h-[100dvh] bg-gray-50",
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$config$2d$client$2d$Bi4rgVRk$2e$mjs__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__S__as__SWRConfig$3e$__["SWRConfig"], {
                 value: {
                     fallback: {
-                        // We do NOT await here
-                        // Only components that read this data will suspend
                         '/api/user': (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$queries$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getUser"])(),
                         '/api/team': (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$queries$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getTeamForUser"])()
                     }
                 },
-                children: children
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$intl$2f$dist$2f$esm$2f$development$2f$index$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$exports$3e$__["IntlProvider"], {
+                    locale: params.locale,
+                    messages: messages,
+                    children: children
+                }, void 0, false, {
+                    fileName: "[project]/app/layout.tsx",
+                    lineNumber: 48,
+                    columnNumber: 11
+                }, this)
             }, void 0, false, {
                 fileName: "[project]/app/layout.tsx",
-                lineNumber: 29,
+                lineNumber: 40,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/layout.tsx",
-            lineNumber: 28,
+            lineNumber: 39,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/layout.tsx",
-        lineNumber: 24,
+        lineNumber: 35,
         columnNumber: 5
     }, this);
 }

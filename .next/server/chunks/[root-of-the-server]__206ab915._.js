@@ -137,10 +137,26 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2f$session$2e$ts
 ;
 ;
 const protectedRoutes = '/dashboard';
+const supportedLocales = [
+    'fr',
+    'en',
+    'es',
+    'ba'
+];
+const defaultLocale = 'fr';
 async function middleware(request) {
     const { pathname } = request.nextUrl;
     const sessionCookie = request.cookies.get('session');
     const isProtectedRoute = pathname.startsWith(protectedRoutes);
+    // 1. Redirection racine "/" vers locale par défaut "/fr"
+    if (pathname === '/') {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${defaultLocale}`;
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__["NextResponse"].redirect(url);
+    }
+    // 2. Si la route commence par une locale supportée, on continue
+    //    Sinon, on pourrait aussi rediriger (optionnel, pas ajouté ici)
+    // 3. Authentification sur les routes protégées
     if (isProtectedRoute && !sessionCookie) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__["NextResponse"].redirect(new URL('/sign-in', request.url));
     }

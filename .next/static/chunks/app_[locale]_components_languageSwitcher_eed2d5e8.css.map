@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///media/franciosse/Data/Repos/piscine_organique/app/%5Blocale%5D/components/languageSwitcher.css"],"sourcesContent":[".container {\n  position: relative;\n  display: inline-block;\n}\n\n.button {\n  cursor: pointer;\n  padding: 6px 12px;\n  font-size: 1rem;\n  border-radius: 6px;\n  border: 1px solid #ccc;\n  background-color: white;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.caret {\n  margin-left: auto;\n}\n\n.dropdown {\n  position: absolute;\n  top: 100%;\n  left: 0;\n  margin-top: 4px;\n  padding: 0;\n  list-style: none;\n  background-color: white;\n  border: 1px solid #ccc;\n  border-radius: 6px;\n  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);\n  z-index: 1000;\n  min-width: 140px;\n}\n\n.dropdownItem {\n  margin: 0;\n}\n\n.dropdownLink {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 12px;\n  text-decoration: none;\n  color: black;\n  cursor: pointer;\n}\n\n.dropdownLink:hover,\n.dropdownLink:focus {\n  background-color: #f0f0f0;\n  outline: none;\n}\n"],"names":[],"mappings":"AAAA;;;;;AAKA;;;;;;;;;;;;AAYA;;;;AAIA;;;;;;;;;;;;;;;AAeA;;;;AAIA;;;;;;;;;;AAUA","debugId":null}}]
+}

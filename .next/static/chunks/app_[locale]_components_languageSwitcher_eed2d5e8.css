@@ -1,0 +1,58 @@
+/* [project]/app/[locale]/components/languageSwitcher.css [app-client] (css) */
+.container {
+  display: inline-block;
+  position: relative;
+}
+
+.button {
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  display: flex;
+}
+
+.caret {
+  margin-left: auto;
+}
+
+.dropdown {
+  z-index: 1000;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 140px;
+  margin-top: 4px;
+  padding: 0;
+  list-style: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  box-shadow: 0 2px 8px #00000026;
+}
+
+.dropdownItem {
+  margin: 0;
+}
+
+.dropdownLink {
+  color: #000;
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  text-decoration: none;
+  display: flex;
+}
+
+.dropdownLink:hover, .dropdownLink:focus {
+  background-color: #f0f0f0;
+  outline: none;
+}
+
+
+/*# sourceMappingURL=app_%5Blocale%5D_components_languageSwitcher_eed2d5e8.css.map*/
