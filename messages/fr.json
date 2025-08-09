@@ -1,6 +1,38 @@
 {
-  "HomePage": {
-    "title": "Salut le monde !",
-    "about": "Allez à la page à propos"
-  }
+ "Menu": {
+"home": "Accueil",
+"about": "À propos",
+"pricing": "Tarifs",
+"contact": "Contact",
+"signUp": "S'inscrire",
+"dashboard": "Tableau de bord",
+"login": "Connexion",
+"logout": "Déconnexion",
+"principles": "Principes",
+"circulation": "Circulation",
+"filtration": "Filtration",
+"energy": "Énergie"
+ },
+"HomePage": {
+"title": "Piscines biologiques",
+"subtitle": "Apprenez à construire votre propre piscine biologique",
+"description": "Suivez les étapes pour créer une piscine durable et écologique.",
+"offer" : "Commencer",
+"about": "Aller à la page À propos",
+"services": "Services",
+"consulting": "Conseil",
+"consultingDescription": "Obtenez des conseils d'experts pour construire et entretenir votre piscine biologique.",
+"training": "Formation",
+"trainingDescription": "Apprenez à prendre soin de votre piscine biologique avec nos programmes de formation.",
+"support": "Support",
+"supportDescription": "Obtenez un support continu et des ressources pour votre piscine biologique.",
+"ready": "Prêt à construire votre propre piscine biologique ?",
+"readyDescription": "Rejoignez notre communauté et commencez votre voyage vers une expérience de natation durable."
+ },
+"AboutPage": {
+"title": "À propos des piscines biologiques",
+"description": "Découvrez les avantages et les caractéristiques des piscines biologiques.",
+"offer": "Commencer",
+"home": "Aller à la page d'accueil"
+ }
 }

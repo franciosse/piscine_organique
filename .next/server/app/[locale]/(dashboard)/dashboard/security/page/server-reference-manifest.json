@@ -1,0 +1,38 @@
+{
+  "node": {
+    "00d361fe2a32ab000c6bad7de63914f497b98db6c3": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/security/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/security/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/[locale]/(login)/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/security/page": "action-browser"
+      }
+    },
+    "7f04db506d05baedf9ab7b6db3dec6428649978546": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/security/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/security/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/[locale]/(login)/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/security/page": "action-browser"
+      }
+    },
+    "7fe40d44edb9f3c8908efd1446a9827e7347d9eaa6": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/security/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/security/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/[locale]/(login)/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/security/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

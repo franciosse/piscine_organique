@@ -7,14 +7,27 @@
     "signUp": "Sign Up",
     "dashboard": "Dashboard",
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "principles": "Principles",
+    "circulation": "Circulation",
+    "filtration": "Filtration",
+    "energy": "Energy"
   },
   "HomePage": {
     "title": "Organic pools",
     "subtitle": "Learn how to build your own organic pool",
     "description": "Follow along tthe steps to create a sustainable and eco-friendly swimming pool.",
     "offer" : "Get Started",
-    "about": "Go to the about page"
+    "about": "Go to the about page",
+    "services": "Services",
+    "consulting": "Consulting",
+    "consultingDescription": "Get expert advice on building and maintaining your organic pool.",
+    "training": "Training",
+    "trainingDescription": "Learn how to care for your organic pool with our training programs.",
+    "support": "Support",
+    "supportDescription": "Get ongoing support and resources for your organic pool.",
+    "ready": "Ready to build your own organic pool?",
+    "readyDescription": "Join our community and start your journey towards a sustainable swimming experience."
   },
   "AboutPage": {
     "title": "About Organic Pools",

@@ -1,6 +1,38 @@
 {
-  "HomePage": {
-    "title": "Hello world!",
-    "about": "Go to the about page"
-  }
+ "Menu": {
+"home": "Inicio",
+"about": "Acerca de",
+"pricing": "Precios",
+"contact": "Contacto",
+"signUp": "Registrarse",
+"dashboard": "Panel de control",
+"login": "Iniciar sesión",
+"logout": "Cerrar sesión",
+"principles": "Principios",
+"circulation": "Circulación",
+"filtration": "Filtración",
+"energy": "Energía"
+ },
+"HomePage": {
+"title": "Piscinas orgánicas",
+"subtitle": "Aprende a construir tu propia piscina orgánica",
+"description": "Sigue los pasos para crear una piscina sostenible y ecológica.",
+"offer" : "Comenzar",
+"about": "Ir a la página Acerca de",
+"services": "Servicios",
+"consulting": "Consultoría",
+"consultingDescription": "Obtén asesoramiento experto para construir y mantener tu piscina orgánica.",
+"training": "Formación",
+"trainingDescription": "Aprende a cuidar tu piscina orgánica con nuestros programas de formación.",
+"support": "Soporte",
+"supportDescription": "Obtén soporte continuo y recursos para tu piscina orgánica.",
+"ready": "¿Listo para construir tu propia piscina orgánica?",
+"readyDescription": "Únete a nuestra comunidad y comienza tu viaje hacia una experiencia de natación sostenible."
+ },
+"AboutPage": {
+"title": "Acerca de las piscinas orgánicas",
+"description": "Conoce más sobre los beneficios y características de las piscinas orgánicas.",
+"offer": "Comenzar",
+"home": "Ir a la página de inicio"
+ }
 }

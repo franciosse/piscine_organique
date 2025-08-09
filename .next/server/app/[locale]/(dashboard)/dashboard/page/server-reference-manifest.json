@@ -1,0 +1,49 @@
+{
+  "node": {
+    "00d361fe2a32ab000c6bad7de63914f497b98db6c3": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/[locale]/(login)/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/page": "action-browser"
+      }
+    },
+    "7f3bd58267d6ed99465ea02ed12d7ad7213946b116": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/[locale]/(login)/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/page": "action-browser"
+      }
+    },
+    "7fd4d403169cd1cff8f3322d54502bf62d7ede5b85": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/[locale]/(login)/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/page": "action-browser"
+      }
+    },
+    "7f9939d51f8d124870facad7b7364d1695a3f6fd04": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/[locale]/(login)/actions.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

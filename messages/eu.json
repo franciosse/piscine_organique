@@ -1,6 +1,38 @@
 {
-  "HomePage": {
-    "title": "Hello world!",
-    "about": "Go to the about page"
-  }
+ "Menu": {
+"home": "Hasiera",
+"about": "Honi buruz",
+"pricing": "Prezioak",
+"contact": "Kontaktua",
+"signUp": "Erregistratu",
+"dashboard": "Kontrol-panela",
+"login": "Saioa hasi",
+"logout": "Saioa itxi",
+"principles": "Printzipioak",
+"circulation": "Zirkulazioa",
+"filtration": "Iragazketa",
+"energy": "Energia"
+ },
+"HomePage": {
+"title": "Igerileku organikoak",
+"subtitle": "Ikasi zure igerileku organikoa eraikitzen",
+"description": "Jarrai itzazu urratsak igerileku jasangarri eta ekologiko bat sortzeko.",
+"offer" : "Hasi",
+"about": "'Honi buruz' orrialdera joan",
+"services": "Zerbitzuak",
+"consulting": "Aholkularitza",
+"consultingDescription": "Lortu adituen aholkuak zure igerileku organikoa eraikitzeko eta mantentzeko.",
+"training": "Prestakuntza",
+"trainingDescription": "Ikasi zure igerileku organikoa zaintzen gure prestakuntza-programekin.",
+"support": "Laguntza",
+"supportDescription": "Lortu etengabeko laguntza eta baliabideak zure igerileku organikorako.",
+"ready": "Prest al zaude zure igerileku organikoa eraikitzeko?",
+"readyDescription": "Elkartu gure komunitateari eta hasi zure bidaia igeri-esperientzia jasangarri batera."
+ },
+"AboutPage": {
+"title": "Igerileku organikoak honi buruz",
+"description": "Ezagutu gehiago igerileku organikoen onurak eta ezaugarriak.",
+"offer": "Hasi",
+"home": "Hasiera-orrialdera joan"
+ }
 }

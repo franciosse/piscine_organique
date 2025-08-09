@@ -44,11 +44,12 @@
     --color-red-500: oklch(63.7% .237 25.331);
     --color-red-600: oklch(57.7% .245 27.325);
     --color-red-700: oklch(50.5% .213 27.518);
-    --color-orange-100: oklch(95.4% .038 75.164);
     --color-orange-500: oklch(70.5% .213 47.604);
     --color-orange-600: oklch(64.6% .222 41.116);
-    --color-orange-700: oklch(55.3% .195 38.402);
+    --color-green-100: oklch(96.2% .044 156.743);
     --color-green-500: oklch(72.3% .219 149.579);
+    --color-green-600: oklch(62.7% .194 149.214);
+    --color-green-700: oklch(52.7% .154 150.069);
     --color-gray-50: oklch(98.5% .002 247.839);
     --color-gray-100: oklch(96.7% .003 264.542);
     --color-gray-200: oklch(92.8% .006 264.531);
@@ -411,12 +412,24 @@
     left: calc(var(--spacing) * 2);
   }
 
+  .z-1 {
+    z-index: 1;
+  }
+
   .z-40 {
     z-index: 40;
   }
 
   .z-50 {
     z-index: 50;
+  }
+
+  .z-200 {
+    z-index: 200;
+  }
+
+  .z-4000000000 {
+    z-index: 2147483647;
   }
 
   .col-start-2 {
@@ -539,6 +552,10 @@
 
   .mb-8 {
     margin-bottom: calc(var(--spacing) * 8);
+  }
+
+  .ml-1 {
+    margin-left: calc(var(--spacing) * 1);
   }
 
   .ml-2 {
@@ -704,6 +721,10 @@
     width: calc(var(--spacing) * 32);
   }
 
+  .w-56 {
+    width: calc(var(--spacing) * 56);
+  }
+
   .w-64 {
     width: calc(var(--spacing) * 64);
   }
@@ -846,6 +867,10 @@
 
   .gap-3 {
     gap: calc(var(--spacing) * 3);
+  }
+
+  .gap-4 {
+    gap: calc(var(--spacing) * 4);
   }
 
   .gap-6 {
@@ -996,24 +1021,24 @@
     background-color: var(--color-gray-200);
   }
 
+  .bg-green-100 {
+    background-color: var(--color-green-100);
+  }
+
   .bg-green-500 {
     background-color: var(--color-green-500);
+  }
+
+  .bg-green-600 {
+    background-color: var(--color-green-600);
   }
 
   .bg-muted {
     background-color: var(--muted);
   }
 
-  .bg-orange-100 {
-    background-color: var(--color-orange-100);
-  }
-
   .bg-orange-500 {
     background-color: var(--color-orange-500);
-  }
-
-  .bg-orange-600 {
-    background-color: var(--color-orange-600);
   }
 
   .bg-popover {
@@ -1118,6 +1143,10 @@
 
   .pr-2 {
     padding-right: calc(var(--spacing) * 2);
+  }
+
+  .pb-10 {
+    padding-bottom: calc(var(--spacing) * 10);
   }
 
   .pl-8 {
@@ -1240,16 +1269,12 @@
     color: var(--color-green-500);
   }
 
+  .text-green-600 {
+    color: var(--color-green-600);
+  }
+
   .text-muted-foreground {
     color: var(--muted-foreground);
-  }
-
-  .text-orange-500 {
-    color: var(--color-orange-500);
-  }
-
-  .text-orange-600 {
-    color: var(--color-orange-600);
   }
 
   .text-popover-foreground {
@@ -1338,6 +1363,12 @@
 
   .transition-all {
     transition-property: all;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  .transition-colors {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
@@ -1456,14 +1487,20 @@
   }
 
   @media (hover: hover) {
-    .hover\:bg-orange-600:hover {
-      background-color: var(--color-orange-600);
+    .hover\:bg-green-600:hover {
+      background-color: var(--color-green-600);
     }
   }
 
   @media (hover: hover) {
-    .hover\:bg-orange-700:hover {
-      background-color: var(--color-orange-700);
+    .hover\:bg-green-700:hover {
+      background-color: var(--color-green-700);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-orange-600:hover {
+      background-color: var(--color-orange-600);
     }
   }
 
@@ -1504,8 +1541,8 @@
   }
 
   @media (hover: hover) {
-    .hover\:text-gray-900:hover {
-      color: var(--color-gray-900);
+    .hover\:text-gray-600:hover {
+      color: var(--color-gray-600);
     }
   }
 
@@ -1519,8 +1556,8 @@
     z-index: 10;
   }
 
-  .focus\:border-orange-500:focus {
-    border-color: var(--color-orange-500);
+  .focus\:border-green-500:focus {
+    border-color: var(--color-green-500);
   }
 
   .focus\:bg-accent:focus {
@@ -1536,8 +1573,8 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
 
-  .focus\:ring-orange-500:focus {
-    --tw-ring-color: var(--color-orange-500);
+  .focus\:ring-green-500:focus {
+    --tw-ring-color: var(--color-green-500);
   }
 
   .focus\:ring-offset-2:focus {

@@ -4,7 +4,7 @@
   "static/chunks/_3f567b43._.js",
   "static/chunks/46988_next_c739e6ec._.js",
   "static/chunks/78375_tailwind-merge_dist_bundle-mjs_mjs_46ec1965._.js",
-  "static/chunks/node_modules__pnpm_b12eec1a._.js",
+  "static/chunks/node_modules__pnpm_18008c82._.js",
   "static/chunks/app_[locale]_components_languageSwitcher_module_501c561c.css"
 ],
     source: "dynamic"
