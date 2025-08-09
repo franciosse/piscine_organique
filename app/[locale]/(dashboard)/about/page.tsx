@@ -51,9 +51,9 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
+      <div className="relative w-full h-68 mb-6 rounded-lg overflow-hidden">
         <Image
-          src="/images/eau_piscine.jpg"
+          src="/images/piscine_organique_bardos.jpg"
           alt="Piscine Organique"
           fill
           className="object-cover"

@@ -218,6 +218,9 @@ function Header() {
             <Link href="/services" className="flex items-center hover:text-green-600 transition-colors">
               {t('services')}
             </Link>
+            <Link href="/contact" className="flex items-center hover:text-green-600 transition-colors">
+              {t('contact')}
+            </Link>
             <UserMenu />
             <LanguageSwitcher />
           </Suspense>

@@ -1,6 +1,9 @@
 {
   "/[locale]/(dashboard)/about/page": "app/[locale]/(dashboard)/about/page.js",
+  "/[locale]/(dashboard)/contact/page": "app/[locale]/(dashboard)/contact/page.js",
+  "/[locale]/(dashboard)/page": "app/[locale]/(dashboard)/page.js",
   "/[locale]/(dashboard)/principles/page": "app/[locale]/(dashboard)/principles/page.js",
+  "/[locale]/(dashboard)/services/page": "app/[locale]/(dashboard)/services/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/api/user/route": "app/api/user/route.js"
 }

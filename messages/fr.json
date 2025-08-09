@@ -54,6 +54,13 @@
   "communityDescription": "Un accompagnement personnalisé pour permettre à chacun de construire et d’entretenir sa piscine organique.",
   "offer": "Commencer",
   "home": "Aller à la page d’accueil"
-}
-
+},
+  "PrinciplesPage": {
+    "title": "Nos Principes",
+    "description": "Découvrez les principes qui guident notre approche de la conception et de l'entretien des piscines biologiques.",
+    "sustainability": "Durabilité",
+    "natural": "Matériaux Naturels",
+    "biodiversity": "Biodiversité",
+    "home": "Aller à la page d'accueil"
+  }
 }

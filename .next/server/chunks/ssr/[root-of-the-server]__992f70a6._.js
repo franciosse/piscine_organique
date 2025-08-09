@@ -1109,14 +1109,23 @@ function Header() {
                                 lineNumber: 218,
                                 columnNumber: 13
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(UserMenu, {}, void 0, false, {
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/contact",
+                                className: "flex items-center hover:text-green-600 transition-colors",
+                                children: t('contact')
+                            }, void 0, false, {
                                 fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
                                 lineNumber: 221,
                                 columnNumber: 13
                             }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(UserMenu, {}, void 0, false, {
+                                fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
+                                lineNumber: 224,
+                                columnNumber: 13
+                            }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f5b$locale$5d2f$components$2f$languageSwitcher$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                 fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
-                                lineNumber: 222,
+                                lineNumber: 225,
                                 columnNumber: 13
                             }, this)
                         ]
@@ -1135,17 +1144,17 @@ function Header() {
                         className: "h-9 w-9"
                     }, void 0, false, {
                         fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
-                        lineNumber: 227,
+                        lineNumber: 230,
                         columnNumber: 29
                     }, void 0),
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MobileMenu, {}, void 0, false, {
                         fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
-                        lineNumber: 228,
+                        lineNumber: 231,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
-                    lineNumber: 227,
+                    lineNumber: 230,
                     columnNumber: 9
                 }, this)
             ]
@@ -1166,14 +1175,14 @@ function ClientLayout({ children }) {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Header, {}, void 0, false, {
                 fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
-                lineNumber: 238,
+                lineNumber: 241,
                 columnNumber: 7
             }, this),
             children
         ]
     }, void 0, true, {
         fileName: "[project]/app/[locale]/(dashboard)/client-layout.tsx",
-        lineNumber: 237,
+        lineNumber: 240,
         columnNumber: 5
     }, this);
 }

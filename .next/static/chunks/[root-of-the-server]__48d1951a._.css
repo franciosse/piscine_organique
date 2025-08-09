@@ -725,6 +725,22 @@
     height: calc(var(--spacing) * 48);
   }
 
+  .h-54 {
+    height: calc(var(--spacing) * 54);
+  }
+
+  .h-68 {
+    height: calc(var(--spacing) * 68);
+  }
+
+  .h-84 {
+    height: calc(var(--spacing) * 84);
+  }
+
+  .h-92 {
+    height: calc(var(--spacing) * 92);
+  }
+
   .h-\[140px\] {
     height: 140px;
   }
