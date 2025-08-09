@@ -1,12 +1,6 @@
 {
-  "/[locale]/(dashboard)/dashboard/activity/page": "app/[locale]/(dashboard)/dashboard/activity/page.js",
-  "/[locale]/(dashboard)/dashboard/general/page": "app/[locale]/(dashboard)/dashboard/general/page.js",
-  "/[locale]/(dashboard)/dashboard/page": "app/[locale]/(dashboard)/dashboard/page.js",
-  "/[locale]/(dashboard)/dashboard/security/page": "app/[locale]/(dashboard)/dashboard/security/page.js",
-  "/[locale]/(dashboard)/page": "app/[locale]/(dashboard)/page.js",
-  "/[locale]/(login)/sign-in/page": "app/[locale]/(login)/sign-in/page.js",
-  "/[locale]/(login)/sign-up/page": "app/[locale]/(login)/sign-up/page.js",
+  "/[locale]/(dashboard)/about/page": "app/[locale]/(dashboard)/about/page.js",
+  "/[locale]/(dashboard)/principles/page": "app/[locale]/(dashboard)/principles/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/api/team/route": "app/api/team/route.js",
   "/api/user/route": "app/api/user/route.js"
 }

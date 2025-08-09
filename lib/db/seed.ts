@@ -51,6 +51,7 @@ async function seed() {
         email: email,
         passwordHash: passwordHash,
         role: "owner",
+        isVerified: true, // Set to true for testing
       },
     ])
     .returning();

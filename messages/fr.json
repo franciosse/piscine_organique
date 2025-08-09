@@ -5,12 +5,14 @@
 "pricing": "Tarifs",
 "contact": "Contact",
 "signUp": "S'inscrire",
+"signIn": "Se connecter",
 "dashboard": "Tableau de bord",
 "login": "Connexion",
 "logout": "Déconnexion",
 "principles": "Principes",
 "circulation": "Circulation",
 "filtration": "Filtration",
+"services": "Services",
 "energy": "Énergie"
  },
 "HomePage": {
@@ -29,10 +31,29 @@
 "ready": "Prêt à construire votre propre piscine biologique ?",
 "readyDescription": "Rejoignez notre communauté et commencez votre voyage vers une expérience de natation durable."
  },
-"AboutPage": {
-"title": "À propos des piscines biologiques",
-"description": "Découvrez les avantages et les caractéristiques des piscines biologiques.",
-"offer": "Commencer",
-"home": "Aller à la page d'accueil"
- }
+  "ServicesPage": {
+    "title": "Nos Services",
+    "description": "Explorez les services que nous proposons pour vous aider à construire et entretenir votre piscine biologique.",
+    "consulting": "Conseil",
+    "training": "Formation",
+    "support": "Support",
+    "home": "Aller à la page d'accueil"
+  },
+  "AboutPage": {
+  "title": "Passion, expertise et amour de la nature",
+  "description": "Découvrez les avantages et les caractéristiques des piscines organiques.",
+  "activities": "Ingénieur diplômé de Centrale, je partage mon temps entre mon métier de développeur informatique et ma passion pour les piscines naturelles « organiques ».",
+  "paganButler": "Après avoir découvert le travail inspirant de <link>David Pagan Butler </link>, pionnier des piscines organiques, j’ai construit ma propre installation — une réussite dont ma famille et moi profitons chaque jour.",
+  "mission": "Notre mission",
+  "missionDescription": "Fort de cette expérience, j’ai créé <strong>Piscine Organique</strong>, une structure basée à 📍 Bardos, au cœur du Pays Basque. Nous sommes spécialisés dans le <strong>conseil</strong> et la <strong>formation</strong> pour la construction de piscines naturelles et organiques.",
+  "expertise": "Expertise",
+  "expertiseDescription": "Une formation d’ingénieur et des années d’expérience dans la conception et l’optimisation d’installations écologiques.",
+  "nature": "Nature",
+  "natureDescription": "Des solutions qui préservent la biodiversité et s’intègrent harmonieusement dans leur environnement.",
+  "community": "Communauté",
+  "communityDescription": "Un accompagnement personnalisé pour permettre à chacun de construire et d’entretenir sa piscine organique.",
+  "offer": "Commencer",
+  "home": "Aller à la page d’accueil"
+}
+
 }

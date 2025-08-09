@@ -1,0 +1,3 @@
+{
+  "/[locale]/(login)/password-reset/page": "app/[locale]/(login)/password-reset/page.js"
+}

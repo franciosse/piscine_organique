@@ -1,24 +1,9 @@
 {
   "app": {
-    "[project]/app/[locale]/(dashboard)/dashboard/activity/page": [
+    "[project]/app/[locale]/(dashboard)/about/page": [
       "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
     ],
-    "[project]/app/[locale]/(dashboard)/dashboard/general/page": [
-      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
-    ],
-    "[project]/app/[locale]/(dashboard)/dashboard/page": [
-      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
-    ],
-    "[project]/app/[locale]/(dashboard)/dashboard/security/page": [
-      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
-    ],
-    "[project]/app/[locale]/(dashboard)/page": [
-      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
-    ],
-    "[project]/app/[locale]/(login)/sign-in/page": [
-      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
-    ],
-    "[project]/app/[locale]/(login)/sign-up/page": [
+    "[project]/app/[locale]/(dashboard)/principles/page": [
       "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
     ],
     "[project]/app/_not-found/page": [
