@@ -24,11 +24,11 @@ export default function PrincipesPage() {
       <div
         id={id}
         data-section
-        className={`rounded-2xl p-8 bg-emerald-100 shadow-lg transform transition-all duration-700 opacity-100 translate-y-0'        }`}
+        className={`rounded-2xl p-8 bg-gray-100 shadow-lg transform transition-all duration-700 opacity-100 translate-y-0'        }`}
       >
-        <div className="flex items-center gap-4 mb-4">
-          <div className="p-3 text-emerald rounded-xl">
-            <Icon className="h-8 w-8" />
+        <div className="flex items-center gap-4 mb-4 bg-white rounded-xl p-4 shadow-sm">
+          <div className="p-3 text-green rounded-xl">
+            <Icon className="h-8 w-8 text-green-600" />
           </div>
           <h2 className="text-2xl text-green font-bold">{title}</h2>
         </div>
@@ -38,13 +38,13 @@ export default function PrincipesPage() {
   };
 
   return (
-    <main className="bg-gradient-to-b from-emerald-50 to-sky-50 min-h-screen">
+    <main className="bg-white min-h-screen">
       <section className="py-20 text-center px-4">
-        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-100 text-emerald-800 font-medium mb-6">
-          <Sparkles className="h-5 w-5" />
+        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-green-100 text-green-800 font-medium mb-6">
+          <Sparkles className="h-5 w-5 text-green-600" />
           <span>{t('100%natural')}</span>
         </div>
-        <h1 className="text-5xl md:text-6xl font-bold text-emerald-700 mb-6">
+        <h1 className="text-5xl md:text-6xl font-bold text-green-700 mb-6">
           {t('title')}
         </h1>
         <p className="max-w-3xl mx-auto text-lg text-gray-700">
