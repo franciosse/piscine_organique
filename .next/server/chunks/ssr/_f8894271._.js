@@ -83,6 +83,40 @@ function ServicesPage() {
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "bg-green-50 rounded-xl p-8 mb-12 shadow-sm",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                className: "text-2xl font-semibold text-gray-900 mb-4",
+                                children: t('onlineTrainingTitle')
+                            }, void 0, false, {
+                                fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
+                                lineNumber: 33,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-gray-700 leading-relaxed mb-6",
+                                children: t('onlineTrainingDescription')
+                            }, void 0, false, {
+                                fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
+                                lineNumber: 36,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                href: "/pricing",
+                                className: "inline-block bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 transition-colors",
+                                children: t('discoverOnlineTraining')
+                            }, void 0, false, {
+                                fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
+                                lineNumber: 39,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
+                        lineNumber: 32,
+                        columnNumber: 13
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "grid grid-cols-1 lg:grid-cols-3 gap-12",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -97,48 +131,46 @@ function ServicesPage() {
                                                     className: "h-7 w-7"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                    lineNumber: 38,
+                                                    lineNumber: 52,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 37,
+                                                lineNumber: 51,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                                                 className: "text-xl font-semibold text-gray-900",
-                                                children: "Conseils et Conception"
+                                                children: t('consulting')
                                             }, void 0, false, {
                                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 40,
+                                                lineNumber: 54,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                        lineNumber: 36,
+                                        lineNumber: 50,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         className: "text-gray-600 leading-relaxed",
-                                        children: [
-                                            "Nous vous accompagnons dans la définition de votre projet, en vous proposant des conseils personnalisés sur le design, le choix des matériaux et l’implantation optimale de votre piscine naturelle organique.",
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
-                                                fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 49,
-                                                columnNumber: 17
-                                            }, this),
-                                            "Notre objectif : allier esthétique, durabilité et performance écologique."
-                                        ]
-                                    }, void 0, true, {
+                                        children: t.rich('consultingDescription', {
+                                            br: ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
+                                                    fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
+                                                    lineNumber: 60,
+                                                    columnNumber: 31
+                                                }, this)
+                                        })
+                                    }, void 0, false, {
                                         fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                        lineNumber: 44,
+                                        lineNumber: 58,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                lineNumber: 35,
+                                lineNumber: 49,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -153,48 +185,46 @@ function ServicesPage() {
                                                     className: "h-7 w-7"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                    lineNumber: 58,
+                                                    lineNumber: 69,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 57,
+                                                lineNumber: 68,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                                                 className: "text-xl font-semibold text-gray-900",
-                                                children: "Formation"
+                                                children: t('training')
                                             }, void 0, false, {
                                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 60,
+                                                lineNumber: 71,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                        lineNumber: 56,
+                                        lineNumber: 67,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         className: "text-gray-600 leading-relaxed",
-                                        children: [
-                                            "Participez à nos formations complètes sur les techniques de construction et de filtration propres aux piscines naturelles de type « organique ».",
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
-                                                fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 68,
-                                                columnNumber: 17
-                                            }, this),
-                                            "Vous apprendrez à maîtriser chaque étape, de la préparation du terrain à la mise en eau, en passant par la création des zones de filtration."
-                                        ]
-                                    }, void 0, true, {
+                                        children: t.rich('trainingDescription', {
+                                            br: ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
+                                                    fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
+                                                    lineNumber: 77,
+                                                    columnNumber: 31
+                                                }, this)
+                                        })
+                                    }, void 0, false, {
                                         fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                        lineNumber: 64,
+                                        lineNumber: 75,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                lineNumber: 55,
+                                lineNumber: 66,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -209,60 +239,52 @@ function ServicesPage() {
                                                     className: "h-7 w-7"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                    lineNumber: 78,
+                                                    lineNumber: 86,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 77,
+                                                lineNumber: 85,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                                                 className: "text-xl font-semibold text-gray-900",
-                                                children: "Accompagnement à la Construction"
+                                                children: t('support')
                                             }, void 0, false, {
                                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 80,
+                                                lineNumber: 88,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                        lineNumber: 76,
+                                        lineNumber: 84,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         className: "text-gray-600 leading-relaxed",
-                                        children: [
-                                            "Profitez d’un suivi sur mesure pendant la réalisation de votre piscine naturelle.",
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
-                                                fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 87,
-                                                columnNumber: 17
-                                            }, this),
-                                            "Nous vous guidons dans les étapes clés : excavation, mise en place des bassins, installation de la filtration, plantation aquatique et finitions.",
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
-                                                fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                                lineNumber: 90,
-                                                columnNumber: 17
-                                            }, this),
-                                            "Vous bénéficiez d’un regard expert pour éviter les erreurs coûteuses et garantir un résultat optimal."
-                                        ]
-                                    }, void 0, true, {
+                                        children: t.rich('supportDescription', {
+                                            br: ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
+                                                    fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
+                                                    lineNumber: 94,
+                                                    columnNumber: 29
+                                                }, this)
+                                        })
+                                    }, void 0, false, {
                                         fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                        lineNumber: 84,
+                                        lineNumber: 92,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                                lineNumber: 75,
+                                lineNumber: 83,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/[locale]/(dashboard)/services/page.tsx",
-                        lineNumber: 32,
+                        lineNumber: 46,
                         columnNumber: 11
                     }, this)
                 ]

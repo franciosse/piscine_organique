@@ -29,6 +29,20 @@ export default function ServicesPage() {
                     />
               <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-transparent"></div>
             </div>
+            <div className="bg-green-50 rounded-xl p-8 mb-12 shadow-sm">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                {t('onlineTrainingTitle')}
+              </h2>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                {t('onlineTrainingDescription')}
+              </p>
+              <a
+                href="/pricing"
+                className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 transition-colors"
+              >
+                {t('discoverOnlineTraining')}
+              </a>
+            </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             
             {/* Conseils et Conception */}
@@ -38,16 +52,13 @@ export default function ServicesPage() {
                   <Brain className="h-7 w-7" />
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Conseils et Conception
+                  {t('consulting')}
                 </h2>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                Nous vous accompagnons dans la définition de votre projet, 
-                en vous proposant des conseils personnalisés sur le design, 
-                le choix des matériaux et l’implantation optimale de votre 
-                piscine naturelle organique. 
-                <br />Notre objectif : allier esthétique, durabilité et 
-                performance écologique.
+                {t.rich('consultingDescription', {
+                    br: () => <br></br>,
+                  })}
               </p>
             </div>
 
@@ -58,16 +69,13 @@ export default function ServicesPage() {
                   <NotebookPen className="h-7 w-7" />
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Formation
+                  {t('training')}
                 </h2>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                Participez à nos formations complètes sur les techniques de 
-                construction et de filtration propres aux piscines naturelles 
-                de type « organique ». 
-                <br />Vous apprendrez à maîtriser chaque étape, de la 
-                préparation du terrain à la mise en eau, en passant par la 
-                création des zones de filtration.
+                {t.rich('trainingDescription', {
+                    br: () => <br></br>,
+                  })}
               </p>
             </div>
 
@@ -78,17 +86,13 @@ export default function ServicesPage() {
                   <Hammer className="h-7 w-7" />
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Accompagnement à la Construction
+                  {t('support')}
                 </h2>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                Profitez d’un suivi sur mesure pendant la réalisation de votre 
-                piscine naturelle. 
-                <br />Nous vous guidons dans les étapes clés : excavation, 
-                mise en place des bassins, installation de la filtration, 
-                plantation aquatique et finitions. 
-                <br />Vous bénéficiez d’un regard expert pour éviter les erreurs 
-                coûteuses et garantir un résultat optimal.
+                {t.rich('supportDescription', {
+                  br: () => <br />,
+                  })}
               </p>
             </div>
 

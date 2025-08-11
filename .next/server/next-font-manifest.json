@@ -6,13 +6,22 @@
     "[project]/app/[locale]/(dashboard)/contact/page": [
       "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
     ],
+    "[project]/app/[locale]/(dashboard)/dashboard/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
     "[project]/app/[locale]/(dashboard)/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/pricing/page": [
       "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
     ],
     "[project]/app/[locale]/(dashboard)/principles/page": [
       "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
     ],
     "[project]/app/[locale]/(dashboard)/services/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(login)/sign-in/page": [
       "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
     ],
     "[project]/app/_not-found/page": [

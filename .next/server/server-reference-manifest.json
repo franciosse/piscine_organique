@@ -1,5 +1,33 @@
 {
-  "node": {},
+  "node": {
+    "7f28cd0078d668ceec60735d0a6bff322ffe02ec07": {
+      "workers": {
+        "app/[locale]/(dashboard)/pricing/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/pricing/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/pricing/page": "rsc"
+      }
+    },
+    "7f3bd58267d6ed99465ea02ed12d7ad7213946b116": {
+      "workers": {
+        "app/[locale]/(dashboard)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        },
+        "app/[locale]/(dashboard)/pricing/page": {
+          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/pricing/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/[locale]/(dashboard)/dashboard/page": "action-browser",
+        "app/[locale]/(dashboard)/pricing/page": "rsc"
+      }
+    }
+  },
   "edge": {},
   "encryptionKey": "iuyDgCQPGKW1jQHr3O88Kto0ANrupMp16k0odP8zJ68="
 }
