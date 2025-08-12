@@ -47,12 +47,23 @@ function AccountForm({ state, nameValue = '', emailValue = '' }: AccountFormProp
           required
         />
       </div>
+      <div>
+        <Label htmlFor="role" className="mb-2">Role</Label>
+        <Input
+          id="role"
+          name="role"
+          type="text"
+          placeholder="Enter your role"
+          defaultValue={emailValue}
+          required
+        />
+      </div>
     </>
   );
 }
 
 function AccountFormWithData({ state }: { state: ActionState }) {
-  const { data: user } = useSWR<User>('/api/user', fetcher);
+  const { data: user } = useSWR<User>('/api/account/user', fetcher);
   return <AccountForm state={state} nameValue={user?.name ?? ''} emailValue={user?.email ?? ''} />;
 }
 

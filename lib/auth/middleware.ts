@@ -1,7 +1,9 @@
 import { z } from 'zod';
-import { TeamDataWithMembers, User } from '@/lib/db/schema';
-import { getTeamForUser, getUser } from '@/lib/db/queries';
-import { redirect } from 'next/navigation';
+import { User } from '@/lib/db/schema';
+import { getUser } from '@/lib/db/queries';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getUserFromRequest } from '@/lib/auth/getUserFromRequest';
 
 export type ActionState = {
   error?: string;
@@ -54,3 +56,41 @@ export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
 }
 
 
+// Routes et rôles autorisés
+const roleProtectedRoutes: Record<string, string[]> = {
+  // '/admin': ['admin'],
+  // '/courses/create': ['admin'],
+  // '/courses/manage': ['admin'],
+  // '/courses': ['admin', 'student'],
+};
+
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Ignorer certaines routes publiques
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api/public') ||
+    pathname === '/login' ||
+    pathname === '/register'
+  ) {
+    return NextResponse.next();
+  }
+
+  // Récupération utilisateur
+  const user = await getUserFromRequest(req);
+  if (!user) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
+
+  // Vérification du rôle pour les routes protégées
+  for (const [routePrefix, allowedRoles] of Object.entries(roleProtectedRoutes)) {
+    if (pathname.startsWith(routePrefix)) {
+      if (!allowedRoles.includes(user.role)) {
+        return NextResponse.redirect(new URL('/unauthorized', req.url));
+      }
+    }
+  }
+
+  return NextResponse.next();
+}

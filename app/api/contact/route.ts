@@ -1,6 +1,6 @@
 // /app/api/contact/route.ts
 import { NextResponse } from 'next/server';
-import { sendContactEmail } from '@lib/email/emailService'; 
+import { sendContactEmail } from '@/lib/email/emailService'; // Assurez-vous que cette fonction est définie pour envoyer l'email
 
 
 

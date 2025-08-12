@@ -250,7 +250,7 @@ function Login({ mode = 'signin' }) {
         if (redirect) body.redirect = redirect;
         if (priceId) body.priceId = priceId;
         try {
-            const res = await fetch(`/api/${mode}`, {
+            const res = await fetch(`/api/auth/${mode}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -228,19 +228,48 @@ function AccountForm({ state, nameValue = '', emailValue = '' }) {
                 fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
                 lineNumber: 39,
                 columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Label"], {
+                        htmlFor: "role",
+                        className: "mb-2",
+                        children: "Role"
+                    }, void 0, false, {
+                        fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
+                        lineNumber: 51,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
+                        id: "role",
+                        name: "role",
+                        type: "text",
+                        placeholder: "Enter your role",
+                        defaultValue: emailValue,
+                        required: true
+                    }, void 0, false, {
+                        fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
+                        lineNumber: 52,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
+                lineNumber: 50,
+                columnNumber: 7
             }, this)
         ]
     }, void 0, true);
 }
 function AccountFormWithData({ state }) {
-    const { data: user } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/user', fetcher);
+    const { data: user } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/account/user', fetcher);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AccountForm, {
         state: state,
         nameValue: user?.name ?? '',
         emailValue: user?.email ?? ''
     }, void 0, false, {
         fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-        lineNumber: 56,
+        lineNumber: 67,
         columnNumber: 10
     }, this);
 }
@@ -291,7 +320,7 @@ function GeneralPage() {
                 children: "General Settings"
             }, void 0, false, {
                 fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                lineNumber: 97,
+                lineNumber: 108,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -301,12 +330,12 @@ function GeneralPage() {
                             children: "Account Information"
                         }, void 0, false, {
                             fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                            lineNumber: 103,
+                            lineNumber: 114,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                        lineNumber: 102,
+                        lineNumber: 113,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -319,19 +348,19 @@ function GeneralPage() {
                                         state: state
                                     }, void 0, false, {
                                         fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                                        lineNumber: 107,
+                                        lineNumber: 118,
                                         columnNumber: 33
                                     }, void 0),
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AccountFormWithData, {
                                         state: state
                                     }, void 0, false, {
                                         fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                                        lineNumber: 108,
+                                        lineNumber: 119,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                                    lineNumber: 107,
+                                    lineNumber: 118,
                                     columnNumber: 13
                                 }, this),
                                 state.error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -339,7 +368,7 @@ function GeneralPage() {
                                     children: state.error
                                 }, void 0, false, {
                                     fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                                    lineNumber: 111,
+                                    lineNumber: 122,
                                     columnNumber: 29
                                 }, this),
                                 state.success && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -347,7 +376,7 @@ function GeneralPage() {
                                     children: state.success
                                 }, void 0, false, {
                                     fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                                    lineNumber: 112,
+                                    lineNumber: 123,
                                     columnNumber: 31
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -360,7 +389,7 @@ function GeneralPage() {
                                                 className: "mr-2 h-4 w-4 animate-spin"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                                                lineNumber: 121,
+                                                lineNumber: 132,
                                                 columnNumber: 19
                                             }, this),
                                             "Saving..."
@@ -368,30 +397,30 @@ function GeneralPage() {
                                     }, void 0, true) : 'Save Changes'
                                 }, void 0, false, {
                                     fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                                    lineNumber: 114,
+                                    lineNumber: 125,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                            lineNumber: 106,
+                            lineNumber: 117,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                        lineNumber: 105,
+                        lineNumber: 116,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-                lineNumber: 101,
+                lineNumber: 112,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/[locale]/(dashboard)/dashboard/general/page.tsx",
-        lineNumber: 96,
+        lineNumber: 107,
         columnNumber: 5
     }, this);
 }

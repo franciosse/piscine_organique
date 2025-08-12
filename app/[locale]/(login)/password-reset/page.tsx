@@ -16,7 +16,7 @@ export default function PasswordResetPage() {
     setPending(true);
 
     try {
-      const res = await fetch('/api/password-reset-request', {
+      const res = await fetch('/api/auth/password-reset-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

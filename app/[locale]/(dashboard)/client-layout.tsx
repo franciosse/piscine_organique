@@ -22,13 +22,14 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: user } = useSWR<User>('/api/user', fetcher);
+  const { data: user } = useSWR<User>('/api/account/user', fetcher);
   const router = useRouter();
   const t = useTranslations('Menu');
 
+  console.log('UserMenu user:', user);
   async function handleSignOut() {
     await signOut();
-    mutate('/api/user');
+    mutate('/api/account/user');
     router.push('/');
   }
 
@@ -81,13 +82,13 @@ function UserMenu() {
 // Nouveau composant pour le menu mobile
 function MobileMenu() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: user } = useSWR<User>('/api/user', fetcher);
+  const { data: user } = useSWR<User>('/api/account/user', fetcher);
   const router = useRouter();
   const t = useTranslations('Menu');
 
   async function handleSignOut() {
     await signOut();
-    mutate('/api/user');
+    mutate('/api/account/user');
     router.push('/');
     setIsMobileMenuOpen(false);
   }

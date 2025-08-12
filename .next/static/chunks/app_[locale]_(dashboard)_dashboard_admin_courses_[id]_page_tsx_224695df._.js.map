@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///media/franciosse/Data/Repos/piscine_organique/app/%5Blocale%5D/%28dashboard%29/dashboard/admin/courses/%5Bid%5D/page.tsx"],"sourcesContent":["'use client';\nimport React, { useState } from 'react';\nimport { useParams } from 'next/navigation';\nimport CourseEditor from '@/app/[locale]/components/admin/courseEditor';\n\nexport default function CoursePage() {\n  const { id } = useParams(); \n  const courseId = Number(id);\n  return (\n    <section className=\"flex-1 p-4 lg:p-8\">\n      <h1 className=\"text-lg lg:text-2xl font-medium text-gray-900 mb-6\">\n        Course Administration\n      </h1>\n\n        <div className=\"mt-8\">\n          <CourseEditor courseId={courseId}></CourseEditor>\n        </div>\n    </section>\n  );\n}\n"],"names":[],"mappings":";;;;AAEA;;;;;;;;AAFA;;;AAKe,SAAS;;IACtB,MAAM,EAAE,EAAE,EAAE,GAAG,CAAA,GAAA,qIAAA,CAAA,YAAS,AAAD;IACvB,MAAM,WAAW,OAAO;IACxB,qBACE,6LAAC;QAAQ,WAAU;;0BACjB,6LAAC;gBAAG,WAAU;0BAAqD;;;;;;0BAIjE,6LAAC;gBAAI,WAAU;0BACb,cAAA,6LAAC;oBAAa,UAAU;;;;;;;;;;;;;;;;;AAIlC;GAdwB;;QACP,qIAAA,CAAA,YAAS;;;KADF","debugId":null}}]
+}

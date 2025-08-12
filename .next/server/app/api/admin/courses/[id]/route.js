@@ -1,0 +1,10 @@
+const CHUNK_PUBLIC_PATH = "server/app/api/admin/courses/[id]/route.js";
+const runtime = require("../../../../../chunks/[turbopack]_runtime.js");
+runtime.loadChunk("server/chunks/node_modules_next_cec3c62d._.js");
+runtime.loadChunk("server/chunks/node_modules_drizzle-orm_49740c1b._.js");
+runtime.loadChunk("server/chunks/node_modules_zod_v3_cc34a201._.js");
+runtime.loadChunk("server/chunks/node_modules_22ba5b6c._.js");
+runtime.loadChunk("server/chunks/[root-of-the-server]__f8becb72._.js");
+runtime.getOrInstantiateRuntimeModule("[project]/.next-internal/server/app/api/admin/courses/[id]/route/actions.js [app-rsc] (server actions loader, ecmascript)", CHUNK_PUBLIC_PATH);
+runtime.getOrInstantiateRuntimeModule("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/admin/courses/[id]/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)", CHUNK_PUBLIC_PATH);
+module.exports = runtime.getOrInstantiateRuntimeModule("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/admin/courses/[id]/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)", CHUNK_PUBLIC_PATH).exports;

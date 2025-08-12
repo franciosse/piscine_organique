@@ -36,6 +36,15 @@ export async function getUser() {
   return user[0];
 }
 
+export async function getAllUsers() {
+  const result = await db
+    .select()
+    .from(users)
+    .where(isNull(users.deletedAt));
+
+  return result;
+}
+
 export async function getTeamByStripeCustomerId(customerId: string) {
   const result = await db
     .select()

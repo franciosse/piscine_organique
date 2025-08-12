@@ -33,7 +33,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
     if (priceId) body.priceId = priceId;
 
     try {
-      const res = await fetch(`/api/${mode}`, {
+      const res = await fetch(`/api/auth/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

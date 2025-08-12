@@ -9,6 +9,7 @@ import { logActivity, ActivityType } from '@/lib/auth/activity'; // si tu utilis
 const updateAccountSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
+  role: z.string().optional(), // Assuming role is optional, adjust as necessary
 });
 
 export async function POST(req: NextRequest) {
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
     await db.update(users).set({
       name: data.name,
       email: data.email,
+      role: data.role || user.role, // Assuming role is optional and can be updated
     }).where(eq(users.id, user.id));
 
     await logActivity(null, user.id, ActivityType.UPDATE_ACCOUNT, undefined);
