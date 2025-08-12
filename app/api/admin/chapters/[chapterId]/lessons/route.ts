@@ -89,7 +89,9 @@ export async function GET(req: NextRequest, context: any) {
 }
 
 // --- CREATE LESSON ---
-export async function POST(req: NextRequest, { params }: RouteParams) {
+export async function POST(req: NextRequest, context: any) {
+  const { params } = context as { params: { chapterId: string } };
+
   try {
     await checkAdminPermission(req);
 
@@ -126,7 +128,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 }
 
 // --- REORDER LESSONS ---
-export async function PATCH(req: NextRequest, { params }: RouteParams) {
+export async function PATCH(req: NextRequest, context: any) {
+  const { params } = context as { params: { chapterId: string } };
   try {
     await checkAdminPermission(req);
 
