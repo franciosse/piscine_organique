@@ -69,10 +69,9 @@ async function generateUniqueSlug(title: string, chapterId: number): Promise<str
 }
 
 // --- GET LESSONS ---
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { chapterId: string } }
-) {
+export async function GET(req: NextRequest, context: any) {
+  const { params } = context as { params: { chapterId: string } };
+
   try {
     await checkAdminPermission(req);
 
