@@ -10,17 +10,6 @@
       "layer": {
         "app/[locale]/(dashboard)/dashboard/page": "action-browser"
       }
-    },
-    "7f63221551fd4c78729eeccb326d45fb49818ad02a": {
-      "workers": {
-        "app/[locale]/(dashboard)/dashboard/page": {
-          "moduleId": "[project]/.next-internal/server/app/[locale]/(dashboard)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/payments/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/[locale]/(dashboard)/dashboard/page": "action-browser"
-      }
     }
   },
   "edge": {},

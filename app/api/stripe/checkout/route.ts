@@ -1,5 +1,5 @@
 // /app/api/stripe/checkout/route.ts
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { users, coursePurchases, courses } from '@/lib/db/schema';
 import { setSession } from '@/lib/auth/session';
@@ -62,8 +62,10 @@ export async function GET(request: NextRequest) {
     const existingPurchase = await db
       .select()
       .from(coursePurchases)
-      .where(eq(coursePurchases.userId, user[0].id))
-      .where(eq(coursePurchases.courseId, courseIdNum))
+      .where(and(
+        eq(coursePurchases.userId, user[0].id),
+        eq(coursePurchases.courseId, courseIdNum)
+      ))
       .limit(1);
 
     if (existingPurchase.length === 0) {
