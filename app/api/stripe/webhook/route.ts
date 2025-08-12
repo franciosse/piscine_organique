@@ -1,5 +1,7 @@
+
+// /app/api/stripe/webhook/route.ts
 import Stripe from 'stripe';
-import { handleSubscriptionChange, stripe } from '@/lib/payments/stripe';
+import { handlePaymentSuccess, stripe } from '@/lib/payments/stripe';
 import { NextRequest, NextResponse } from 'next/server';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -7,7 +9,6 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 export async function POST(request: NextRequest) {
   const payload = await request.text();
   const signature = request.headers.get('stripe-signature') as string;
-
   let event: Stripe.Event;
 
   try {
@@ -21,11 +22,23 @@ export async function POST(request: NextRequest) {
   }
 
   switch (event.type) {
-    case 'customer.subscription.updated':
-    case 'customer.subscription.deleted':
-      const subscription = event.data.object as Stripe.Subscription;
-      await handleSubscriptionChange(subscription);
+    case 'checkout.session.completed':
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.payment_status === 'paid') {
+        await handlePaymentSuccess(session);
+      }
       break;
+
+    case 'payment_intent.succeeded':
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      console.log('Payment succeeded:', paymentIntent.id);
+      break;
+
+    case 'payment_intent.payment_failed':
+      const failedPayment = event.data.object as Stripe.PaymentIntent;
+      console.log('Payment failed:', failedPayment.id);
+      break;
+
     default:
       console.log(`Unhandled event type ${event.type}`);
   }

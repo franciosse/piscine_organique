@@ -1,0 +1,1 @@
+ALTER TABLE "quizzes" ALTER COLUMN "passing_score" SET NOT NULL;

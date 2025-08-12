@@ -173,8 +173,8 @@ export const quizzes = pgTable('quizzes', {
   lessonId: integer('lesson_id').references(() => lessons.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
-  passingScore: integer('passing_score').default(70), // score minimum pour réussir (en %)
-  maxAttempts: integer('max_attempts').default(3),
+  passingScore: integer('passing_score').notNull().default(70), // score minimum pour réussir (en %)
+  maxAttempts: integer('max_attempts').notNull().default(3),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

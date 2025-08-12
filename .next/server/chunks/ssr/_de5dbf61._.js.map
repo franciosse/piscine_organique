@@ -1,8 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
-    {"offset": {"line": 26, "column": 0}, "map": {"version":3,"sources":["file:///media/franciosse/Data/Repos/piscine_organique/i18n/navigation.ts"],"sourcesContent":["import {createNavigation} from 'next-intl/navigation';\nimport {routing} from './routing';\n \n// Lightweight wrappers around Next.js' navigation\n// APIs that consider the routing configuration\nexport const {Link, redirect, usePathname, useRouter, getPathname} =\n  createNavigation(routing);"],"names":[],"mappings":";;;;;;;AAAA;AACA;;;AAIO,MAAM,EAAC,IAAI,EAAE,QAAQ,EAAE,WAAW,EAAE,SAAS,EAAE,WAAW,EAAC,GAChE,CAAA,GAAA,6dAAA,CAAA,mBAAgB,AAAD,EAAE,+GAAA,CAAA,UAAO","debugId":null}},
-    {"offset": {"line": 42, "column": 0}, "map": {"version":3,"sources":["file:///media/franciosse/Data/Repos/piscine_organique/app/%5Blocale%5D/page.tsx"],"sourcesContent":["import {useTranslations} from 'next-intl';\nimport {Link} from '@/i18n/navigation';\n \nexport default function HomePage() {\n  const t = useTranslations('HomePage');\n  return (\n    <div>\n      <h1>{t('title')}</h1>\n      <Link href=\"/about\">{t('about')}</Link>\n    </div>\n  );\n}"],"names":[],"mappings":";;;;AAAA;AACA;;;;AAEe,SAAS;IACtB,MAAM,IAAI,CAAA,GAAA,6cAAA,CAAA,kBAAe,AAAD,EAAE;IAC1B,qBACE,6XAAC;;0BACC,6XAAC;0BAAI,EAAE;;;;;;0BACP,6XAAC,kHAAA,CAAA,OAAI;gBAAC,MAAK;0BAAU,EAAE;;;;;;;;;;;;AAG7B","debugId":null}}]
-}

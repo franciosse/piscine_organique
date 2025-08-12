@@ -2,15 +2,10 @@
   "/[locale]/(dashboard)/dashboard/admin/courses/[id]/page": "app/[locale]/(dashboard)/dashboard/admin/courses/[id]/page.js",
   "/[locale]/(dashboard)/dashboard/admin/page": "app/[locale]/(dashboard)/dashboard/admin/page.js",
   "/[locale]/(dashboard)/dashboard/page": "app/[locale]/(dashboard)/dashboard/page.js",
-  "/[locale]/(dashboard)/dashboard/users/page": "app/[locale]/(dashboard)/dashboard/users/page.js",
   "/[locale]/(dashboard)/page": "app/[locale]/(dashboard)/page.js",
-  "/[locale]/(login)/sign-in/page": "app/[locale]/(login)/sign-in/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/api/account/user/route": "app/api/account/user/route.js",
   "/api/admin/courses/[id]/route": "app/api/admin/courses/[id]/route.js",
   "/api/admin/courses/route": "app/api/admin/courses/route.js",
-  "/api/admin/users/route": "app/api/admin/users/route.js",
-  "/api/auth/signin/route": "app/api/auth/signin/route.js",
-  "/api/auth/signout/route": "app/api/auth/signout/route.js",
   "/api/team/route": "app/api/team/route.js"
 }

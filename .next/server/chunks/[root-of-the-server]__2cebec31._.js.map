@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
-    {"offset": {"line": 58, "column": 0}, "map": {"version":3,"sources":["file:///media/franciosse/Data/Repos/piscine_organique/app/api/signout/route.ts"],"sourcesContent":["import { cookies } from 'next/headers';\nimport { NextResponse } from 'next/server';\n\nexport async function POST() {\n  const cookieStore = cookies();\n  (await cookieStore).delete('session');\n  return NextResponse.json({ success: true });\n}\n"],"names":[],"mappings":";;;AAAA;AACA;;;AAEO,eAAe;IACpB,MAAM,cAAc,CAAA,GAAA,iIAAA,CAAA,UAAO,AAAD;IAC1B,CAAC,MAAM,WAAW,EAAE,MAAM,CAAC;IAC3B,OAAO,gIAAA,CAAA,eAAY,CAAC,IAAI,CAAC;QAAE,SAAS;IAAK;AAC3C","debugId":null}}]
-}
