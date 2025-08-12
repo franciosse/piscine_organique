@@ -19,7 +19,9 @@ interface RouteParams {
 }
 
 // GET /api/admin/chapters/[chapterId] - Récupérer un chapitre avec ses leçons
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, context : any) {
+    const { params } = context as { params: { chapterId: string } };
+
   try {
     const user = await checkAdminPermission(request);
     const chapterId = parseInt(params.chapterId);
@@ -68,7 +70,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 // PATCH /api/admin/chapters/[chapterId] - Mettre à jour un chapitre
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(request: NextRequest, context: any) {
+  const { params } = context as { params: { chapterId: string } };
+
   try {
     const user = await checkAdminPermission(request);
     const chapterId = parseInt(params.chapterId);
@@ -131,7 +135,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/admin/chapters/[chapterId] - Supprimer un chapitre
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, context: any) {
+  const { params } = context as { params: { chapterId: string } };
+
   try {
     const user = await checkAdminPermission(request);
     const chapterId = parseInt(params.chapterId);
