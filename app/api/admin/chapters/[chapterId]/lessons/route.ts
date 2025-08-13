@@ -4,8 +4,8 @@ import { db } from '@/lib/db/drizzle'; // Votre instance Drizzle
 import { courseChapters, lessons, users } from '@/lib/db/schema';
 import { eq, and, max } from 'drizzle-orm';
 import { z } from 'zod';
-import { checkAdminPermission } from '../../../checkPermissionsHelper'; 
-import { getAuthenticatedUser } from '../../../getAuthenticatedUserHelper'; 
+import { checkAdminPermission } from '../../../checkPermissionsHelper';
+import { getAuthenticatedUser } from '../../../getAuthenticatedUserHelper';
 
 // --- SCHEMAS ---
 const createLessonSchema = z.object({
@@ -22,8 +22,9 @@ const reorderLessonsSchema = z.object({
   })),
 });
 
+// Typage correct pour Next.js App Router
 interface RouteParams {
-  params: { chapterId: string };
+  chapterId: string;
 }
 
 // --- SLUG GENERATOR ---
@@ -46,8 +47,9 @@ async function generateUniqueSlug(title: string, chapterId: number): Promise<str
       .from(lessons)
       .where(and(eq(lessons.slug, slug), eq(lessons.chapterId, chapterId)))
       .limit(1);
-    
+
     if (existingLesson.length === 0) break;
+
     slug = `${baseSlug}-${counter}`;
     counter++;
   }
@@ -56,13 +58,14 @@ async function generateUniqueSlug(title: string, chapterId: number): Promise<str
 }
 
 // --- GET LESSONS ---
-export async function GET(req: NextRequest, context: any) {
-  const { params } = context as { params: { chapterId: string } };
-
+export async function GET(
+  req: NextRequest,
+  { params }: { params: RouteParams }
+) {
   try {
     await getAuthenticatedUser(req);
-
     const chapterId = parseInt(params.chapterId, 10);
+
     const data = await db
       .select()
       .from(lessons)
@@ -76,12 +79,12 @@ export async function GET(req: NextRequest, context: any) {
 }
 
 // --- CREATE LESSON ---
-export async function POST(req: NextRequest, context: any) {
-  const { params } = context as { params: { chapterId: string } };
-
+export async function POST(
+  req: NextRequest,
+  { params }: { params: RouteParams }
+) {
   try {
     await checkAdminPermission(req);
-
     const chapterId = parseInt(params.chapterId);
     const body = await req.json();
     const parsed = createLessonSchema.parse(body);
@@ -115,11 +118,12 @@ export async function POST(req: NextRequest, context: any) {
 }
 
 // --- REORDER LESSONS ---
-export async function PATCH(req: NextRequest, context: any) {
-  const { params } = context as { params: { chapterId: string } };
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: RouteParams }
+) {
   try {
     await checkAdminPermission(req);
-
     const chapterId = parseInt(params.chapterId);
     const body = await req.json();
     const parsed = reorderLessonsSchema.parse(body);
