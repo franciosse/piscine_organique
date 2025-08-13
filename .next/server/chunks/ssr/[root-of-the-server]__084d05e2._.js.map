@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 37, "column": 0}, "map": {"version":3,"sources":["file:///media/franciosse/Data/Repos/piscine_organique/app/%5Blocale%5D/components/logOnly.tsx"],"sourcesContent":["'use client';\n\nimport Link from 'next/link';\nimport { Icon } from 'lucide-react';\nimport { flowerLotus } from '@lucide/lab';\n\nexport default function LogoOnly() {\n  return (\n    <div className=\"py-4 px-6\">\n      <Link href=\"/\" className=\"flex items-center\">\n        <Icon iconNode={flowerLotus} />\n        <span className=\"ml-2 text-xl font-semibold text-gray-900\">Piscine Organique</span>\n      </Link>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;AAEA;AACA;AACA;AAJA;;;;;AAMe,SAAS;IACtB,qBACE,6XAAC;QAAI,WAAU;kBACb,cAAA,6XAAC,2SAAA,CAAA,UAAI;YAAC,MAAK;YAAI,WAAU;;8BACvB,6XAAC,6QAAA,CAAA,OAAI;oBAAC,UAAU,gRAAA,CAAA,cAAW;;;;;;8BAC3B,6XAAC;oBAAK,WAAU;8BAA2C;;;;;;;;;;;;;;;;;AAInE","debugId":null}}]
-}
