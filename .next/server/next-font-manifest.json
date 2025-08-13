@@ -1,6 +1,39 @@
 {
   "app": {
+    "[project]/app/[locale]/(dashboard)/dashboard/activity/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/admin/courses/[courseId]/chapters/[chapterId]/edit/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/admin/courses/[courseId]/chapters/[chapterId]/lessons/new/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/admin/courses/[courseId]/chapters/new/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/admin/courses/[courseId]/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/admin/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/courses/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/general/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
     "[project]/app/[locale]/(dashboard)/dashboard/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/dashboard/users/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(dashboard)/page": [
+      "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
+    ],
+    "[project]/app/[locale]/(login)/sign-in/page": [
       "static/media/658a24e262c4f0a9-s.p.2b9b556b.woff2"
     ],
     "[project]/app/_not-found/page": [

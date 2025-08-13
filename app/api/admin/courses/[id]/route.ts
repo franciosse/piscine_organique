@@ -5,7 +5,8 @@ import { db } from '@/lib/db/drizzle';
 import { courses, courseChapters, lessons } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { checkAdminPermission } from '../../checkPermissionsHelper'; // Assurez-vous que ce chemin est correct
+import { checkAdminPermission } from '../../checkPermissionsHelper';
+import { getAuthenticatedUser } from '../../getAuthenticatedUserHelper';
 
 const updateCourseSchema = z.object({
   title: z.string().min(1).optional(),
@@ -25,7 +26,7 @@ interface RouteParams {
 // GET /api/admin/courses/[id] - Récupérer un cours spécifique avec ses chapitres
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const user = await checkAdminPermission(request);
+    const user = await getAuthenticatedUser(request);
     const courseId = parseInt(params.id);
 
     if (isNaN(courseId)) {

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Lesson, LessonAttachment } from '@/lib/db/schema';
 
 interface LessonFormProps {
+  courseId: number;
   chapterId: number;
   lessonId?: number;
   initialData?: Lesson & { attachments?: LessonAttachment[] };
@@ -19,7 +20,7 @@ interface FormData {
   duration: number;
 }
 
-export default function LessonForm({ chapterId, lessonId, initialData }: LessonFormProps) {
+export default function LessonForm({ courseId,chapterId, lessonId, initialData }: LessonFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -52,7 +53,7 @@ export default function LessonForm({ chapterId, lessonId, initialData }: LessonF
       const data = await response.json();
 
       if (response.ok) {
-        router.push(`/admin/chapters/${chapterId}`);
+        router.push(`/dashboard/admin/courses/${courseId}/chapters/${chapterId}/edit`);
         router.refresh();
       } else {
         setError(data.error || 'Erreur lors de la sauvegarde');

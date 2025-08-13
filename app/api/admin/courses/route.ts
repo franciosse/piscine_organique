@@ -5,6 +5,7 @@ import { courses, users } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { checkAdminPermission } from '../checkPermissionsHelper'; // Assurez-vous que ce chemin est correct
+import { getAuthenticatedUser } from '../getAuthenticatedUserHelper';
 
 // Schema de validation pour créer un cours
 const createCourseSchema = z.object({
@@ -29,9 +30,16 @@ function generateSlug(title: string): string {
 
 // GET /api/admin/courses - Liste tous les cours
 export async function GET(request: NextRequest) {
+    //const user = await checkAdminPermission(request);
+    const user = await getAuthenticatedUser(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Permissions insuffisantes' },
+        { status: 403 }
+      );
+    } 
   try {
-    const user = await checkAdminPermission(request);
-    
+
     const allCourses = await db
       .select({
         id: courses.id,

@@ -261,12 +261,25 @@ const lessonAttachments = (0, __TURBOPACK__imported__module__$5b$project$5d2f$no
 });
 const coursePurchases = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$table$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["pgTable"])('course_purchases', {
     id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$serial$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["serial"])('id').primaryKey(),
-    userId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["integer"])('user_id').notNull().references(()=>users.id),
-    courseId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["integer"])('course_id').notNull().references(()=>courses.id),
+    userId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["integer"])('user_id').notNull().references(()=>users.id, {
+        onDelete: 'cascade'
+    }),
+    courseId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["integer"])('course_id').notNull().references(()=>courses.id, {
+        onDelete: 'cascade'
+    }),
+    amount: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["integer"])('amount').notNull().default(0),
+    status: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$varchar$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["varchar"])('status', {
+        length: 50
+    }).notNull().default('pending'),
+    paymentMethod: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$varchar$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["varchar"])('payment_method', {
+        length: 50
+    }),
+    stripeSessionId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$varchar$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["varchar"])('stripe_session_id', {
+        length: 255
+    }),
     stripePaymentIntentId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$varchar$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["varchar"])('stripe_payment_intent_id', {
         length: 255
     }),
-    amount: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["integer"])('amount').notNull(),
     currency: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$varchar$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["varchar"])('currency', {
         length: 3
     }).default('EUR'),
@@ -358,7 +371,8 @@ const usersRelations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_
         coursesCreated: many(courses),
         coursePurchases: many(coursePurchases),
         studentProgress: many(studentProgress),
-        quizAttempts: many(quizAttempts)
+        quizAttempts: many(quizAttempts),
+        purchases: many(purchases)
     }));
 const invitationsRelations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$relations$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["relations"])(invitations, ({ one })=>({
         team: one(teams, {

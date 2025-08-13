@@ -1,10 +1,9 @@
 // components/courses/CourseCard.tsx
-'use client';
+// Version Server Component (sans hooks)
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Course } from '@/lib/db/schema';
-import { PurchaseButton } from './purchaseButton';
+import { PurchaseButtonWrapper } from './purchaseButtonWrapper';
 
 interface CourseCardProps {
   course: Course;
@@ -16,36 +15,16 @@ interface CourseCardProps {
     completion_percentage: number;
     last_accessed?: Date;
   };
+  isPurchased?: boolean; // Nouvelle prop pour indiquer si le cours est acheté
 }
 
 export function CourseCard({ 
   course, 
   showPurchaseButton = false, 
   showProgress = false,
-  progressData 
+  progressData,
+  isPurchased = false
 }: CourseCardProps) {
-  const [isPurchased, setIsPurchased] = useState(false);
-  const [checkingPurchase, setCheckingPurchase] = useState(false);
-
-  useEffect(() => {
-    if (showPurchaseButton) {
-      checkPurchaseStatus();
-    }
-  }, [course.id, showPurchaseButton]);
-
-  const checkPurchaseStatus = async () => {
-    setCheckingPurchase(true);
-    try {
-      const response = await fetch(`/api/courses/${course.id}/check-purchase`);
-      const data = await response.json();
-      setIsPurchased(data.purchased);
-    } catch (error) {
-      console.error('Erreur lors de la vérification de l\'achat:', error);
-    } finally {
-      setCheckingPurchase(false);
-    }
-  };
-
   const formatPrice = (priceInCents: number) => {
     if (priceInCents === 0) return 'Gratuit';
     return new Intl.NumberFormat('fr-FR', {
@@ -101,7 +80,7 @@ export function CourseCard({
             alt={course.title}
             className="w-full h-48 object-cover"
             onError={(e) => {
-              e.currentTarget.src = '/placeholder-course.jpg'; // Image par défaut
+              e.currentTarget.src = '/placeholder-course.jpg';
             }}
           />
         ) : (
@@ -214,25 +193,14 @@ export function CourseCard({
             )}
           </Link>
 
-          {/* Bouton d'achat */}
-          {showPurchaseButton && !isPurchased && isPublished && (
-            <PurchaseButton
+          {/* Wrapper du bouton d'achat (Client Component) */}
+          {showPurchaseButton && isPublished && (
+            <PurchaseButtonWrapper
               courseId={course.id}
               price={course.price}
               title={course.title}
-              isPurchased={isPurchased}
-              disabled={checkingPurchase}
+              initialPurchaseStatus={isPurchased}
             />
-          )}
-
-          {/* Indicateur d'achat */}
-          {isPurchased && (
-            <div className="flex items-center justify-center py-2 px-4 bg-green-50 text-green-700 rounded-lg border border-green-200">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-sm font-medium">Cours acheté</span>
-            </div>
           )}
 
           {/* Cours non publié */}
@@ -250,7 +218,7 @@ export function CourseCard({
   );
 }
 
-// Version simplifiée pour les listes rapides
+// Version simplifiée pour les listes rapides (reste identique)
 export function CourseCardSimple({ course }: { course: Course }) {
   const formatPrice = (priceInCents: number) => {
     if (priceInCents === 0) return 'Gratuit';
@@ -305,41 +273,4 @@ export function CourseCardSimple({ course }: { course: Course }) {
       </div>
     </Link>
   );
-}
-
-// Hook personnalisé pour gérer l'état des cours achetés
-export function usePurchasedCourses() {
-  const [purchasedCourses, setPurchasedCourses] = useState<Set<number>>(new Set());
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchPurchasedCourses();
-  }, []);
-
-  const fetchPurchasedCourses = async () => {
-    try {
-      const response = await fetch('/api/user/purchased-courses');
-      if (response.ok) {
-        const data = await response.json();
-        setPurchasedCourses(new Set(data.courseIds));
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des cours achetés:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isPurchased = (courseId: number) => purchasedCourses.has(courseId);
-
-  const addPurchasedCourse = (courseId: number) => {
-    setPurchasedCourses(prev => new Set([...prev, courseId]));
-  };
-
-  return {
-    isPurchased,
-    addPurchasedCourse,
-    loading,
-    refresh: fetchPurchasedCourses,
-  };
 }

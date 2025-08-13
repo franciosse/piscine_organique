@@ -4,14 +4,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { lessons, studentProgress, users, coursePurchases, courseChapters } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getAuthenticatedUser } from '../../../../../getAuthenticatedUserHelper'; // Assurez-vous que ce chemin est correct
+import { getAuthenticatedUser } from '../../../../../getAuthenticatedUserHelper'; 
 
 interface RouteParams {
   params: { lessonId: string };
 }
 
 // PATCH /api/lessons/[lessonId]/progress - Mettre à jour le progrès d'une leçon
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(request: NextRequest, context : any) {
+  const { params } = context as { params: { chapterId: string, lessonId: string } };
+
   try {
     const user = await getAuthenticatedUser(request);
     const lessonId = parseInt(params.lessonId);

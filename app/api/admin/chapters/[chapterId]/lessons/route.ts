@@ -4,6 +4,8 @@ import { db } from '@/lib/db/drizzle'; // Votre instance Drizzle
 import { courseChapters, lessons, users } from '@/lib/db/schema';
 import { eq, and, max } from 'drizzle-orm';
 import { z } from 'zod';
+import { checkAdminPermission } from '../../../checkPermissionsHelper'; 
+import { getAuthenticatedUser } from '../../../getAuthenticatedUserHelper'; 
 
 // --- SCHEMAS ---
 const createLessonSchema = z.object({
@@ -22,21 +24,6 @@ const reorderLessonsSchema = z.object({
 
 interface RouteParams {
   params: { chapterId: string };
-}
-
-// --- ADMIN CHECK ---
-async function checkAdminPermission(request: NextRequest) {
-  const userId = request.headers.get('x-user-id');
-  if (!userId) {
-    throw new Error('Non authentifié');
-  }
-
-  const user = await db.select().from(users).where(eq(users.id, parseInt(userId))).limit(1);
-  if (!user[0] || user[0].role !== 'admin') {
-    throw new Error('Permissions insuffisantes');
-  }
-
-  return user[0];
 }
 
 // --- SLUG GENERATOR ---
@@ -73,7 +60,7 @@ export async function GET(req: NextRequest, context: any) {
   const { params } = context as { params: { chapterId: string } };
 
   try {
-    await checkAdminPermission(req);
+    await getAuthenticatedUser(req);
 
     const chapterId = parseInt(params.chapterId, 10);
     const data = await db

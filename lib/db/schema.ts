@@ -142,10 +142,13 @@ export const lessonAttachments = pgTable('lesson_attachments', {
 // Table enrollments renommée en coursePurchases avec plus d'infos
 export const coursePurchases = pgTable('course_purchases', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id),
-  courseId: integer('course_id').notNull().references(() => courses.id),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  courseId: integer('course_id').notNull().references(() => courses.id, { onDelete: 'cascade' }),
+  amount: integer('amount').notNull().default(0), // Prix en centimes
+  status: varchar('status', { length: 50 }).notNull().default('pending'), // 'pending', 'completed', 'failed'
+  paymentMethod: varchar('payment_method', { length: 50 }), // 'stripe', 'free'
+  stripeSessionId: varchar('stripe_session_id', { length: 255 }),
   stripePaymentIntentId: varchar('stripe_payment_intent_id', { length: 255 }),
-  amount: integer('amount').notNull(), // en centimes
   currency: varchar('currency', { length: 3 }).default('EUR'),
   purchasedAt: timestamp('purchased_at').notNull().defaultNow(),
 }, (table) => ({

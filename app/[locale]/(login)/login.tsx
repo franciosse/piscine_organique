@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CircleIcon, Loader2 } from 'lucide-react';
-import LogoOnly from '../components/logOnly';
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const searchParams = useSearchParams();
@@ -60,9 +59,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col justify-top py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
-      <LogoOnly />
-      
+    <div className="min-h-[100dvh] flex flex-col justify-top py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">      
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <CircleIcon className="h-12 w-12 text-green-500" />

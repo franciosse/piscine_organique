@@ -1,6 +1,6 @@
 const CHUNK_PUBLIC_PATH = "server/app/api/admin/courses/route.js";
 const runtime = require("../../../../chunks/[turbopack]_runtime.js");
-runtime.loadChunk("server/chunks/[root-of-the-server]__e8ba6891._.js");
+runtime.loadChunk("server/chunks/[root-of-the-server]__c50506d5._.js");
 runtime.loadChunk("server/chunks/46988_next_e68a8008._.js");
 runtime.loadChunk("server/chunks/8f779_drizzle-orm_ea0906f6._.js");
 runtime.loadChunk("server/chunks/d6c7b_zod_lib_index_mjs_383302bb._.js");

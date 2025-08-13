@@ -15,7 +15,7 @@ import { signOut } from '@/lib/auth/signOut';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/db/schema';
 import useSWR, { mutate } from 'swr';
-import LanguageSwitcher from '../components/languageSwitcher';
+import LanguageSwitcher from './components/languageSwitcher';
 import { useTranslations } from 'next-intl';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

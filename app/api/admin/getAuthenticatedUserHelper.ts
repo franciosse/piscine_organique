@@ -1,21 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle'; // Votre instance Drizzle
-import { 
-  users, 
-} from '@/lib/db/schema';
-import { eq} from 'drizzle-orm';
-
+import type { NextRequest } from 'next/server';
+import { getUserFromRequest } from '@/lib/auth/getUserFromRequest';
 
 export async function getAuthenticatedUser(request: NextRequest) {
-  const userId = request.headers.get('x-user-id');
-  if (!userId) {
+  const user = await getUserFromRequest(request);
+  console.log('Authenticated user:', user);
+  if (!user) {
     throw new Error('Non authentifié');
   }
 
-  const user = await db.select().from(users).where(eq(users.id, parseInt(userId))).limit(1);
-  if (!user[0]) {
-    throw new Error('Utilisateur non trouvé');
-  }
-
-  return user[0];
+  return user;
 }

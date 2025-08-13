@@ -164,7 +164,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
                         {chapter.published ? 'Publié' : 'Brouillon'}
                       </span>
                       <Link
-                        href={`/dashboard/admin/chapters/${chapter.id}/edit`}
+                        href={`/dashboard/admin/courses/${courseId}/chapters/${chapter.id}/edit`}
                         className="text-sm text-blue-600 hover:text-blue-900"
                       >
                         Modifier
@@ -198,7 +198,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
                               {lesson.published ? 'Publié' : 'Brouillon'}
                             </span>
                             <Link
-                              href={`/dashboard/admin/lessons/${lesson.id}/edit`}
+                              href={`/dashboard/admin/courses/${courseId}/chapters/${chapter.id}/lessons/${lesson.id}/edit`}
                               className="text-xs text-blue-600 hover:text-blue-900"
                             >
                               Modifier
@@ -208,7 +208,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
                       ))}
                     
                     <Link
-                      href={`/dashboard/admin/chapters/${chapter.id}/lessons/new`}
+                      href={`/dashboard/admin/courses/${courseId}/chapters/${chapter.id}/lessons/new`}
                       className="inline-flex items-center text-sm text-blue-600 hover:text-blue-900 py-2 px-3"
                     >
                       + Ajouter une leçon

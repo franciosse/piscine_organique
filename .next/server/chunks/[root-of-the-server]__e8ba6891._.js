@@ -347,8 +347,8 @@ const quizzes = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules
         length: 255
     }).notNull(),
     description: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$text$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["text"])('description'),
-    passingScore: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["integer"])('passing_score').default(70),
-    maxAttempts: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["integer"])('max_attempts').default(3),
+    passingScore: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["integer"])('passing_score').notNull().default(70),
+    maxAttempts: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$integer$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["integer"])('max_attempts').notNull().default(3),
     createdAt: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$timestamp$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["timestamp"])('created_at').notNull().defaultNow()
 });
 const quizQuestions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$table$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pgTable"])('quiz_questions', {
@@ -887,144 +887,55 @@ async function getUserFromRequest(req) {
 "[project]/app/api/admin/checkPermissionsHelper.ts [app-route] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
+// app/api/admin/helpers.ts
 __turbopack_context__.s({
-    "checkAdminPermission": (()=>checkAdminPermission)
+    "checkAdminPermission": (()=>checkAdminPermission),
+    "handleAuthError": (()=>handleAuthError)
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.4.0-canary.47_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2f$getUserFromRequest$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/auth/getUserFromRequest.ts [app-route] (ecmascript)");
+;
 ;
 async function checkAdminPermission(request) {
     const user = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2f$getUserFromRequest$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getUserFromRequest"])(request);
     if (!user) {
         throw new Error('Non authentifié');
     }
-    // Uncomment the following lines if you want to enforce admin role check
-    // if (user.role !== 'admin') {
-    //   throw new Error('Permissions insuffisantes');
-    // }
+    if (user.role !== 'admin') {
+        throw new Error('Permissions insuffisantes');
+    }
     return user;
 }
+function handleAuthError(error) {
+    if (error.message === 'Non authentifié') {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: 'Authentification requise'
+        }, {
+            status: 401
+        });
+    }
+    if (error.message === 'Permissions insuffisantes') {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: 'Permissions administrateur requises'
+        }, {
+            status: 403
+        });
+    }
+    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+        error: 'Erreur serveur'
+    }, {
+        status: 500
+    });
+}
 }),
-"[project]/app/api/admin/courses/route.ts [app-route] (ecmascript)": ((__turbopack_context__) => {
-"use strict";
+"[project]/app/api/admin/courses/route.ts [app-route] (ecmascript)": (function(__turbopack_context__) {
 
-// app/api/admin/courses/route.ts
-__turbopack_context__.s({
-    "GET": (()=>GET),
-    "POST": (()=>POST)
-});
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.4.0-canary.47_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/server.js [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$drizzle$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/drizzle.ts [app-route] (ecmascript)"); // Votre instance Drizzle
-var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/schema.ts [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$sql$2f$expressions$2f$conditions$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/drizzle-orm@0.43.1_@prisma+client@6.13.0_prisma@6.13.0_typescript@5.8.3__typescript@5.8_1c43535ef3379f40f9c127013ac7262c/node_modules/drizzle-orm/sql/expressions/conditions.js [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$sql$2f$expressions$2f$select$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/drizzle-orm@0.43.1_@prisma+client@6.13.0_prisma@6.13.0_typescript@5.8.3__typescript@5.8_1c43535ef3379f40f9c127013ac7262c/node_modules/drizzle-orm/sql/expressions/select.js [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/zod@3.24.4/node_modules/zod/lib/index.mjs [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$api$2f$admin$2f$checkPermissionsHelper$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/app/api/admin/checkPermissionsHelper.ts [app-route] (ecmascript)"); // Assurez-vous que ce chemin est correct
-;
-;
-;
-;
-;
-;
-// Schema de validation pour créer un cours
-const createCourseSchema = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["z"].object({
-    title: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["z"].string().min(1, 'Le titre est requis'),
-    description: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["z"].string().optional(),
-    price: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["z"].number().min(0, 'Le prix doit être positif'),
-    difficultyLevel: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["z"].enum([
-        'beginner',
-        'intermediate',
-        'advanced'
-    ]).default('beginner'),
-    estimatedDuration: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["z"].number().optional()
-});
-// Fonction pour générer un slug unique
-function generateSlug(title) {
-    return title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
-}
-async function GET(request) {
-    try {
-        const user = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$api$2f$admin$2f$checkPermissionsHelper$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["checkAdminPermission"])(request);
-        const allCourses = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$drizzle$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].select({
-            id: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].id,
-            title: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].title,
-            slug: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].slug,
-            description: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].description,
-            price: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].price,
-            published: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].published,
-            imageUrl: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].imageUrl,
-            difficultyLevel: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].difficultyLevel,
-            estimatedDuration: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].estimatedDuration,
-            createdAt: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].createdAt,
-            updatedAt: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].updatedAt,
-            authorName: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"].name,
-            authorEmail: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"].email
-        }).from(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"]).leftJoin(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"], (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$sql$2f$expressions$2f$conditions$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["eq"])(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].authorId, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"].id)).orderBy((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$sql$2f$expressions$2f$select$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["desc"])(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].createdAt));
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            courses: allCourses,
-            total: allCourses.length
-        });
-    } catch (error) {
-        console.error('Erreur lors de la récupération des cours:', error);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            error: error instanceof Error ? error.message : 'Erreur serveur'
-        }, {
-            status: error instanceof Error && error.message.includes('auth') ? 401 : 500
-        });
-    }
-}
-async function POST(request) {
-    try {
-        const user = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$api$2f$admin$2f$checkPermissionsHelper$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["checkAdminPermission"])(request);
-        const body = await request.json();
-        // Validation des données
-        const validatedData = createCourseSchema.parse(body);
-        // Générer le slug
-        let baseSlug = generateSlug(validatedData.title);
-        let slug = baseSlug;
-        let counter = 1;
-        // Vérifier l'unicité du slug
-        while(true){
-            const existingCourse = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$drizzle$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].select({
-                id: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].id
-            }).from(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"]).where((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$43$2e$1_$40$prisma$2b$client$40$6$2e$13$2e$0_prisma$40$6$2e$13$2e$0_typescript$40$5$2e$8$2e$3_$5f$typescript$40$5$2e$8_1c43535ef3379f40f9c127013ac7262c$2f$node_modules$2f$drizzle$2d$orm$2f$sql$2f$expressions$2f$conditions$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["eq"])(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"].slug, slug)).limit(1);
-            if (existingCourse.length === 0) break;
-            slug = `${baseSlug}-${counter}`;
-            counter++;
-        }
-        // Créer le cours
-        const [newCourse] = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$drizzle$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].insert(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["courses"]).values({
-            title: validatedData.title,
-            slug: slug,
-            description: validatedData.description,
-            price: Math.round(validatedData.price * 100),
-            difficultyLevel: validatedData.difficultyLevel,
-            estimatedDuration: validatedData.estimatedDuration,
-            authorId: user.id
-        }).returning();
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            success: true,
-            course: newCourse
-        }, {
-            status: 201
-        });
-    } catch (error) {
-        console.error('Erreur lors de la création du cours:', error);
-        if (error instanceof __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zod$40$3$2e$24$2e$4$2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["z"].ZodError) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: 'Données invalides',
-                details: error.errors
-            }, {
-                status: 400
-            });
-        }
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$0$2d$canary$2e$47_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            error: error instanceof Error ? error.message : 'Erreur serveur'
-        }, {
-            status: error instanceof Error && error.message.includes('auth') ? 401 : 500
-        });
-    }
-}
-}),
+var { m: module, e: exports } = __turbopack_context__;
+{
+const e = new Error("Could not parse module '[project]/app/api/admin/courses/route.ts'\n\n'import', and 'export' cannot be used outside of module code");
+e.code = 'MODULE_UNPARSEABLE';
+throw e;
+}}),
 
 };
 
