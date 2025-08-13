@@ -3,17 +3,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth/getUserFromRequest';
 
 export async function checkAdminPermission(request: NextRequest) {
+  try {
   const user = await getUserFromRequest(request);
   
   if (!user) {
-    throw new Error('Non authentifié');
+    return NextResponse.json(
+        { error: 'Utilisateur non authentifié' },
+        { status: 401 }
+      );  }
+
+   if (user.role !== 'admin') {
+    return NextResponse.json(
+        { error: 'Permissions insuffisantes. Accès administrateur requis.' },
+        { status: 403 }
+      );  }
+
+  return { user, error: null };
+  } catch (error) {
+    console.error('Erreur lors de la vérification des permissions:', error);
+    return NextResponse.json(
+      { error: 'Erreur interne du serveur' },
+      { status: 500 }
+    );
   }
-
-  // if (user.role !== 'admin') {
-  //   throw new Error('Permissions insuffisantes');
-  // }
-
-  return user;
 }
 
 // Ajoutez aussi cette fonction utilitaire pour gérer les erreurs

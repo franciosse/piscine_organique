@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Icon, ChevronDown, Leaf, Droplet, Menu, X } from 'lucide-react';
+import { Home, LogOut, Icon, ChevronDown, Leaf, Droplet, Menu, X, Settings } from 'lucide-react';
 import { flowerLotus } from "@lucide/lab";
 import {
   DropdownMenu,
@@ -46,6 +46,8 @@ function UserMenu() {
     );
   }
 
+  const isAdmin = user.role === 'admin';
+
   return (
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger>
@@ -66,6 +68,16 @@ function UserMenu() {
             <span>{t('dashboard')}</span>
           </Link>
         </DropdownMenuItem>
+        
+        {isAdmin && (
+          <DropdownMenuItem className="cursor-pointer">
+            <Link href="/admin" className="flex w-full items-center">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>{t('admin')}</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
+        
         <form action={handleSignOut} className="w-full">
           <button type="submit" className="flex w-full">
             <DropdownMenuItem className="w-full flex-1 cursor-pointer">
@@ -92,6 +104,8 @@ function MobileMenu() {
     router.push('/');
     setIsMobileMenuOpen(false);
   }
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <div className="md:hidden">
@@ -158,6 +172,18 @@ function MobileMenu() {
                   <Home className="mr-2 h-4 w-4" />
                   <span>{t('dashboard')}</span>
                 </Link>
+                
+                {isAdmin && (
+                  <Link 
+                    href="/admin" 
+                    className="flex items-center py-2 hover:text-green-600 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>{t('admin')}</span>
+                  </Link>
+                )}
+                
                 <button 
                   onClick={handleSignOut}
                   className="flex items-center py-2 hover:text-red-600 transition-colors text-left"

@@ -1,8 +1,18 @@
 
 import { getAllUsers } from '@/lib/db/queries';
 import { User } from '@/lib/db/schema';
+import { checkAdminPermission } from '../checkPermissionsHelper';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+
+export async function GET(request: NextRequest) {
+      const user = await checkAdminPermission(request);
+      if (!user) {
+        return NextResponse.json(
+          { error: 'Permissions insuffisantes' },
+          { status: 403 }
+        );
+      } 
   try {
     const users: User[] = await getAllUsers();
     return new Response(JSON.stringify(users), {
