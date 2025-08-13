@@ -1,14 +1,17 @@
-// app/api/courses/[courseId]/check-purchase/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth/session';
-import { db } from '@/lib/db/drizzle';
-import { coursePurchases, courses } from '@/lib/db/schema';
+// =============================================================================
+// METTEZ À JOUR : app/api/courses/[courseId]/check-purchase/route.ts
+// Vérifier l'achat d'un cours (avec votre auth personnalisé)
+// =============================================================================
+
 import { eq, and } from 'drizzle-orm';
+import { db } from '@/lib/db/drizzle';
+import { users, coursePurchases, courses } from '@/lib/db/schema';
+import { getSession, setSession } from '@/lib/auth/session';
+import { NextRequest, NextResponse } from 'next/server';
+import { stripe } from '@/lib/payments/stripe';
 
 interface RouteParams {
-  params: {
-    courseId: string;
-  };
+  params: { courseId: string };
 }
 
 export async function GET(
@@ -16,18 +19,12 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    // Vérifier l'authentification
     const session = await getSession();
-    if (!session) {
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Non authentifié', purchased: false },
         { status: 401 }
-      );
-    }
-    if (!params.courseId) {
-      return NextResponse.json(
-        { error: 'ID de cours manquant', purchased: false },
-        { status: 400 }
       );
     }
 
@@ -72,15 +69,13 @@ export async function GET(
     const purchase = await db
       .select({
         id: coursePurchases.id,
-        status: coursePurchases.status,
         createdAt: coursePurchases.purchasedAt,
       })
       .from(coursePurchases)
       .where(
         and(
           eq(coursePurchases.userId, userId),
-          eq(coursePurchases.courseId, courseId),
-          eq(coursePurchases.status, 'completed')
+          eq(coursePurchases.courseId, courseId)
         )
       )
       .limit(1);
@@ -93,7 +88,6 @@ export async function GET(
       courseId,
       purchaseInfo: isPurchased ? {
         purchaseDate: purchase[0].createdAt,
-        status: purchase[0].status
       } : null
     });
 

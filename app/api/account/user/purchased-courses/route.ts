@@ -1,15 +1,20 @@
-// app/api/user/purchased-courses/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth/session'; // Ajustez le chemin selon votre config
-import { db } from '@/lib/db/drizzle'; // Ajustez selon votre configuration DB
-import { coursePurchases, courses } from '@/lib/db/schema'; // Ajustez selon votre schéma
+// =============================================================================
+// METTEZ À JOUR : app/api/user/purchased-courses/route.ts
+// Récupérer tous les cours achetés (avec votre auth personnalisé)
+// =============================================================================
+
 import { eq, and } from 'drizzle-orm';
+import { db } from '@/lib/db/drizzle';
+import { users, coursePurchases, courses } from '@/lib/db/schema';
+import { getSession, setSession } from '@/lib/auth/session';
+import { NextRequest, NextResponse } from 'next/server';
+import { stripe } from '@/lib/payments/stripe';
 
 export async function GET(request: NextRequest) {
   try {
-    // Vérifier l'authentification
     const session = await getSession();
-    if (!session) {
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Non authentifié' },
         { status: 401 }
@@ -32,12 +37,7 @@ export async function GET(request: NextRequest) {
       })
       .from(coursePurchases)
       .innerJoin(courses, eq(coursePurchases.courseId, courses.id))
-      .where(
-        and(
-          eq(coursePurchases.userId, userId),
-          eq(coursePurchases.status, 'completed') // Seulement les achats confirmés
-        )
-      )
+      .where(eq(coursePurchases.userId, userId))
       .orderBy(coursePurchases.purchasedAt);
 
     // Extraire juste les IDs pour compatibilité avec le code existant

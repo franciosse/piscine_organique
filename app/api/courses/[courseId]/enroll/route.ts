@@ -1,15 +1,17 @@
-// app/api/courses/[courseId]/enroll/route.ts
-// Pour les cours gratuits
-import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth/session';
-import { db } from '@/lib/db/drizzle';
-import { coursePurchases, courses } from '@/lib/db/schema';
+// =============================================================================
+// METTEZ À JOUR : app/api/courses/[courseId]/enroll/route.ts
+// Inscription gratuite (avec votre auth personnalisé)
+// =============================================================================
+
 import { eq, and } from 'drizzle-orm';
+import { db } from '@/lib/db/drizzle';
+import { users, coursePurchases, courses } from '@/lib/db/schema';
+import { getSession, setSession } from '@/lib/auth/session';
+import { NextRequest, NextResponse } from 'next/server';
+import { stripe } from '@/lib/payments/stripe';
 
 interface RouteParams {
-  params: {
-    courseId: string;
-  };
+  params: { courseId: string };
 }
 
 export async function POST(
@@ -96,9 +98,7 @@ export async function POST(
         userId,
         courseId,
         amount: 0,
-        status: 'completed',
-        paymentMethod: 'free',
-        purchasedAt: new Date(),
+        currency: 'eur',
       })
       .returning();
 
