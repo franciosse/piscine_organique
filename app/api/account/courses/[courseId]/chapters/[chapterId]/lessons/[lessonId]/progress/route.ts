@@ -4,20 +4,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { lessons, studentProgress, users, coursePurchases, courseChapters } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getAuthenticatedUser } from '../../../../../../../../_lib/getAuthenticatedUserHelper'; 
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
 interface RouteParams {
+  courseId: string ;
   lessonId: string ;
   chapterId : string;
 }
 
 // PATCH /api/lessons/[lessonId]/progress - Mettre à jour le progrès d'une leçon
-export async function PATCH(request: NextRequest, context : any) {
-  const { params } = context as { params: { chapterId: string, lessonId: string } };
+export const GET = withUserAuth(async (request, user, { params }) => {
+  const resolvedParams = await params;
+  const courseId = parseInt(resolvedParams.courseId);
+  const chapterId = parseInt(resolvedParams.chapterId);
+  const lessonId = parseInt(resolvedParams.lessonId);
+
 
   try {
-    const user = await getAuthenticatedUser(request);
-    const lessonId = parseInt(params.lessonId);
     const body = await request.json();
 
     if (isNaN(lessonId)) {
@@ -119,4 +122,4 @@ export async function PATCH(request: NextRequest, context : any) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});

@@ -10,26 +10,14 @@ import {
   lessons 
 } from '@/lib/db/schema';
 import { eq, sql, and } from 'drizzle-orm';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
-// Helper pour récupérer l'utilisateur authentifié
-async function getAuthenticatedUser(request: NextRequest) {
-  const userId = request.headers.get('x-user-id'); // Adaptez selon votre système d'auth
-  if (!userId) {
-    throw new Error('Non authentifié');
-  }
 
-  const user = await db.select().from(users).where(eq(users.id, parseInt(userId))).limit(1);
-  if (!user[0]) {
-    throw new Error('Utilisateur non trouvé');
-  }
-
-  return user[0];
-}
 
 // GET /api/dashboard - Récupérer les données du dashboard
-export async function GET(request: NextRequest) {
+export const GET = withUserAuth(async (request, user) => {
+
   try {
-    const user = await getAuthenticatedUser(request);
 
     // Récupérer tous les cours achetés par l'utilisateur
     const purchasedCoursesData = await db
@@ -194,4 +182,4 @@ export async function GET(request: NextRequest) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});

@@ -1,31 +1,27 @@
 // app/api/courses/[courseId]/progress/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle'; // Votre instance Drizzle
 import { 
-  courses, 
   courseChapters, 
   lessons, 
   studentProgress, 
-  users, 
   coursePurchases 
 } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
-import { getAuthenticatedUser } from '../../../../_lib/getAuthenticatedUserHelper'; // Assurez-vous que ce chemin est correct
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
+
 
 interface RouteParams {
-  params: { courseId: string };
+  courseId: string ;
 }
-
-// Helper pour récupérer l'utilisateur authentifié
 
 
 // GET /api/courses/[courseId]/progress - Récupérer le progrès de l'étudiant
-export async function GET(request: NextRequest, context : any) {
-    const { params } = context as { params: { courseId: string } };
+export const GET = withUserAuth(async (request, user, { params }) => {
+  const resolvedParams = await params;
+  const courseId = parseInt(resolvedParams.courseId);
 
     try {
-    const user = await getAuthenticatedUser(request);
-    const courseId = parseInt(params.courseId);
 
     if (isNaN(courseId)) {
       return NextResponse.json(
@@ -116,4 +112,4 @@ export async function GET(request: NextRequest, context : any) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});

@@ -5,9 +5,10 @@ import { users, coursePurchases, courses } from '@/lib/db/schema';
 import { setSession } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
-import Stripe from 'stripe';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
-export async function GET(request: NextRequest) {
+export const GET = withUserAuth(async (request, user) => {
+
   const searchParams = request.nextUrl.searchParams;
   const sessionId = searchParams.get('session_id');
   
@@ -85,4 +86,4 @@ export async function GET(request: NextRequest) {
     console.error('Error handling successful checkout:', error);
     return NextResponse.redirect(new URL('/courses?error=checkout_failed', request.url));
   }
-}
+});

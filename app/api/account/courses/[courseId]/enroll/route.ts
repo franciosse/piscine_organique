@@ -8,16 +8,15 @@ import { db } from '@/lib/db/drizzle';
 import { users, coursePurchases, courses } from '@/lib/db/schema';
 import { getSession, setSession } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/payments/stripe';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
 interface RouteParams {
-  params: { courseId: string };
+  courseId: string ;
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export const POST = withUserAuth(async (request, user, { params }) => {
+  const resolvedParams = await params;
+  const courseId = parseInt(resolvedParams.courseId);
   try {
     const session = await getSession();
     
@@ -29,7 +28,6 @@ export async function POST(
     }
 
     const userId = session.user.id;
-    const courseId = parseInt(params.courseId);
 
     if (isNaN(courseId)) {
       return NextResponse.json(
@@ -116,4 +114,4 @@ export async function POST(
       { status: 500 }
     );
   }
-}
+});

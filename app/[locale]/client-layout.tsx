@@ -18,19 +18,60 @@ import useSWR, { mutate } from 'swr';
 import LanguageSwitcher from './components/languageSwitcher';
 import { useTranslations } from 'next-intl';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = async (url: string) => {
+  try {
+    const response = await fetch(url, {
+      credentials: 'include', // ✅ Important pour les cookies
+    });
+
+    if (!response.ok) {
+      // Si 401/403, l'utilisateur n'est pas connecté
+      if (response.status === 401 || response.status === 403) {
+        return null;
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // ✅ Extraire l'utilisateur de la nouvelle structure
+    return data?.user || null;
+    
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return null;
+  }
+};
+
 
 function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: user } = useSWR<User>('/api/account/user', fetcher);
+  const { data: user, error } = useSWR<User>('/api/account/user', fetcher);
   const router = useRouter();
   const t = useTranslations('Menu');
 
   console.log('UserMenu user:', user);
+  console.log('UserMenu error:', error); // ✅ Ajout pour debug
+
   async function handleSignOut() {
     await signOut();
     mutate('/api/account/user');
     router.push('/');
+  }
+
+  // ✅ Gestion des états de chargement et d'erreur
+  if (error) {
+    // Si erreur 401/403, l'utilisateur n'est pas connecté
+    return (
+      <>
+        <Link href="/pricing" className="flex items-center hover:text-green-600 transition-colors">
+          {t('pricing')}
+        </Link>
+        <Button asChild className="rounded-full bg-green-500 hover:bg-green-600">
+          <Link className="flex items-center text-white" href="/sign-in">{t('signIn')}</Link>
+        </Button>
+      </>
+    );
   }
 
   if (!user) {
@@ -48,6 +89,7 @@ function UserMenu() {
 
   const isAdmin = user.role === 'admin';
 
+  // Reste du composant identique...
   return (
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger>

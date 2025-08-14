@@ -3,14 +3,15 @@
 // Récupérer tous les cours achetés (avec votre auth personnalisé)
 // =============================================================================
 
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
-import { users, coursePurchases, courses } from '@/lib/db/schema';
+import { coursePurchases, courses } from '@/lib/db/schema';
 import { getSession, setSession } from '@/lib/auth/session';
-import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/payments/stripe';
+import { NextResponse } from 'next/server';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
-export async function GET(request: NextRequest) {
+
+export const GET = withUserAuth(async (request, user) => {
   try {
     const session = await getSession();
     
@@ -61,4 +62,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

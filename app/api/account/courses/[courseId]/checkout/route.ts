@@ -6,18 +6,17 @@
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { users, coursePurchases, courses } from '@/lib/db/schema';
-import { getSession, setSession } from '@/lib/auth/session';
-import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/auth/session';
+import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
+
 
 interface RouteParams {
-  params: { courseId: string };
+  courseId: string ;
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export const POST = withUserAuth(async (request, authUser, { params }) => {
   try {
     const session = await getSession();
     
@@ -25,8 +24,8 @@ export async function POST(
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const userId = session.user.id;
-    const courseId = parseInt(params.courseId);
+    const resolvedParams = await params;
+    const courseId = parseInt(resolvedParams.courseId);
 
     if (isNaN(courseId)) {
       return NextResponse.json({ error: 'ID de cours invalide' }, { status: 400 });
@@ -36,7 +35,7 @@ export async function POST(
     const user = await db
       .select()
       .from(users)
-      .where(eq(users.id, userId))
+      .where(eq(users.id, authUser.id))
       .limit(1);
 
     if (user.length === 0) {
@@ -68,7 +67,7 @@ export async function POST(
       .from(coursePurchases)
       .where(
         and(
-          eq(coursePurchases.userId, userId),
+          eq(coursePurchases.userId, authUser.id),
           eq(coursePurchases.courseId, courseId)
         )
       )
@@ -99,10 +98,10 @@ export async function POST(
       mode: 'payment',
       success_url: `${process.env.NEXTAUTH_URL || process.env.APP_URL}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXTAUTH_URL || process.env.APP_URL}/courses/${courseId}`,
-      client_reference_id: userId.toString(),
+      client_reference_id: authUser.id.toString(),
       metadata: {
         courseId: courseId.toString(),
-        userId: userId.toString(),
+        userId: authUser.id.toString(),
       },
       customer_email: user[0].email || undefined,
     });
@@ -120,4 +119,4 @@ export async function POST(
       { status: 500 }
     );
   }
-}
+});

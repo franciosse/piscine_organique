@@ -5,7 +5,7 @@ import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { getUser } from '@/lib/auth/session';
 import { logActivity, ActivityType } from '@/lib/auth/activity'; // si tu utilises ça
-import { withAdminAuth, withUserAuth } from '@/app/api/_lib/route-helpers';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
 
 const updateAccountSchema = z.object({

@@ -1,10 +1,11 @@
 // /app/api/contact/route.ts
 import { NextResponse } from 'next/server';
-import { sendContactEmail } from '@/lib/email/emailService'; // Assurez-vous que cette fonction est définie pour envoyer l'email
+import { sendContactEmail } from '@/lib/email/emailService'; 
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
 
 
-export async function POST(req: Request) {
+export const POST = withUserAuth(async (req, user) => {
   try {
     const { name, email, message } = await req.json();
 
@@ -19,4 +20,4 @@ export async function POST(req: Request) {
     console.error('Erreur envoi email contact:', error);
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
   }
-}
+});

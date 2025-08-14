@@ -3,10 +3,12 @@
 import Stripe from 'stripe';
 import { handlePaymentSuccess, stripe } from '@/lib/payments/stripe';
 import { NextRequest, NextResponse } from 'next/server';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
+
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-export async function POST(request: NextRequest) {
+export const POST = withUserAuth(async (request, user) => {
   const payload = await request.text();
   const signature = request.headers.get('stripe-signature') as string;
   let event: Stripe.Event;
@@ -44,4 +46,4 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ received: true });
-}
+});

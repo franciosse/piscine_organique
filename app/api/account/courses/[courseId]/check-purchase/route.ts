@@ -5,19 +5,18 @@
 
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
-import { users, coursePurchases, courses } from '@/lib/db/schema';
-import { getSession, setSession } from '@/lib/auth/session';
+import { coursePurchases, courses } from '@/lib/db/schema';
+import { getSession  } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/payments/stripe';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
 interface RouteParams {
-  params: { courseId: string };
+  courseId: string ;
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export const GET = withUserAuth(async (request, authUser, { params }) => {
+  const resolvedParams = await params;
+  const courseId = parseInt(resolvedParams.courseId);
   try {
     const session = await getSession();
     
@@ -29,7 +28,6 @@ export async function GET(
     }
 
     const userId = session.user.id;
-    const courseId = parseInt(params.courseId);
 
     if (isNaN(courseId)) {
       return NextResponse.json(
@@ -102,4 +100,4 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+});
