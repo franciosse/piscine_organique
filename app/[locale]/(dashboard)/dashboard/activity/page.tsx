@@ -10,6 +10,11 @@ import {
   Mail,
   CheckCircle,
   type LucideIcon,
+  Newspaper,
+  PenTool,
+  CreditCard,
+  Check,
+  CheckCheck,
 } from 'lucide-react';
 import { ActivityType } from '@/lib/db/schema';
 import { getActivityLogs } from '@/lib/db/queries';
@@ -25,6 +30,11 @@ const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.REMOVE_TEAM_MEMBER]: UserMinus,
   [ActivityType.INVITE_TEAM_MEMBER]: Mail,
   [ActivityType.ACCEPT_INVITATION]: CheckCircle,
+  [ActivityType.CREATE_COURSE]: Newspaper,
+  [ActivityType.PUBLISH_COURSE]: PenTool,
+  [ActivityType.PURCHASE_COURSE]: CreditCard,
+  [ActivityType.COMPLETE_LESSON]: CheckCheck,
+  [ActivityType.COMPLETE_QUIZ]: Check
 };
 
 function getRelativeTime(date: Date) {
