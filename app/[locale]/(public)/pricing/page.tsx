@@ -24,8 +24,8 @@ export default async function PricingPage() {
         <PricingCard
           name={basePlan?.name || 'Base'}
           price={basePrice?.unitAmount || 800}
-          interval={basePrice?.interval || 'month'}
-          trialDays={basePrice?.trialPeriodDays || 7}
+          interval={'month'}
+          trialDays={7}
           features={[
             'Unlimited Usage',
             'Unlimited Workspace Members',
@@ -36,8 +36,8 @@ export default async function PricingPage() {
         <PricingCard
           name={plusPlan?.name || 'Plus'}
           price={plusPrice?.unitAmount || 1200}
-          interval={plusPrice?.interval || 'month'}
-          trialDays={plusPrice?.trialPeriodDays || 7}
+          interval={'month'}
+          trialDays={7}
           features={[
             'Everything in Base, and:',
             'Early Access to New Features',
