@@ -10,13 +10,13 @@ import { getSession  } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
-interface RouteParams {
-  courseId: string ;
+interface RouteContext {
+  params: Promise<{ courseId: string }>;
 }
 
-export const GET = withUserAuth(async (request, authUser, { params }) => {
-  const resolvedParams = await params;
-  const courseId = parseInt(resolvedParams.courseId);
+export const GET = withUserAuth(async (request, authUser, context: RouteContext) => {
+  const { courseId: courseIdParam } = await context.params;
+  const courseId = parseInt(courseIdParam);
   try {
     const session = await getSession();
     
