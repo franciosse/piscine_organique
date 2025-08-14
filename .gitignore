@@ -5,6 +5,7 @@
 
 #script
 /scripts
+test_db.mjs
 
 # Testing
 /coverage
