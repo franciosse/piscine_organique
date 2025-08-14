@@ -10,7 +10,7 @@ import {
   coursePurchases 
 } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
-import { getAuthenticatedUser } from '../../../getAuthenticatedUserHelper'; // Assurez-vous que ce chemin est correct
+import { getAuthenticatedUser } from '../../../../_lib/getAuthenticatedUserHelper'; // Assurez-vous que ce chemin est correct
 
 interface RouteParams {
   params: { courseId: string };

@@ -5,7 +5,7 @@ import { db } from '@/lib/db/drizzle'; // Votre instance Drizzle
 import { courseChapters, lessons, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { checkAdminPermission } from '../../checkPermissionsHelper'; // Assurez-vous que ce chemin est correct
+import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 
 
 const updateChapterSchema = z.object({
@@ -15,16 +15,15 @@ const updateChapterSchema = z.object({
 });
 
 interface RouteParams {
-  params: { chapterId: string };
+  chapterId: string ;
 }
 
 // GET /api/admin/chapters/[chapterId] - Récupérer un chapitre avec ses leçons
-export async function GET(request: NextRequest, context : any) {
-    const { params } = context as { params: { chapterId: string } };
+export const GET = withAdminAuth(async (request, adminUser, { params }) => {
+  const resolvedParams = await params;
+  const chapterId = parseInt(resolvedParams.chapterId);
 
   try {
-    const user = await checkAdminPermission(request);
-    const chapterId = parseInt(params.chapterId);
 
     if (isNaN(chapterId)) {
       return NextResponse.json(
@@ -67,15 +66,14 @@ export async function GET(request: NextRequest, context : any) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});
 
 // PATCH /api/admin/chapters/[chapterId] - Mettre à jour un chapitre
-export async function PATCH(request: NextRequest, context: any) {
-  const { params } = context as { params: { chapterId: string } };
+export const PATCH = withAdminAuth(async (request, adminUser, { params }) => {
+  const resolvedParams = await params;
+  const chapterId = parseInt(resolvedParams.chapterId);
 
   try {
-    const user = await checkAdminPermission(request);
-    const chapterId = parseInt(params.chapterId);
     const body = await request.json();
 
     if (isNaN(chapterId)) {
@@ -132,16 +130,15 @@ export async function PATCH(request: NextRequest, context: any) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});
 
 // DELETE /api/admin/chapters/[chapterId] - Supprimer un chapitre
-export async function DELETE(request: NextRequest, context: any) {
-  const { params } = context as { params: { chapterId: string } };
+export const DELETE = withAdminAuth(async (request, adminUser, { params }) => {
+
+  const resolvedParams = await params;
+  const chapterId = parseInt(resolvedParams.chapterId);
 
   try {
-    const user = await checkAdminPermission(request);
-    const chapterId = parseInt(params.chapterId);
-
     if (isNaN(chapterId)) {
       return NextResponse.json(
         { error: 'ID de chapitre invalide' },
@@ -197,4 +194,4 @@ export async function DELETE(request: NextRequest, context: any) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});

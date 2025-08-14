@@ -77,7 +77,7 @@ export default function CoursesList() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Gestion des cours</h1>
         <Link
-          href="/dashboard/admin/courses/new"
+          href="/admin/courses/new"
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           + Nouveau cours
@@ -150,7 +150,7 @@ export default function CoursesList() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   <Link
-                    href={`/dashboard/admin/courses/${course.id}`}
+                    href={`/admin/courses/${course.id}`}
                     className="text-blue-600 hover:text-blue-900"
                   >
                     Modifier
@@ -171,7 +171,7 @@ export default function CoursesList() {
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">Aucun cours créé pour le moment</p>
             <Link
-              href="/dashboard/admin/courses/new"
+              href="/admin/courses/new"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Créer votre premier cours

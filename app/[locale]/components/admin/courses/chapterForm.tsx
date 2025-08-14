@@ -48,7 +48,7 @@ export default function ChapterForm({ courseId, chapterId, initialData }: Chapte
       const data = await response.json();
 
       if (response.ok) {
-        router.push(`/dashboard/admin/courses/${courseId}`);
+        router.push(`/admin/courses/${courseId}`);
         router.refresh();
       } else {
         setError(data.error || 'Erreur lors de la sauvegarde');

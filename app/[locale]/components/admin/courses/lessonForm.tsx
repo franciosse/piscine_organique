@@ -53,7 +53,7 @@ export default function LessonForm({ courseId,chapterId, lessonId, initialData }
       const data = await response.json();
 
       if (response.ok) {
-        router.push(`/dashboard/admin/courses/${courseId}/chapters/${chapterId}/edit`);
+        router.push(`/admin/courses/${courseId}/chapters/${chapterId}/edit`);
         router.refresh();
       } else {
         setError(data.error || 'Erreur lors de la sauvegarde');

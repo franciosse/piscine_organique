@@ -304,7 +304,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Contenu du cours</h2>
           <Link
-            href={`/dashboard/admin/courses/${courseId}/chapters/new`}
+            href={`/admin/courses/${courseId}/chapters/new`}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             + Ajouter un chapitre
@@ -315,7 +315,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
           <div className="text-center py-12 text-gray-500">
             <p className="mb-4">Aucun chapitre créé pour ce cours</p>
             <Link
-              href={`/dashboard/admin/courses/${courseId}/chapters/new`}
+              href={`/admin/courses/${courseId}/chapters/new`}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Créer le premier chapitre
@@ -345,7 +345,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
                         {chapter.published ? 'Publié' : 'Brouillon'}
                       </span>
                       <Link
-                        href={`/dashboard/admin/courses/${courseId}/chapters/${chapter.id}/edit`}
+                        href={`/admin/courses/${courseId}/chapters/${chapter.id}/edit`}
                         className="text-sm text-blue-600 hover:text-blue-900"
                       >
                         Modifier
@@ -379,7 +379,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
                               {lesson.published ? 'Publié' : 'Brouillon'}
                             </span>
                             <Link
-                              href={`/dashboard/admin/courses/${courseId}/chapters/${chapter.id}/lessons/${lesson.id}/edit`}
+                              href={`/admin/courses/${courseId}/chapters/${chapter.id}/lessons/${lesson.id}/edit`}
                               className="text-xs text-blue-600 hover:text-blue-900"
                             >
                               Modifier
@@ -389,7 +389,7 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
                       ))}
                     
                     <Link
-                      href={`/dashboard/admin/courses/${courseId}/chapters/${chapter.id}/lessons/new`}
+                      href={`/admin/courses/${courseId}/chapters/${chapter.id}/lessons/new`}
                       className="inline-flex items-center text-sm text-blue-600 hover:text-blue-900 py-2 px-3"
                     >
                       + Ajouter une leçon

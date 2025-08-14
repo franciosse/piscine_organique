@@ -5,8 +5,7 @@ import { db } from '@/lib/db/drizzle';
 import { courses, courseChapters, lessons } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { checkAdminPermission } from '../../checkPermissionsHelper';
-import { getAuthenticatedUser } from '../../getAuthenticatedUserHelper';
+import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 
 const updateCourseSchema = z.object({
   title: z.string().min(1).optional(),
@@ -20,21 +19,21 @@ const updateCourseSchema = z.object({
 
 
 interface RouteParams {
-  params: { id: string };
+  id: string;
 }
 
 // GET /api/admin/courses/[id] - Récupérer un cours spécifique avec ses chapitres
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export const GET = withAdminAuth(async (req, adminUser, { params }) => {
   try {
-    const user = await getAuthenticatedUser(request);
-    const courseId = parseInt(params.id);
-
-    if (isNaN(courseId)) {
-      return NextResponse.json(
-        { error: 'ID de cours invalide' },
-        { status: 400 }
-      );
-    }
+      const resolvedParams = await params;
+      const courseId = parseInt(resolvedParams.id);
+      
+      if (isNaN(courseId)) {
+        return NextResponse.json(
+          { error: 'ID de cours invalide' },
+          { status: 400 }
+        );
+      }
 
     // Récupérer le cours avec ses chapitres et leçons
     const course = await db
@@ -105,13 +104,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});
 
-// PATCH /api/admin/courses/[id] - Mettre à jour un cours
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+//mise à jour
+export const PATCH = withAdminAuth(async (request, adminUser, { params }) => {
   try {
-    const user = await checkAdminPermission(request);
-    const courseId = parseInt(params.id);
+    const resolvedParams = await params;
+    const courseId = parseInt(resolvedParams.id);
     const body = await request.json();
 
     if (isNaN(courseId)) {
@@ -175,13 +174,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});
 
 // DELETE /api/admin/courses/[id] - Supprimer un cours
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export const DELETE = withAdminAuth(async (request, adminUser, { params }) => {
   try {
-    const user = await checkAdminPermission(request);
-    const courseId = parseInt(params.id);
+    const resolvedParams = await params;
+    const courseId = parseInt(resolvedParams.id);
 
     if (isNaN(courseId)) {
       return NextResponse.json(
@@ -218,4 +217,4 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});

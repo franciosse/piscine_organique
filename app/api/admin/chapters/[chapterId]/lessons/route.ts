@@ -4,8 +4,8 @@ import { db } from '@/lib/db/drizzle';
 import { courseChapters, lessons, users } from '@/lib/db/schema';
 import { eq, and, max } from 'drizzle-orm';
 import { z } from 'zod';
-import { checkAdminPermission } from '../../../checkPermissionsHelper';
-import { getAuthenticatedUser } from '../../../getAuthenticatedUserHelper';
+import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+
 
 // --- SCHEMAS ---
 const createLessonSchema = z.object({
@@ -23,8 +23,9 @@ const reorderLessonsSchema = z.object({
 });
 
 // Typage correct pour Next.js App Router - CORRIGÉ
-interface RouteContext {
-  params: Promise<{ chapterId: string }>;
+interface RouteParams {
+  chapterId: string;
+  lessonId :  string;
 }
 
 // --- SLUG GENERATOR ---
@@ -58,15 +59,10 @@ async function generateUniqueSlug(title: string, chapterId: number): Promise<str
 }
 
 // --- GET LESSONS ---
-export async function GET(
-  req: NextRequest,
-  context: RouteContext
-) {
+export const GET = withAdminAuth(async (req, adminUser, { params }) => {
+  const resolvedParams = await params;
+  const chapterId = parseInt(resolvedParams.chapterId);
   try {
-    await getAuthenticatedUser(req);
-    const params = await context.params;
-    const chapterId = parseInt(params.chapterId, 10);
-
     const data = await db
       .select()
       .from(lessons)
@@ -77,17 +73,14 @@ export async function GET(
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 403 });
   }
-}
+});
 
 // --- CREATE LESSON ---
-export async function POST(
-  req: NextRequest,
-  context: RouteContext
-) {
+export const POST = withAdminAuth(async (req, adminUser, { params }) => {
+  const resolvedParams = await params;
+  const chapterId = parseInt(resolvedParams.chapterId);
+
   try {
-    await checkAdminPermission(req);
-    const params = await context.params;
-    const chapterId = parseInt(params.chapterId);
     const body = await req.json();
     const parsed = createLessonSchema.parse(body);
 
@@ -117,17 +110,14 @@ export async function POST(
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
-}
+});
 
 // --- REORDER LESSONS ---
-export async function PATCH(
-  req: NextRequest,
-  context: RouteContext
-) {
+export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
+  const resolvedParams = await params;
+  const chapterId = parseInt(resolvedParams.chapterId);
+
   try {
-    await checkAdminPermission(req);
-    const params = await context.params;
-    const chapterId = parseInt(params.chapterId);
     const body = await req.json();
     const parsed = reorderLessonsSchema.parse(body);
 
@@ -141,4 +131,4 @@ export async function PATCH(
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
-}
+});

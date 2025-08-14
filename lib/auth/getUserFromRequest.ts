@@ -1,18 +1,48 @@
+// lib/auth/getUserFromRequest.ts - VERSION SÉCURISÉE
 import type { NextRequest } from 'next/server';
-import { getUser } from '@/lib/db/queries';
+import { verifyToken } from '@/lib/auth/session';
+import { db } from '@/lib/db/drizzle';
+import { users } from '@/lib/db/schema';
+import { and, eq, isNull } from 'drizzle-orm';
 
-/**
- * Récupère l'utilisateur connecté à partir de la requête.
- * Utilise getUser() interne, mais tu peux l'adapter si besoin pour lire un JWT, cookie, etc.
- */
 export async function getUserFromRequest(req: NextRequest) {
-  // Ici, on utilise ton getUser existant
-  const user = await getUser();
+  try {
+    // ✅ RÉCUPÉRER LE COOKIE DEPUIS LA REQUÊTE (pas cookies() globaux)
+    const sessionCookie = req.cookies.get('session');
+    if (!sessionCookie || !sessionCookie.value) {
+      return null;
+    }
 
-  // Si aucun user trouvé → return null
-  if (!user) {
+    // ✅ Vérifier le token
+    const sessionData = await verifyToken(sessionCookie.value);
+    if (
+      !sessionData ||
+      !sessionData.user ||
+      typeof sessionData.user.id !== 'number'
+    ) {
+      return null;
+    }
+
+    // ✅ Vérifier l'expiration
+    if (new Date(sessionData.expires) < new Date()) {
+      return null;
+    }
+
+    // ✅ Récupérer l'utilisateur depuis la DB
+    const user = await db
+      .select()
+      .from(users)
+      .where(and(eq(users.id, sessionData.user.id), isNull(users.deletedAt)))
+      .limit(1);
+
+    if (user.length === 0) {
+      return null;
+    }
+
+    return user[0];
+    
+  } catch (error) {
+    console.warn('Invalid session in getUserFromRequest:', error);
     return null;
   }
-
-  return user;
 }

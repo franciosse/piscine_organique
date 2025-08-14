@@ -4,7 +4,8 @@ import { db } from '@/lib/db/drizzle' // Votre instance Drizzle
 import { courses, users } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
-import { checkAdminPermission } from '../checkPermissionsHelper'; // Assurez-vous que ce chemin est correct
+import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+
 
 // Schema de validation pour créer un cours
 const createCourseSchema = z.object({
@@ -28,14 +29,7 @@ function generateSlug(title: string): string {
 }
 
 // GET /api/admin/courses - Liste tous les cours
-export async function GET(request: NextRequest) {
-    const user = await checkAdminPermission(request);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Permissions insuffisantes' },
-        { status: 403 }
-      );
-    } 
+export const GET = withAdminAuth(async (request, adminUser) => {
   try {
 
     const allCourses = await db
@@ -69,18 +63,11 @@ export async function GET(request: NextRequest) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});
 
 // POST /api/admin/courses - Créer un nouveau cours
 export async function POST(request: NextRequest) {
   try {
-    const user = await checkAdminPermission(request);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Permissions insuffisantes' },
-        { status: 403 }
-      );
-    }
     const body = await request.json();
     
     // Validation des données

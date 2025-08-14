@@ -53,7 +53,7 @@ export default function CourseForm({ courseId, initialData }: CourseFormProps) {
       const data = await response.json();
 
       if (response.ok) {
-        router.push('/dashboard/admin/courses');
+        router.push('/admin/courses');
         router.refresh();
       } else {
         setError(data.error || 'Erreur lors de la sauvegarde');

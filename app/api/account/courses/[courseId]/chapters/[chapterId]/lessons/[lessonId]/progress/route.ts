@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { lessons, studentProgress, users, coursePurchases, courseChapters } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getAuthenticatedUser } from '../../../../../getAuthenticatedUserHelper'; 
+import { getAuthenticatedUser } from '../../../../../../../../_lib/getAuthenticatedUserHelper'; 
 
 interface RouteParams {
-  params: { lessonId: string };
+  lessonId: string ;
+  chapterId : string;
 }
 
 // PATCH /api/lessons/[lessonId]/progress - Mettre à jour le progrès d'une leçon

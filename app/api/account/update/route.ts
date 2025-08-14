@@ -5,6 +5,8 @@ import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { getUser } from '@/lib/auth/session';
 import { logActivity, ActivityType } from '@/lib/auth/activity'; // si tu utilises ça
+import { withAdminAuth, withUserAuth } from '@/app/api/_lib/route-helpers';
+
 
 const updateAccountSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
@@ -12,7 +14,7 @@ const updateAccountSchema = z.object({
   role: z.string().optional(), // Assuming role is optional, adjust as necessary
 });
 
-export async function POST(req: NextRequest) {
+export const POST = withUserAuth(async (req, user) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -25,7 +27,6 @@ export async function POST(req: NextRequest) {
     await db.update(users).set({
       name: data.name,
       email: data.email,
-      role: data.role || user.role, // Assuming role is optional and can be updated
     }).where(eq(users.id, user.id));
 
     await logActivity(null, user.id, ActivityType.UPDATE_ACCOUNT, undefined);
@@ -34,4 +35,4 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Something went wrong.' }, { status: 400 });
   }
-}
+});

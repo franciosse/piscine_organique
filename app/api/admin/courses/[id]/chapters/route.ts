@@ -4,7 +4,7 @@ import { db } from '@/lib/db/drizzle'; // Votre instance Drizzle
 import { courses, courseChapters, users } from '@/lib/db/schema';
 import { eq, max } from 'drizzle-orm';
 import { z } from 'zod';
-import { checkAdminPermission } from '../../../checkPermissionsHelper'; // Assurez-vous que ce chemin est correct
+import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 
 const createChapterSchema = z.object({
   title: z.string().min(1, 'Le titre est requis'),
@@ -19,15 +19,14 @@ const reorderChaptersSchema = z.object({
 });
 
 interface RouteParams {
-  params: { id: string };
+  id: string;
 }
 
 // GET /api/admin/courses/[id]/chapters - Liste les chapitres d'un cours
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export const GET = withAdminAuth(async (request, adminUser, { params }) => {
   try {
-    const user = await checkAdminPermission(request);
-    const courseId = parseInt(params.id);
-
+    const resolvedParams = await params;
+    const courseId = parseInt(resolvedParams.id);
     if (isNaN(courseId)) {
       return NextResponse.json(
         { error: 'ID de cours invalide' },
@@ -64,13 +63,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});
 
 // POST /api/admin/courses/[id]/chapters - Créer un nouveau chapitre
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export const POST = withAdminAuth(async (request, adminUser, { params }) => {
   try {
-    const user = await checkAdminPermission(request);
-    const courseId = parseInt(params.id);
+    const resolvedParams = await params;
+    const courseId = parseInt(resolvedParams.id);
     const body = await request.json();
 
     if (isNaN(courseId)) {
@@ -135,13 +134,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});
 
 // PUT /api/admin/courses/[id]/chapters/reorder - Réorganiser les chapitres
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export const PUT = withAdminAuth(async (request, adminUser, { params }) => {
   try {
-    const user = await checkAdminPermission(request);
-    const courseId = parseInt(params.id);
+    const resolvedParams = await params;
+    const courseId = parseInt(resolvedParams.id);
     const body = await request.json();
 
     if (isNaN(courseId)) {
@@ -186,4 +185,4 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});

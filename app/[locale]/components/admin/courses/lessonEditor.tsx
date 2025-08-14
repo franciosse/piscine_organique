@@ -85,7 +85,7 @@ export default function LessonEditor({ lessonId }: LessonEditorProps) {
       });
 
       if (response.ok) {
-        router.push(`/admin/dashboard/admin/courses/${lesson?.chapter.courseId}/chapters/${lesson?.chapter.id}/edit`);
+        router.push(`/admin/admin/courses/${lesson?.chapter.courseId}/chapters/${lesson?.chapter.id}/edit`);
       } else {
         const data = await response.json();
         setError(data.error || 'Erreur lors de la suppression');
@@ -151,7 +151,7 @@ export default function LessonEditor({ lessonId }: LessonEditorProps) {
         <span>›</span>
         <Link href={`/admin/courses/${lesson.chapter.courseId}`} className="hover:text-gray-700">Course</Link>
         <span>›</span>
-        <Link href={`/dashboard/admin/courses/${lesson.chapter.courseId}/chapters/${lesson.chapter.id}`} className="hover:text-gray-700">{lesson.chapter.title}</Link>
+        <Link href={`/admin/courses/${lesson.chapter.courseId}/chapters/${lesson.chapter.id}`} className="hover:text-gray-700">{lesson.chapter.title}</Link>
         <span>›</span>
         <span className="text-gray-900">{lesson.title}</span>
       </nav>
