@@ -7,21 +7,54 @@ import { users } from '@/lib/db/schema';
 import { hashPassword, setSession } from '@/lib/auth/session';
 import { generateEmailVerificationToken } from '@/lib/auth/emailVerification';
 import { sendVerificationEmail } from '@/lib/email/emailService';
+import { getSecurityContext, validateSecurity } from '@/lib/security/antiSpam';
 
 const signUpSchema = z.object({
-  email: z.string().email().toLowerCase().trim(), // 👈 Normaliser l'email
-  password: z.string().min(8).max(100), // 👈 Limite max pour sécurité
+  email: z.string().email().toLowerCase().trim(),
+  password: z.string().min(8).max(100),
   redirect: z.string().optional(),
   priceId: z.string().optional(),
+  // Champs de sécurité (ajoutés par le frontend)
+  timestamp: z.number().optional(),
+  userAgent: z.string().optional(),
+  timeOnPage: z.number().optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
-    // 🛡️ Validation des données d'entrée
     const body = await request.json();
     const data = signUpSchema.parse(body);
 
     console.log(`📝 Tentative d'inscription pour: ${data.email}`);
+
+    // 🛡️ VALIDATION DE SÉCURITÉ CENTRALISÉE
+    const context = getSecurityContext(request, 'signup', body);
+    const securityCheck = validateSecurity(context, data, {
+      checkRateLimitBool: true,
+      checkEmail: true,
+      checkContent: false, // Pas de contenu texte à vérifier pour signup
+      checkTiming: true,
+      minTimeOnPage: 15000 // 15 secondes minimum sur la page
+    });
+
+    if (!securityCheck.isValid) {
+      console.warn(`🚫 Signup bloqué - IP: ${context.ip}, Email: ${data.email}, Raison: ${securityCheck.reason}`);
+      
+      // Retourner une erreur avec les détails appropriés
+      const statusCode = securityCheck.code?.includes('RATE_LIMIT') ? 429 : 
+                         securityCheck.code === 'BLOCKED_IP' ? 403 : 400;
+      
+      return NextResponse.json(
+        { 
+          error: securityCheck.reason,
+          code: securityCheck.code,
+          ...(securityCheck.retryAfter && { retryAfter: securityCheck.retryAfter })
+        },
+        { status: statusCode }
+      );
+    }
+
+    console.log(`✅ Validation sécurité réussie - IP: ${context.ip}, Email: ${data.email}`);
 
     // 🔍 Vérifier si l'utilisateur existe déjà
     const existingUser = await db
@@ -37,7 +70,7 @@ export async function POST(request: NextRequest) {
           error: 'Un compte avec cet email existe déjà. Essayez de vous connecter ou de réinitialiser votre mot de passe.',
           code: 'USER_EXISTS'
         },
-        { status: 409 } // 409 Conflict
+        { status: 409 }
       );
     }
 
@@ -48,7 +81,7 @@ export async function POST(request: NextRequest) {
     const newUserData = {
       email: data.email,
       passwordHash,
-      role: 'student' as const, // 👈 Rôle par défaut: student
+      role: 'student' as const,
       isVerified: false,
     };
 
@@ -84,7 +117,7 @@ export async function POST(request: NextRequest) {
     console.log('🍪 Création de la session...');
     await setSession(createdUser);
 
-    console.log(`🎉 Inscription réussie pour ${data.email}`);
+    console.log(`🎉 Inscription réussie pour ${data.email} depuis IP: ${context.ip}`);
 
     return NextResponse.json({
       success: true,
@@ -100,7 +133,8 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('❌ Erreur lors de l\'inscription:', error);
+    const context = getSecurityContext(request, 'signup');
+    console.error(`❌ Erreur lors de l'inscription - IP: ${context.ip}`, error);
 
     // 🔍 Gestion d'erreurs spécifiques
     if (error.code === '23505') { // PostgreSQL unique violation
