@@ -1,14 +1,10 @@
-# Next.js SaaS Starter
+# LMS based on the Next.js SaaS Starter
 
-This is a starter template for building a SaaS application using **Next.js** with support for authentication, Stripe integration for payments, and a dashboard for logged-in users.
-
-**Demo: [https://next-saas-start.vercel.app/](https://next-saas-start.vercel.app/)**
 
 ## Features
 
-- Marketing landing page (`/`) with animated Terminal element
 - Pricing page (`/pricing`) which connects to Stripe Checkout
-- Dashboard pages with CRUD operations on users/teams
+- Dashboard pages with CRUD operations on users
 - Basic RBAC with Owner and Member roles
 - Subscription management with Stripe Customer Portal
 - Email/password authentication with JWTs stored to cookies
@@ -24,13 +20,6 @@ This is a starter template for building a SaaS application using **Next.js** wit
 - **Payments**: [Stripe](https://stripe.com/)
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
 
-## Getting Started
-
-```bash
-git clone https://github.com/nextjs/saas-starter
-cd saas-starter
-pnpm install
-```
 
 ## Running Locally
 
