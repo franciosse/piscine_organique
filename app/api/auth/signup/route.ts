@@ -1,143 +1,135 @@
+// /app/api/auth/signup/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
-import { users, invitations, teams, teamMembers, ActivityType } from '@/lib/db/schema';
+import { users } from '@/lib/db/schema';
 import { hashPassword, setSession } from '@/lib/auth/session';
 import { generateEmailVerificationToken } from '@/lib/auth/emailVerification';
 import { sendVerificationEmail } from '@/lib/email/emailService';
-import { logActivity } from '@/lib/auth/activity'; // adapte selon ta structure
 
 const signUpSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  inviteId: z.string().optional(),
+  email: z.string().email().toLowerCase().trim(), // 👈 Normaliser l'email
+  password: z.string().min(8).max(100), // 👈 Limite max pour sécurité
   redirect: z.string().optional(),
   priceId: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
+    // 🛡️ Validation des données d'entrée
     const body = await request.json();
     const data = signUpSchema.parse(body);
 
-    // Vérifier si user existe déjà
+    console.log(`📝 Tentative d'inscription pour: ${data.email}`);
+
+    // 🔍 Vérifier si l'utilisateur existe déjà
     const existingUser = await db
-      .select()
+      .select({ id: users.id, email: users.email, isVerified: users.isVerified })
       .from(users)
       .where(eq(users.email, data.email))
       .limit(1);
 
     if (existingUser.length > 0) {
+      console.log(`⚠️ Utilisateur existant trouvé: ${data.email}`);
       return NextResponse.json(
-        { error: 'User already exists. Try to reset your password.' },
-        { status: 400 }
+        { 
+          error: 'Un compte avec cet email existe déjà. Essayez de vous connecter ou de réinitialiser votre mot de passe.',
+          code: 'USER_EXISTS'
+        },
+        { status: 409 } // 409 Conflict
       );
     }
 
+    // 🔒 Hachage du mot de passe
     const passwordHash = await hashPassword(data.password);
 
-    const newUser = {
+    // 📝 Préparer les données utilisateur (SANS l'ID)
+    const newUserData = {
       email: data.email,
       passwordHash,
-      role: 'owner',
-      isVerified: false, // email non vérifié par défaut
+      role: 'student' as const, // 👈 Rôle par défaut: student
+      isVerified: false,
     };
 
-    const [createdUser] = await db.insert(users).values(newUser).returning();
+    console.log('🔄 Insertion du nouvel utilisateur...');
+
+    // 💾 Créer l'utilisateur (l'ID sera auto-généré)
+    const [createdUser] = await db
+      .insert(users)
+      .values(newUserData)
+      .returning();
 
     if (!createdUser) {
+      console.error('❌ Échec de création utilisateur');
       return NextResponse.json(
-        { error: 'Failed to create user. Please try again.' },
+        { error: 'Impossible de créer le compte. Veuillez réessayer.' },
         { status: 500 }
       );
     }
 
-    // Générer token email verification + envoyer mail
-    const token = await generateEmailVerificationToken(createdUser.id);
-    await sendVerificationEmail(data.email, token);
+    console.log(`✅ Utilisateur créé avec ID: ${createdUser.id}`);
 
-    // Gestion invitation / team
-    let teamId: number;
-    let userRole: string;
-    let createdTeam = null;
-
-    if (data.inviteId) {
-      // vérifier invitation valide
-      const [invitation] = await db
-        .select()
-        .from(invitations)
-        .where(
-          and(
-            eq(invitations.id, parseInt(data.inviteId)),
-            eq(invitations.email, data.email),
-            eq(invitations.status, 'pending')
-          )
-        )
-        .limit(1);
-
-      if (invitation) {
-        teamId = invitation.teamId;
-        userRole = invitation.role;
-
-        await db
-          .update(invitations)
-          .set({ status: 'accepted' })
-          .where(eq(invitations.id, invitation.id));
-
-        await logActivity(teamId, createdUser.id, ActivityType.ACCEPT_INVITATION);
-
-        [createdTeam] = await db
-          .select()
-          .from(teams)
-          .where(eq(teams.id, teamId))
-          .limit(1);
-      } else {
-        return NextResponse.json(
-          { error: 'Invalid or expired invitation.' },
-          { status: 400 }
-        );
-      }
-    } else {
-      // Créer équipe
-      const newTeam = { name: `${data.email}'s Team` };
-      [createdTeam] = await db.insert(teams).values(newTeam).returning();
-
-      if (!createdTeam) {
-        return NextResponse.json(
-          { error: 'Failed to create team. Please try again.' },
-          { status: 500 }
-        );
-      }
-
-      teamId = createdTeam.id;
-      userRole = 'owner';
-
-      await logActivity(teamId, createdUser.id, ActivityType.CREATE_TEAM);
+    // 📧 Générer token de vérification email
+    try {
+      const token = await generateEmailVerificationToken(createdUser.id);
+      await sendVerificationEmail(data.email, token);
+      console.log('📧 Email de vérification envoyé');
+    } catch (emailError) {
+      console.error('⚠️ Erreur envoi email:', emailError);
+      // Ne pas faire échouer l'inscription si l'email échoue
     }
 
-    // Ajouter membre d'équipe
-    const newTeamMember = {
-      userId: createdUser.id,
-      teamId,
-      role: userRole,
-    };
+    // 🍪 Définir la session
+    console.log('🍪 Création de la session...');
+    await setSession(createdUser);
 
-    await Promise.all([
-      db.insert(teamMembers).values(newTeamMember),
-      logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
-      setSession(createdUser),
-    ]);
+    console.log(`🎉 Inscription réussie pour ${data.email}`);
 
     return NextResponse.json({
       success: true,
+      message: 'Compte créé avec succès ! Un email de vérification a été envoyé.',
       redirect: data.redirect || '/dashboard',
       priceId: data.priceId || null,
+      user: {
+        id: createdUser.id,
+        email: createdUser.email,
+        role: createdUser.role,
+        isVerified: createdUser.isVerified,
+      },
     });
+
   } catch (error: any) {
+    console.error('❌ Erreur lors de l\'inscription:', error);
+
+    // 🔍 Gestion d'erreurs spécifiques
+    if (error.code === '23505') { // PostgreSQL unique violation
+      return NextResponse.json(
+        { 
+          error: 'Un compte avec cet email existe déjà.',
+          code: 'DUPLICATE_EMAIL'
+        },
+        { status: 409 }
+      );
+    }
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { 
+          error: 'Données invalides.',
+          details: error.errors,
+          code: 'VALIDATION_ERROR'
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: error.message || 'Failed to sign up.' },
-      { status: 400 }
+      { 
+        error: 'Une erreur inattendue s\'est produite. Veuillez réessayer.',
+        code: 'INTERNAL_ERROR'
+      },
+      { status: 500 }
     );
   }
 }
