@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     await setSession(user);
 
     // Log activité (tu adapteras la fonction selon ta structure)
-    await logActivity(null, user.id, ActivityType.SIGN_IN);
+    await logActivity(user.id, ActivityType.SIGN_IN);
 
     // Réponse OK + éventuellement url redirect (tu peux personnaliser)
     return NextResponse.json({

@@ -8,7 +8,7 @@ export async function logActivity(
   ipAddress?: string
 ) {
   await db.insert(activityLogs).values({
-    userId,
+    userId, 
     action: type,
     ipAddress: ipAddress || '',
   });
