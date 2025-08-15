@@ -6,6 +6,7 @@ import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateEmailVerificationToken } from '@/lib/auth/emailVerification';
 import { sendVerificationEmail } from '@/lib/email/emailService';
+import { decodeJwt } from 'jose'; // Utiliser jose comme dans votre emailVerification
 
 const resendSchema = z.object({
   email: z.string().email().optional(),
@@ -47,7 +48,6 @@ export async function POST(request: NextRequest) {
     } else if (data.token) {
       // Essayer de décoder le token expiré pour récupérer l'userId
       try {
-        // Note: vous devrez adapter cette fonction selon votre implémentation
         const decodedUserId = await decodeExpiredToken(data.token);
         
         const [user] = await db
@@ -113,16 +113,19 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Fonction utilitaire pour décoder un token expiré (à adapter selon votre implémentation)
+// Fonction utilitaire pour décoder un token expiré (utilisant jose comme votre service)
 async function decodeExpiredToken(token: string): Promise<number> {
-  // Exemple avec JWT (à adapter selon votre implémentation)
-  const jwt = require('jsonwebtoken');
-  
   try {
-    // Décoder sans vérifier l'expiration pour récupérer l'userId
-    const decoded = jwt.decode(token) as { userId: number };
-    return decoded.userId;
-  } catch {
+    // Utiliser decodeJwt de jose pour décoder sans vérifier la signature/expiration
+    const payload = decodeJwt(token);
+    
+    if (!payload.userId || typeof payload.userId !== 'number') {
+      throw new Error('UserId manquant dans le token');
+    }
+    
+    return payload.userId as number;
+  } catch (error) {
+    console.error('Erreur décodage token:', error);
     throw new Error('Token invalide');
   }
 }
