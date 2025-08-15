@@ -29,7 +29,7 @@ export const POST = withUserAuth(async (req, user) => {
       email: data.email,
     }).where(eq(users.id, user.id));
 
-    await logActivity(null, user.id, ActivityType.UPDATE_ACCOUNT, undefined);
+    await logActivity(user.id, ActivityType.UPDATE_ACCOUNT);
 
     return NextResponse.json({ success: 'Account updated successfully.', name: data.name });
   } catch (error: any) {
