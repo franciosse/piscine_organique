@@ -4,7 +4,7 @@ import { db } from '@/lib/db/drizzle' // Votre instance Drizzle
 import { courses, users } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
-import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import { withAdminAuth, withUserAuth } from '@/app/api/_lib/route-helpers';
 
 
 // Schema de validation pour créer un cours
@@ -29,7 +29,7 @@ function generateSlug(title: string): string {
 }
 
 // GET /api/admin/courses - Liste tous les cours
-export const GET = withAdminAuth(async (request, adminUser) => {
+export const GET = withUserAuth(async (request, adminUser) => {
   try {
 
     const allCourses = await db
@@ -66,7 +66,7 @@ export const GET = withAdminAuth(async (request, adminUser) => {
 });
 
 // POST /api/admin/courses - Créer un nouveau cours
-export async function POST(request: NextRequest) {
+export const POST = withAdminAuth(async (request, adminUser) => {
   try {
     const body = await request.json();
     
@@ -124,4 +124,4 @@ export async function POST(request: NextRequest) {
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
     );
   }
-}
+});

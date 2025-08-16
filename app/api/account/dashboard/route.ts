@@ -1,4 +1,4 @@
-// app/api/dashboard/route.ts
+// app/api/account/dashboard/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { 

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Leaf, Droplets, Recycle, Waves, Sun, DollarSign, Flower2, Fish, ArrowRightLeft, Sparkles, Heart, Dot } from 'lucide-react';
+import React from 'react';
+import { Leaf, Droplets, Recycle, DollarSign, Flower2, Sparkles} from 'lucide-react';
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 

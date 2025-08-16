@@ -36,18 +36,6 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 
 
-
-
-function DashboardContent() {
-  const { data: dashboardData, error } = useSWR<DashboardData>('/api/dashboard', fetcher);
-
-  return (
-    <div>
-
-    </div>
-  );
-}
-
 export default function DashboardPage() {
   return (
     <section className="flex-1 p-4 lg:p-8">
@@ -57,10 +45,6 @@ export default function DashboardPage() {
           Suivez votre progression et continuez votre apprentissage
         </p>
       </div>
-
-      <Suspense>
-        <DashboardContent />
-      </Suspense>
 
       {/* Actions rapides */}
       <Card className="mt-8">

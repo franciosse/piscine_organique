@@ -184,16 +184,24 @@ function MobileMenu() {
             >
               {t('services')}
             </Link>
+            <Link 
+              href="/pricing" 
+              className="flex items-center py-2 hover:text-green-600 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('pricing')}
+            </Link>
+            <Link 
+                href="/contact" 
+                className="flex items-center py-2 hover:text-green-600 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {t('contact')}
+              </Link>
             
             {!user ? (
               <>
-                <Link 
-                  href="/pricing" 
-                  className="flex items-center py-2 hover:text-green-600 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {t('pricing')}
-                </Link>
+
                 <Button asChild className="rounded-full bg-green-500 hover:bg-green-600 w-full">
                   <Link 
                     className="flex items-center justify-center text-white" 
