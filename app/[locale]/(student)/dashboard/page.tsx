@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { CourseCard } from '@/app/[locale]/components/student/courseCard';
+import { CourseCard } from '@/components/student/courseCard';
 import { Course, CoursePurchase, User } from '@/lib/db/schema';
 import useSWR from 'swr';
 import { Suspense } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import LogoOnly from '../../components/logOnly';
+import LogoOnly from '../../../../components/login/logOnly';
 
 export default function PasswordResetPage() {
   const [email, setEmail] = useState('');

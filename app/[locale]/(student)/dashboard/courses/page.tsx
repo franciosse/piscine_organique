@@ -1,5 +1,5 @@
 // /app/dashboard/courses/page.tsx (Page Server Component)
-import { CoursesPageComponent } from '@/app/[locale]/components/student/coursePageComponent';
+import { CoursesPageComponent } from '@/components/student/coursePageComponent';
 import { db } from '@/lib/db/drizzle';
 import { courses, coursePurchases } from '@/lib/db/schema';
 import { eq, isNotNull } from 'drizzle-orm';

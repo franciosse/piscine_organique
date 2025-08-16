@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CircleIcon } from 'lucide-react';
-import LogoOnly from './[locale]/components/logOnly';
+import LogoOnly from '@/components/login/logOnly';
 
 export default function NotFound() {
   return (

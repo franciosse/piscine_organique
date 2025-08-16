@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import LogoOnly from '@/app/[locale]/components/logOnly';
+import LogoOnly from '@/components/login/logOnly';
 
 export default function PasswordResetConfirmPage() {
   const router = useRouter();

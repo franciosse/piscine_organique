@@ -169,9 +169,8 @@ export function CourseCard({
           {/* Bouton principal */}
           <Link
             href={
-              isPurchased || (showProgress && progressData) 
-                ? `/courses/${course.id}/learn` 
-                : `/courses/${course.id}`
+              isPurchased || (showProgress && progressData) ?
+                 `/dashboard/courses/${course.id}` : ''
             }
             className="block w-full text-center py-2 px-4 rounded-lg font-medium transition-colors hover:bg-gray-200 border border-gray-300 text-gray-700 hover:text-gray-900"
           >
@@ -229,7 +228,7 @@ export function CourseCardSimple({ course }: { course: Course }) {
   };
 
   return (
-    <Link href={`/courses/${course.id}`} className="block">
+    <Link href={`/dashboard/courses/${course.id}`} className="block">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
         <div className="flex">
           {/* Image miniature */}

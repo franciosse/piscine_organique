@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import CourseForm from '@/app/[locale]/components/admin/courses/courseForm';
+import CourseForm from '@/components/admin/courses/courseForm';
 
 export default function NewCoursePage() {
 

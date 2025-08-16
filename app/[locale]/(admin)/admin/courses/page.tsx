@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import CoursesList from '@/app/[locale]/components/admin/courses/coursesList';
+import CoursesList from '@/components/admin/courses/coursesList';
 
 export default function AdminPage() {
 

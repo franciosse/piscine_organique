@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
-import ChapterForm from '@/app/[locale]/components/admin/courses/chapterForm';
+import ChapterForm from '@/components/admin/courses/chapterForm';
 
 export default function CoursePage() {
   const { courseId } = useParams(); 

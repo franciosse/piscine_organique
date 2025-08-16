@@ -15,7 +15,7 @@ import { signOut } from '@/lib/auth/signOut';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/db/schema';
 import useSWR, { mutate } from 'swr';
-import LanguageSwitcher from './components/languageSwitcher';
+import LanguageSwitcher from '@/components/language/languageSwitcher';
 import { useTranslations } from 'next-intl';
 
 const fetcher = async (url: string) => {
@@ -43,6 +43,43 @@ const fetcher = async (url: string) => {
   }
 };
 
+function getUserInitials(user: { name?: string | null; email?: string | null }): string {
+  // Priorité 1: Utiliser le nom complet
+  if (user?.name && typeof user.name === 'string') {
+    return user.name
+      .split(' ')
+      .filter(n => n.length > 0) // Filtrer les espaces vides
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2); // Max 2 initiales
+  }
+  
+  // Priorité 2: Utiliser l'email
+  if (user?.email && typeof user.email === 'string') {
+    const emailPart = user.email.split('@')[0]; // Partie avant @
+    if (emailPart.length >= 2) {
+      return emailPart.slice(0, 2).toUpperCase();
+    }
+    return emailPart[0]?.toUpperCase() || 'U';
+  }
+  
+  // Fallback: Initiale par défaut
+  return 'U';
+}
+
+// Fonction utilitaire pour obtenir le nom d'affichage
+function getDisplayName(user: { name?: string | null; email?: string | null }): string {
+  if (user?.name && typeof user.name === 'string') {
+    return user.name.trim();
+  }
+  
+  if (user?.email && typeof user.email === 'string') {
+    return user.email.split('@')[0]; // Partie avant @ de l'email
+  }
+  
+  return 'Utilisateur';
+}
 
 function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -94,12 +131,9 @@ function UserMenu() {
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger>
         <Avatar className="cursor-pointer size-9 rounded-full bg-green-500 hover:bg-green-600">
-          <AvatarImage alt={user.name || ''} />
+          <AvatarImage alt={user?.name || ''} />
           <AvatarFallback className="text-white">
-            {user.email
-              .split(' ')
-              .map((n) => n[0])
-              .join('')}
+            {getUserInitials(user)}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -245,10 +279,7 @@ function MobileMenu() {
                   <Avatar className="size-8 rounded-full bg-green-500 mr-2">
                     <AvatarImage alt={user.name || ''} />
                     <AvatarFallback className="text-white text-sm">
-                      {user.email
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')}
+                      {getDisplayName(user)}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm text-gray-600">{user.email}</span>

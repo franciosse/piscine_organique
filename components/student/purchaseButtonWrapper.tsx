@@ -30,7 +30,7 @@ export function PurchaseButtonWrapper({
   const checkPurchaseStatus = async () => {
     setCheckingPurchase(true);
     try {
-      const response = await fetch(`/api/courses/${courseId}/check-purchase`);
+      const response = await fetch(`/api/account/courses/${courseId}/check-purchase`);
       const data = await response.json();
       setIsPurchased(data.purchased);
     } catch (error) {

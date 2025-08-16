@@ -21,9 +21,10 @@ type AccountFormProps = {
   state: ActionState;
   nameValue?: string;
   emailValue?: string;
+  roleValue?: string;
 };
 
-function AccountForm({ state, nameValue = '', emailValue = '' }: AccountFormProps) {
+function AccountForm({ state, nameValue = '', emailValue = '', roleValue = '' }: AccountFormProps) {
   return (
     <>
       <div>
@@ -53,8 +54,8 @@ function AccountForm({ state, nameValue = '', emailValue = '' }: AccountFormProp
           id="role"
           name="role"
           type="text"
-          placeholder="Enter your role"
-          defaultValue={emailValue}
+          readOnly
+          defaultValue={roleValue}
           required
         />
       </div>
@@ -64,7 +65,7 @@ function AccountForm({ state, nameValue = '', emailValue = '' }: AccountFormProp
 
 function AccountFormWithData({ state }: { state: ActionState }) {
   const { data: user } = useSWR<User>('/api/account/user', fetcher);
-  return <AccountForm state={state} nameValue={user?.name ?? ''} emailValue={user?.email ?? ''} />;
+  return <AccountForm state={state} nameValue={user?.name ?? ''} emailValue={user?.email ?? ''} roleValue={user?.role ?? ''} />;
 }
 
 export default function GeneralPage() {
@@ -106,7 +107,7 @@ export default function GeneralPage() {
   return (
     <section className="flex-1 p-4 lg:p-8">
       <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-        General Settings
+        Profile Settings
       </h1>
 
       <Card>

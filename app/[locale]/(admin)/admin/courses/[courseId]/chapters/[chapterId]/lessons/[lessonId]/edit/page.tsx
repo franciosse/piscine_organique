@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
-import LessonEditor from '@/app/[locale]/components/admin/courses/lessonEditor';
+import LessonEditor from '@/components/admin/courses/lessonEditor';
 
 export default function CoursePage() {
   const { lessonId } = useParams(); 
