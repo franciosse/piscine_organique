@@ -16,11 +16,6 @@ const updateAccountSchema = z.object({
 
 export const POST = withUserAuth(async (req, user) => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await req.json();
     const data = updateAccountSchema.parse(body);
 

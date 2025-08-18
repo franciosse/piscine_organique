@@ -2,17 +2,24 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CourseCard } from '@/components/student/courseCard';
 import { Course, CoursePurchase, User } from '@/lib/db/schema';
 import useSWR from 'swr';
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { 
+  BookOpen, 
+  Clock, 
+  Trophy, 
+  TrendingUp, 
+  Search, 
+  Award, 
+  User as UserIcon,
+  Sparkles,
+  ArrowRight,
+  Play
+} from 'lucide-react';
 
 interface DashboardData {
   user: User;
@@ -37,34 +44,49 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6">
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <div className="h-8 bg-gray-200 rounded-lg w-64 animate-pulse"></div>
+        <div className="h-4 bg-gray-200 rounded w-96 animate-pulse"></div>
+      </div>
+
       {/* Stats Cards Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="h-[100px] animate-pulse">
-            <CardHeader className="pb-2">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-            </CardContent>
-          </Card>
+          <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
+              <div className="space-y-2 flex-1">
+                <div className="h-4 bg-gray-200 rounded w-20"></div>
+                <div className="h-6 bg-gray-200 rounded w-16"></div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Courses Skeleton */}
-      <Card className="h-[300px] animate-pulse">
-        <CardHeader>
-          <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+      {/* Content Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-xl p-6 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
+            <div className="space-y-4">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-6 animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-32 mb-4"></div>
+          <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              <div key={i} className="h-12 bg-gray-200 rounded"></div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -79,53 +101,58 @@ function StatsCards({ stats }: { stats: DashboardData['stats'] }) {
     return `${remainingMinutes}min`;
   };
 
+  const statsData = [
+    {
+      title: 'Cours achetés',
+      value: stats.totalCourses,
+      icon: BookOpen,
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50',
+      textColor: 'text-blue-600'
+    },
+    {
+      title: 'Cours terminés',
+      value: stats.completedCourses,
+      icon: Trophy,
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50',
+      textColor: 'text-green-600'
+    },
+    {
+      title: 'En cours',
+      value: stats.inProgressCourses,
+      icon: TrendingUp,
+      color: 'from-orange-500 to-orange-600',
+      bgColor: 'bg-orange-50',
+      textColor: 'text-orange-600'
+    },
+    {
+      title: 'Temps d\'étude',
+      value: formatTime(stats.totalWatchTime),
+      icon: Clock,
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-50',
+      textColor: 'text-purple-600'
+    }
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">
-            Cours achetés
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.totalCourses}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">
-            Cours terminés
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600">{stats.completedCourses}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">
-            En cours
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-blue-600">{stats.inProgressCourses}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">
-            Temps d'apprentissage
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-purple-600">
-            {formatTime(stats.totalWatchTime)}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {statsData.map((stat, index) => (
+        <Card key={index} className="border-0 shadow-sm hover:shadow-md transition-all duration-200 bg-white">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                <stat.icon className={`h-6 w-6 ${stat.textColor}`} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
@@ -133,39 +160,23 @@ function StatsCards({ stats }: { stats: DashboardData['stats'] }) {
 function MyCourses({ courses }: { courses: DashboardData['purchasedCourses'] }) {
   if (courses.length === 0) {
     return (
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Mes cours</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="mb-4">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Aucun cours acheté
-            </h3>
-            <p className="text-gray-500 mb-4">
-              Commencez votre apprentissage en explorant notre catalogue de cours.
-            </p>
-            <Link href="/dashboard/courses">
-              <Button>Parcourir les cours</Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-xl p-8 text-center">
+        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <BookOpen className="h-8 w-8 text-white" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          Commencez votre apprentissage !
+        </h3>
+        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+          Découvrez notre catalogue de cours et développez de nouvelles compétences dès aujourd'hui.
+        </p>
+        <Button asChild className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+          <Link href="/dashboard/courses">
+            <Search className="w-4 h-4 mr-2" />
+            Parcourir les cours
+          </Link>
+        </Button>
+      </div>
     );
   }
 
@@ -184,65 +195,125 @@ function MyCourses({ courses }: { courses: DashboardData['purchasedCourses'] }) 
     <div className="space-y-8">
       {/* Cours en cours */}
       {inProgressCourses.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Continuer l'apprentissage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {inProgressCourses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  showProgress={true}
-                  progressData={course.progress}
-                />
-              ))}
+        <div className="bg-white rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Play className="h-5 w-5 text-orange-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Continuer l'apprentissage</h2>
             </div>
-          </CardContent>
-        </Card>
+            <span className="text-sm text-gray-500">{inProgressCourses.length} cours</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {inProgressCourses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                showProgress={true}
+                progressData={course.progress}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Cours non commencés */}
       {notStartedCourses.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Prêt à commencer</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {notStartedCourses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  showProgress={false}
-                />
-              ))}
+        <div className="bg-white rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Sparkles className="h-5 w-5 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Prêt à commencer</h2>
             </div>
-          </CardContent>
-        </Card>
+            <span className="text-sm text-gray-500">{notStartedCourses.length} cours</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {notStartedCourses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                showProgress={false}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Cours terminés */}
       {completedCourses.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Cours terminés ({completedCourses.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {completedCourses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  showProgress={true}
-                  progressData={course.progress}
-                />
-              ))}
+        <div className="bg-white rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Trophy className="h-5 w-5 text-green-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Cours terminés</h2>
             </div>
-          </CardContent>
-        </Card>
+            <span className="text-sm text-gray-500">{completedCourses.length} cours</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {completedCourses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                showProgress={true}
+                progressData={course.progress}
+              />
+            ))}
+          </div>
+        </div>
       )}
+    </div>
+  );
+}
+
+function QuickActions() {
+  const actions = [
+    {
+      title: 'Découvrir des cours',
+      description: 'Explorez notre catalogue',
+      href: '/dashboard/courses',
+      icon: Search,
+      color: 'from-blue-500 to-blue-600'
+    },
+    {
+      title: 'Mes certificats',
+      description: 'Consultez vos réussites',
+      href: '/dashboard/certificates',
+      icon: Award,
+      color: 'from-green-500 to-green-600'
+    },
+    {
+      title: 'Mon profil',
+      description: 'Gérez vos informations',
+      href: '/dashboard/profile',
+      icon: UserIcon,
+      color: 'from-purple-500 to-purple-600'
+    }
+  ];
+
+  return (
+    <div className="bg-white rounded-xl p-6">
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Actions rapides</h2>
+      <div className="space-y-4">
+        {actions.map((action, index) => (
+          <Link key={index} href={action.href}>
+            <div className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group cursor-pointer">
+              <div className={`p-3 rounded-lg bg-gradient-to-r ${action.color}`}>
+                <action.icon className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-gray-900">{action.title}</h3>
+                <p className="text-sm text-gray-600">{action.description}</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
@@ -252,13 +323,14 @@ function DashboardContent() {
 
   if (error) {
     return (
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="text-center text-red-600">
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <div className="text-red-600 font-medium mb-2">Erreur de chargement</div>
+          <div className="text-red-500 text-sm">
             Une erreur est survenue lors du chargement des données.
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
@@ -267,63 +339,37 @@ function DashboardContent() {
   }
 
   return (
-    <div>
+    <div className="p-6 space-y-8">
+      {/* Welcome Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Bonjour ! 👋
+        </h1>
+        <p className="text-gray-600">
+          Continuez votre apprentissage et atteignez vos objectifs
+        </p>
+      </div>
+
       <StatsCards stats={dashboardData.stats} />
-      <MyCourses courses={dashboardData.purchasedCourses} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <MyCourses courses={dashboardData.purchasedCourses} />
+        </div>
+        <div>
+          <QuickActions />
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function DashboardPage() {
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold mb-2">Tableau de bord</h1>
-        <p className="text-gray-600">
-          Suivez votre progression et continuez votre apprentissage
-        </p>
-      </div>
-
+    <div className="min-h-full overflow-y-auto">
       <Suspense fallback={<DashboardSkeleton />}>
         <DashboardContent />
       </Suspense>
-
-      {/* Actions rapides */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Actions rapides</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/dashboard/courses">
-              <Button variant="outline" className="w-full">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Découvrir des cours
-              </Button>
-            </Link>
-            
-            <Link href="/certificates">
-              <Button variant="outline" className="w-full">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
-                Mes certificats
-              </Button>
-            </Link>
-            
-            <Link href="/profile">
-              <Button variant="outline" className="w-full">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Mon profil
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </section>
+    </div>
   );
 }

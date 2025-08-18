@@ -6,7 +6,7 @@ export const GET = withUserAuth(async (req, authenticatedUser) => {
   //  authenticatedUser est garanti authentifié et vérifié
   
   const { passwordHash, ...sanitizedUser } = authenticatedUser;
-  
+  console.log("Authenticated user : " + authenticatedUser);
   return NextResponse.json({
     user: sanitizedUser,
     message: 'Profil récupéré avec succès'

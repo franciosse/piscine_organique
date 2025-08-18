@@ -30,7 +30,8 @@ const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.PUBLISH_COURSE]: PenTool,
   [ActivityType.PURCHASE_COURSE]: CreditCard,
   [ActivityType.COMPLETE_LESSON]: CheckCheck,
-  [ActivityType.COMPLETE_QUIZ]: Check
+  [ActivityType.COMPLETE_QUIZ]: Check,
+  [ActivityType.CHANGE_PASSWORD]: Lock,
 };
 
 function getRelativeTime(date: Date) {
