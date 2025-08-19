@@ -82,8 +82,8 @@ async function getCourseWithContent(courseId: number, userId?: number): Promise<
         createdAt: courses.createdAt,
         updatedAt: courses.updatedAt,
         // Champs de l'auteur
-        authorName: users.name,
-        authorEmail: users.email,
+        authorName: users.name || 'Auteur non disponible',
+        authorEmail: users.email || 'Email non disponible',
       })
       .from(courses)
       .leftJoin(users, eq(courses.authorId, users.id))
@@ -273,8 +273,8 @@ async function getCourseWithContent(courseId: number, userId?: number): Promise<
       updatedAt: course.updatedAt,
       author: {
         id: course.authorId!,
-        name: course.authorName,
-        email: course.authorEmail!,
+        name: course.authorName || 'Auteur non disponible',
+        email: course.authorEmail! || 'Email non disponible',
       },
       chapters: chaptersWithLessons,
       userProgress,

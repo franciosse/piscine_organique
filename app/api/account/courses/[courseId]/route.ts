@@ -30,8 +30,8 @@ export const GET = withUserAuth(async (req: NextRequest, authenticatedUser, { pa
       createdAt: courses.createdAt,
       updatedAt: courses.updatedAt,
       // Informations de l'instructeur
-      instructor: users.name,
-      instructorEmail: users.email,
+      authorName: users.name,
+      authorEmail: users.email,
     })
     .from(courses)
     .where(eq(courses.id, courseId))
@@ -63,7 +63,7 @@ export const GET = withUserAuth(async (req: NextRequest, authenticatedUser, { pa
       originalPrice: course.price,
       duration: course.duration || 'Non spécifié',
       level: course.level || 'Tous niveaux',
-      instructor: course.instructor || 'Instructeur',
+      author: course.authorName || 'Author',
       imageUrl: course.imageUrl,
     };
 
