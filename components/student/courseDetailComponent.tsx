@@ -1,424 +1,501 @@
-// /components/pages/CourseDetailComponent.tsx
+// components/student/courseDetailComponent.tsx
 'use client';
 
-import { useState, useCallback } from 'react';
-import Image from 'next/image';
-import { 
-  Play, 
-  CheckCircle, 
-  Clock, 
-  Users, 
-  BookOpen, 
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import * as LucideIcons from 'lucide-react';
+
+// Import explicite des icônes pour éviter les conflits
+const {
+  Play,
+  Lock,
+  CheckCircle,
+  Clock,
+  Users,
   Award,
+  BookOpen,
+  FileText,
   ChevronDown,
   ChevronRight,
-  Lock,
-  PlayCircle,
-  Star,
-  DollarSign
-} from 'lucide-react';
-import { CourseWithContent } from '@/app/[locale]/(student)/dashboard/courses/[courseId]/page'
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DifficultyLevel } from '@/lib/db/schema';
+  Leaf,
+  TreePine,
+  Sprout,
+  Globe,
+  Star
+} = LucideIcons;
+
+// Types
+interface CourseWithContent {
+  id: number;
+  title: string;
+  description: string | null;
+  price: number;
+  imageUrl: string | null;
+  author: {
+    id: number;
+    name: string | null;
+    email: string | null;
+  };
+  chapters: ChapterWithLessons[];
+  userProgress?: UserCourseProgress;
+  isPurchased?: boolean;
+}
+
+interface ChapterWithLessons {
+  id: number;
+  title: string;
+  description: string | null;
+  position: number;
+  lessons: LessonWithQuiz[];
+}
+
+interface LessonWithQuiz {
+  id: number;
+  title: string;
+  duration: number | null;
+  videoUrl: string | null;
+  position: number;
+  isCompleted?: boolean;
+  quiz?: any;
+}
+
+interface UserCourseProgress {
+  completedLessons: number[];
+  totalWatchTime: number;
+  lastAccessedAt: Date;
+}
+
+interface CourseStats {
+  totalChapters: number;
+  totalLessons: number;
+  completedLessons: number;
+  progressPercentage: number;
+  totalDuration: number;
+  totalQuizzes: number;
+  completedQuizzes: number;
+  totalWatchTime: number;
+}
 
 interface CourseDetailComponentProps {
   course: CourseWithContent;
   hasAccess: boolean;
-  stats: {
-    totalChapters: number;
-    totalLessons: number;
-    completedLessons: number;
-    progressPercentage: number;
-    totalDuration: number;
-    totalQuizzes: number;
-    completedQuizzes: number;
-    totalWatchTime: number;
-  };
+  stats: CourseStats;
   user: any;
 }
 
+// Composant lecteur vidéo moderne
+function ModernVideoPlayer({ 
+  videoUrl, 
+  title, 
+  onProgress, 
+  onComplete 
+}: { 
+  videoUrl?: string; 
+  title: string;
+  onProgress?: (progress: number) => void;
+  onComplete?: () => void;
+}) {
+  if (!videoUrl) {
+    return (
+      <div className="aspect-video bg-gradient-to-br from-emerald-100 to-green-200 rounded-2xl flex items-center justify-center">
+        <div className="text-center">
+          <LucideIcons.Video className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
+          <p className="text-emerald-800 font-medium">Vidéo non disponible</p>
+          <p className="text-emerald-600 text-sm">Contenu en cours de préparation</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
+      <video
+        controls
+        className="w-full h-full"
+        src={videoUrl}
+        onTimeUpdate={(e) => {
+          const video = e.target as HTMLVideoElement;
+          if (video.duration && onProgress) {
+            const progress = (video.currentTime / video.duration) * 100;
+            onProgress(progress);
+          }
+        }}
+        onEnded={() => onComplete?.()}
+      >
+        <source src={videoUrl} type="video/mp4" />
+        Votre navigateur ne supporte pas la lecture vidéo.
+      </video>
+    </div>
+  );
+}
+
+// Composant d'une leçon dans le curriculum
+function LessonItem({ 
+  lesson, 
+  hasAccess, 
+  isActive, 
+  onClick 
+}: { 
+  lesson: LessonWithQuiz; 
+  hasAccess: boolean; 
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const canAccess = hasAccess;
+  
+  return (
+    <div
+      onClick={canAccess ? onClick : undefined}
+      className={`
+        p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer
+        ${isActive 
+          ? 'border-emerald-500 bg-gradient-to-r from-emerald-50 to-green-50 shadow-lg' 
+          : 'border-emerald-200 hover:border-emerald-300 bg-white hover:bg-emerald-50'
+        }
+        ${!canAccess ? 'opacity-60 cursor-not-allowed' : ''}
+      `}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`
+            w-8 h-8 rounded-full flex items-center justify-center
+            ${lesson.isCompleted 
+              ? 'bg-emerald-500 text-white' 
+              : canAccess 
+                ? 'bg-emerald-100 text-emerald-600' 
+                : 'bg-gray-100 text-gray-400'
+            }
+          `}>
+            {lesson.isCompleted ? (
+              <CheckCircle className="h-5 w-5" />
+            ) : canAccess ? (
+              <Play className="h-4 w-4" />
+            ) : (
+              <Lock className="h-4 w-4" />
+            )}
+          </div>
+          
+          <div>
+            <h4 className="font-medium text-gray-900">{lesson.title}</h4>
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+              {lesson.duration && (
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {Math.floor(lesson.duration / 60)}min
+                </span>
+              )}
+              {lesson.quiz && (
+                <span className="flex items-center gap-1">
+                  <FileText className="h-3 w-3" />
+                  Quiz
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {!canAccess && <Lock className="h-4 w-4 text-gray-400" />}
+      </div>
+    </div>
+  );
+}
+
+// Composant chapitre avec ses leçons
+function ChapterSection({ 
+  chapter, 
+  hasAccess, 
+  activeLesson, 
+  onLessonSelect 
+}: { 
+  chapter: ChapterWithLessons; 
+  hasAccess: boolean;
+  activeLesson?: LessonWithQuiz;
+  onLessonSelect: (lesson: LessonWithQuiz) => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const completedLessons = chapter.lessons.filter(l => l.isCompleted).length;
+  
+  return (
+    <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden">
+      <CardHeader 
+        className="bg-gradient-to-r from-emerald-50 to-green-50 border-b border-emerald-100 cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-emerald-500 rounded-xl">
+              <TreePine className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-emerald-800">{chapter.title}</CardTitle>
+              <p className="text-sm text-emerald-600 mt-1">
+                {completedLessons}/{chapter.lessons.length} leçons terminées
+              </p>
+            </div>
+          </div>
+          {isExpanded ? (
+            <ChevronDown className="h-5 w-5 text-emerald-600" />
+          ) : (
+            <ChevronRight className="h-5 w-5 text-emerald-600" />
+          )}
+        </div>
+      </CardHeader>
+      
+      {isExpanded && (
+        <CardContent className="p-6">
+          <div className="space-y-3">
+            {chapter.lessons.map((lesson) => (
+              <LessonItem
+                key={lesson.id}
+                lesson={lesson}
+                hasAccess={hasAccess}
+                isActive={activeLesson?.id === lesson.id}
+                onClick={() => onLessonSelect(lesson)}
+              />
+            ))}
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  );
+}
+
+// Composant principal
 export function CourseDetailComponent({ 
   course, 
   hasAccess, 
   stats, 
   user 
 }: CourseDetailComponentProps) {
-  const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set([1]));
-  const [currentLesson, setCurrentLesson] = useState<{chapterId: number, lessonId: number} | null>(null);
+  const [activeLesson, setActiveLesson] = useState<LessonWithQuiz | undefined>(
+    course.chapters[0]?.lessons[0] || undefined
+  );
 
-  const toggleChapter = useCallback((chapterId: number) => {
-    setExpandedChapters(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(chapterId)) {
-        newSet.delete(chapterId);
-      } else {
-        newSet.add(chapterId);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const startCourse = () => {
-    if (course.chapters.length > 0 && course.chapters[0].lessons.length > 0) {
-      setCurrentLesson({
-        chapterId: course.chapters[0].id,
-        lessonId: course.chapters[0].lessons[0].id
-      });
+  const handleLessonSelect = (lesson: LessonWithQuiz) => {
+    if (hasAccess) {
+      setActiveLesson(lesson);
     }
   };
 
-  const getDifficultyColor = (level: string | null) => {
-    switch (level) {
-      case DifficultyLevel.BEGINNER:
-        return 'bg-green-100 text-green-800';
-      case DifficultyLevel.INTERMEDIATE:
-        return 'bg-yellow-100 text-yellow-800';
-      case DifficultyLevel.ADVANCED:
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const handleVideoProgress = (progress: number) => {
+    console.log(`Video progress: ${progress}%`);
   };
 
-  const formatPrice = (priceInCents: number) => {
-    if (priceInCents === 0) return 'Gratuit';
-    return `${(priceInCents / 100).toFixed(2)}€`;
-  };
-
-  const formatDuration = (minutes: number | null) => {
-    if (!minutes) return 'Non spécifié';
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
-      return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
+  const handleVideoComplete = () => {
+    console.log('Video completed');
+    if (activeLesson) {
+      // TODO: Marquer la leçon comme terminée
     }
-    return `${mins}min`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header du cours */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Informations principales */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                {course.difficultyLevel && (
-                  <Badge className={getDifficultyColor(course.difficultyLevel)}>
-                    {course.difficultyLevel}
-                  </Badge>
-                )}
-                <Badge variant="outline">
-                  Par {course.author.name || course.author.email}
-                </Badge>
-              </div>
-              
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                {course.title}
-              </h1>
-              
-              {course.description && (
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                  {course.description}
-                </p>
-              )}
-
-              {/* Statistiques du cours */}
-              <div className="flex flex-wrap gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  <span>{stats.totalChapters} chapitre{stats.totalChapters > 1 ? 's' : ''}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <PlayCircle className="h-4 w-4" />
-                  <span>{stats.totalLessons} leçon{stats.totalLessons > 1 ? 's' : ''}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span>{formatDuration(stats.totalDuration)}</span>
-                </div>
-                {stats.totalQuizzes > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4" />
-                    <span>{stats.totalQuizzes} quiz</span>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header du cours */}
+        <div className="mb-8">
+          <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 p-8 text-white">
+              <div className="flex items-start gap-6">
+                {course.imageUrl ? (
+                  <img
+                    src={course.imageUrl}
+                    alt={course.title}
+                    className="w-24 h-24 object-cover rounded-2xl shadow-lg border-4 border-white/20"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <Leaf className="h-12 w-12 text-white" />
                   </div>
                 )}
+                
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold mb-3">{course.title}</h1>
+                  <p className="text-emerald-100 mb-4 text-lg leading-relaxed">
+                    {course.description}
+                  </p>
+                  
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <Sprout className="h-5 w-5" />
+                      <span className="font-medium">{course.author.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      <span>Formation écologique</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-5 w-5" />
+                      <span>Impact positif</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+            
+            {/* Barre de progression */}
+            {hasAccess && user && (
+              <div className="p-6 bg-gradient-to-r from-emerald-50 to-green-50">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-emerald-800">
+                    Votre progression
+                  </span>
+                  <span className="text-emerald-600 font-bold">
+                    {stats.progressPercentage}%
+                  </span>
+                </div>
+                <div className="w-full bg-emerald-200 rounded-full h-3">
+                  <div
+                    className="bg-gradient-to-r from-emerald-500 to-green-500 h-3 rounded-full transition-all duration-500 shadow-sm"
+                    style={{ width: `${stats.progressPercentage}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-3 text-sm text-emerald-700">
+                  <span>{stats.completedLessons}/{stats.totalLessons} leçons</span>
+                  <span>{stats.totalChapters} chapitres</span>
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
 
-            {/* Thumbnail et actions */}
-            <div className="lg:col-span-1">
-              <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Lecteur vidéo et contenu principal */}
+          <div className="lg:col-span-2 space-y-6">
+            {hasAccess && activeLesson ? (
+              <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardContent className="p-6">
-                  {course.imageUrl && (
-                    <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
-                      <Image
-                        src={course.imageUrl}
-                        alt={course.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
-
-                  {hasAccess ? (
-                    <div className="space-y-4">
-                      {/* Progrès */}
-                      {user && (
-                        <div>
-                          <div className="flex justify-between text-sm mb-2">
-                            <span>Progression</span>
-                            <span>{stats.progressPercentage}%</span>
-                          </div>
-                          <Progress value={stats.progressPercentage} className="h-2" />
-                          <p className="text-xs text-gray-500 mt-1">
-                            {stats.completedLessons} sur {stats.totalLessons} leçons terminées
-                          </p>
-                          {stats.totalWatchTime > 0 && (
-                            <p className="text-xs text-gray-500">
-                              Temps de visionnage: {Math.round(stats.totalWatchTime / 60)}min
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      <Button 
-                        onClick={startCourse} 
-                        className="w-full" 
-                        size="lg"
-                      >
-                        <Play className="mr-2 h-4 w-4" />
-                        {stats.progressPercentage > 0 ? 'Continuer le cours' : 'Commencer le cours'}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-green-600 mb-2">
-                          {formatPrice(course.price)}
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          Accès à vie • Certificat inclus
-                        </p>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      {activeLesson.title}
+                    </h2>
+                  </div>
+                  
+                  <ModernVideoPlayer 
+                    videoUrl={activeLesson.videoUrl!} 
+                    title={activeLesson.title}
+                    onProgress={handleVideoProgress}
+                    onComplete={handleVideoComplete}
+                  />
+                  
+                  {activeLesson.quiz && (
+                    <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Award className="h-5 w-5 text-amber-600" />
+                        <span className="font-semibold text-amber-800">
+                          Quiz disponible
+                        </span>
                       </div>
-                      
-                      <Button className="w-full" size="lg">
-                        <DollarSign className="mr-2 h-4 w-4" />
-                        {course.price === 0 ? 'Accéder gratuitement' : 'Acheter le cours'}
+                      <p className="text-amber-700 text-sm mb-3">
+                        Testez vos connaissances sur cette leçon
+                      </p>
+                      <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+                        Commencer le quiz
                       </Button>
-
-                      <div className="text-xs text-gray-500 text-center">
-                        Garantie satisfait ou remboursé 30 jours
-                      </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </div>
+            ) : !hasAccess ? (
+              <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
+                <CardContent className="p-12 text-center">
+                  <Lock className="h-16 w-16 text-emerald-500 mx-auto mb-6" />
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                    Accès premium requis
+                  </h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    Débloquez l'accès complet à ce cours écologique pour approfondir 
+                    vos connaissances et contribuer à un avenir plus vert.
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg"
+                    onClick={() => window.location.href = `/dashboard/courses/${course.id}/purchase`}
+                  >
+                    Débloquer le cours - {course.price}€
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
+                <CardContent className="p-12 text-center">
+                  <BookOpen className="h-16 w-16 text-emerald-500 mx-auto mb-6" />
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                    Sélectionnez une leçon
+                  </h3>
+                  <p className="text-gray-600">
+                    Choisissez une leçon dans le menu de droite pour commencer votre apprentissage
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Statistiques détaillées */}
+            {hasAccess && user && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-green-500 text-white rounded-2xl">
+                  <CardContent className="p-4 text-center">
+                    <Clock className="h-8 w-8 mx-auto mb-2" />
+                    <div className="text-2xl font-bold">{Math.floor(stats.totalWatchTime / 60)}</div>
+                    <div className="text-xs opacity-90">Minutes regardées</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-500 to-cyan-500 text-white rounded-2xl">
+                  <CardContent className="p-4 text-center">
+                    <CheckCircle className="h-8 w-8 mx-auto mb-2" />
+                    <div className="text-2xl font-bold">{stats.completedLessons}</div>
+                    <div className="text-xs opacity-90">Leçons terminées</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-lime-500 to-green-500 text-white rounded-2xl">
+                  <CardContent className="p-4 text-center">
+                    <Award className="h-8 w-8 mx-auto mb-2" />
+                    <div className="text-2xl font-bold">{stats.completedQuizzes}</div>
+                    <div className="text-xs opacity-90">Quiz réussis</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-2xl">
+                  <CardContent className="p-4 text-center">
+                    <Star className="h-8 w-8 mx-auto mb-2" />
+                    <div className="text-2xl font-bold">{stats.progressPercentage}</div>
+                    <div className="text-xs opacity-90">% Terminé</div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+
+          {/* Curriculum - Menu des leçons */}
+          <div className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden sticky top-6">
+              <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b border-emerald-100">
+                <CardTitle className="flex items-center gap-2 text-emerald-800">
+                  <TreePine className="h-5 w-5" />
+                  Curriculum du cours
+                </CardTitle>
+                <p className="text-sm text-emerald-600">
+                  {stats.totalLessons} leçons • {stats.totalChapters} chapitres
+                </p>
+              </CardHeader>
+              
+              <CardContent className="p-6 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-4">
+                  {course.chapters.map((chapter) => (
+                    <ChapterSection
+                      key={chapter.id}
+                      chapter={chapter}
+                      hasAccess={hasAccess}
+                      activeLesson={activeLesson}
+                      onLessonSelect={handleLessonSelect}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
-
-      {/* Contenu principal */}
-      <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="content" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="content">Contenu du cours</TabsTrigger>
-            <TabsTrigger value="about">À propos</TabsTrigger>
-            <TabsTrigger value="instructor">Instructeur</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="content" className="space-y-6">
-            {/* Liste des chapitres */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Programme du cours
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {course.chapters.map((chapter, chapterIndex) => (
-                  <div key={chapter.id} className="border rounded-lg">
-                    <button
-                      onClick={() => toggleChapter(chapter.id)}
-                      className="w-full p-4 text-left hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {expandedChapters.has(chapter.id) ? (
-                            <ChevronDown className="h-4 w-4 text-gray-500" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4 text-gray-500" />
-                          )}
-                          <div>
-                            <h3 className="font-medium text-gray-900">
-                              Chapitre {chapter.position}: {chapter.title}
-                            </h3>
-                            {chapter.description && (
-                              <p className="text-sm text-gray-600 mt-1">
-                                {chapter.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {chapter.lessons.length} leçon{chapter.lessons.length > 1 ? 's' : ''}
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Leçons du chapitre */}
-                    {expandedChapters.has(chapter.id) && (
-                      <div className="border-t bg-gray-50">
-                        {chapter.lessons.map((lesson, lessonIndex) => (
-                          <div 
-                            key={lesson.id} 
-                            className="flex items-center justify-between p-4 border-b last:border-b-0 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              {hasAccess ? (
-                                lesson.isCompleted ? (
-                                  <CheckCircle className="h-4 w-4 text-green-500" />
-                                ) : (
-                                  <PlayCircle className="h-4 w-4 text-blue-500" />
-                                )
-                              ) : (
-                                <Lock className="h-4 w-4 text-gray-400" />
-                              )}
-                              
-                              <div>
-                                <h4 className="font-medium text-gray-900">
-                                  {lesson.position}. {lesson.title}
-                                </h4>
-                                <div className="flex items-center gap-3 text-xs text-gray-500">
-                                  {lesson.duration && (
-                                    <span>{formatDuration(Math.round(lesson.duration / 60))}</span>
-                                  )}
-                                  {lesson.quiz && (
-                                    <span className="flex items-center gap-1">
-                                      <Award className="h-3 w-3" />
-                                      Quiz inclus
-                                    </span>
-                                  )}
-                                  {lesson.videoUrl && (
-                                    <span>📹 Vidéo</span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            {hasAccess && (
-                              <Button
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => setCurrentLesson({
-                                  chapterId: chapter.id,
-                                  lessonId: lesson.id
-                                })}
-                              >
-                                {lesson.isCompleted ? 'Revoir' : 'Commencer'}
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="about">
-            <Card>
-              <CardHeader>
-                <CardTitle>À propos de ce cours</CardTitle>
-              </CardHeader>
-              <CardContent className="prose max-w-none">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Description</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {course.description || 'Aucune description disponible.'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Ce que vous apprendrez</h3>
-                    <ul className="space-y-2">
-                      {course.chapters.map((chapter) => (
-                        <li key={chapter.id} className="flex items-start gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
-                          <span>{chapter.title}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Prérequis</h3>
-                    <p className="text-gray-600">
-                      {course.difficultyLevel === DifficultyLevel.BEGINNER 
-                        ? 'Aucun prérequis particulier n\'est nécessaire pour suivre ce cours.'
-                        : 'Des connaissances de base sont recommandées.'
-                      }
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Détails du cours</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">Niveau:</span> {course.difficultyLevel || 'Non spécifié'}
-                      </div>
-                      <div>
-                        <span className="font-medium">Durée estimée:</span> {formatDuration(course.estimatedDuration)}
-                      </div>
-                      <div>
-                        <span className="font-medium">Chapitres:</span> {stats.totalChapters}
-                      </div>
-                      <div>
-                        <span className="font-medium">Leçons:</span> {stats.totalLessons}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="instructor">
-            <Card>
-              <CardHeader>
-                <CardTitle>Instructeur</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                    {course.author.name?.[0] || course.author.email[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">
-                      {course.author.name || course.author.email}
-                    </h3>
-                    <p className="text-gray-600 mb-3">Instructeur certifié</p>
-                    <p className="text-sm text-gray-600">
-                      Expert dans le domaine avec plusieurs années d'expérience. 
-                      Passionné par le partage de connaissances et l'accompagnement des étudiants 
-                      dans leur parcours d'apprentissage.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );
