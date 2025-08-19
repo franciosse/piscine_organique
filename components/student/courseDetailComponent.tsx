@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import * as LucideIcons from 'lucide-react';
+import { checkLessonAccess } from '@/lib/course/lesson-sequencing';
 
 // Import explicite des icônes pour éviter les conflits
 const {
@@ -56,6 +57,7 @@ interface LessonWithQuiz {
   duration: number | null;
   videoUrl: string | null;
   position: number;
+  content: Text,
   isCompleted?: boolean;
   quiz?: any;
 }
@@ -108,24 +110,73 @@ function ModernVideoPlayer({
     );
   }
 
+  // Fonction pour détecter et convertir les URLs YouTube
+  const getEmbedUrl = (url: string) => {
+    // YouTube patterns
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(youtubeRegex);
+    
+    if (match) {
+      // URL d'embed YouTube qui évite les problèmes de cookies
+      return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&rel=0&modestbranding=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`;
+    }
+
+    // Vimeo patterns
+    const vimeoRegex = /vimeo\.com\/(\d+)/;
+    const vimeoMatch = url.match(vimeoRegex);
+    
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}?byline=0&portrait=0`;
+    }
+
+    // Direct video URLs
+    return url;
+  };
+
+  const embedUrl = getEmbedUrl(videoUrl);
+  const isEmbedVideo = embedUrl && (embedUrl.includes('youtube.com') || embedUrl.includes('vimeo.com'));
+
   return (
     <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
-      <video
-        controls
-        className="w-full h-full"
-        src={videoUrl}
-        onTimeUpdate={(e) => {
-          const video = e.target as HTMLVideoElement;
-          if (video.duration && onProgress) {
-            const progress = (video.currentTime / video.duration) * 100;
-            onProgress(progress);
-          }
-        }}
-        onEnded={() => onComplete?.()}
-      >
-        <source src={videoUrl} type="video/mp4" />
-        Votre navigateur ne supporte pas la lecture vidéo.
-      </video>
+      {isEmbedVideo ? (
+        // Iframe pour YouTube/Vimeo - résout les problèmes de cookies
+        <iframe
+          src={embedUrl}
+          title={title}
+          className="w-full h-full"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+          onLoad={() => {
+            // Simuler le progress pour les vidéos embed
+            console.log('Iframe video loaded');
+          }}
+        />
+      ) : (
+        // Lecteur HTML5 pour vidéos directes
+        <video
+          controls
+          className="w-full h-full"
+          src={embedUrl}
+          onTimeUpdate={(e) => {
+            const video = e.target as HTMLVideoElement;
+            if (video.duration && onProgress) {
+              const progress = (video.currentTime / video.duration) * 100;
+              onProgress(progress);
+            }
+          }}
+          onEnded={() => onComplete?.()}
+          onError={(e) => {
+            console.error('Video error:', e);
+          }}
+        >
+          <source src={embedUrl} type="video/mp4" />
+          <p className="text-white p-4">
+            Votre navigateur ne supporte pas la lecture vidéo.
+          </p>
+        </video>
+      )}
     </div>
   );
 }
@@ -133,27 +184,34 @@ function ModernVideoPlayer({
 // Composant d'une leçon dans le curriculum
 function LessonItem({ 
   lesson, 
+  course,
+  userProgress,
   hasAccess, 
   isActive, 
   onClick 
 }: { 
   lesson: LessonWithQuiz; 
+  course: CourseWithContent;
+  userProgress?: UserCourseProgress;
   hasAccess: boolean; 
   isActive: boolean;
   onClick: () => void;
 }) {
-  const canAccess = hasAccess;
+  // Vérifier l'accès séquentiel à la leçon
+  const accessCheck = checkLessonAccess(lesson, course, userProgress, hasAccess);
   
   return (
     <div
-      onClick={canAccess ? onClick : undefined}
+      onClick={accessCheck.isAccessible ? onClick : undefined}
       className={`
-        p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer
+        p-4 rounded-xl border-2 transition-all duration-300
         ${isActive 
           ? 'border-emerald-500 bg-gradient-to-r from-emerald-50 to-green-50 shadow-lg' 
-          : 'border-emerald-200 hover:border-emerald-300 bg-white hover:bg-emerald-50'
+          : accessCheck.isAccessible 
+            ? 'border-emerald-200 hover:border-emerald-300 bg-white hover:bg-emerald-50 cursor-pointer'
+            : 'border-gray-200 bg-gray-50'
         }
-        ${!canAccess ? 'opacity-60 cursor-not-allowed' : ''}
+        ${!accessCheck.isAccessible ? 'opacity-60 cursor-not-allowed' : ''}
       `}
     >
       <div className="flex items-center justify-between">
@@ -162,14 +220,14 @@ function LessonItem({
             w-8 h-8 rounded-full flex items-center justify-center
             ${lesson.isCompleted 
               ? 'bg-emerald-500 text-white' 
-              : canAccess 
+              : accessCheck.isAccessible 
                 ? 'bg-emerald-100 text-emerald-600' 
                 : 'bg-gray-100 text-gray-400'
             }
           `}>
             {lesson.isCompleted ? (
               <CheckCircle className="h-5 w-5" />
-            ) : canAccess ? (
+            ) : accessCheck.isAccessible ? (
               <Play className="h-4 w-4" />
             ) : (
               <Lock className="h-4 w-4" />
@@ -177,7 +235,9 @@ function LessonItem({
           </div>
           
           <div>
-            <h4 className="font-medium text-gray-900">{lesson.title}</h4>
+            <h4 className={`font-medium ${accessCheck.isAccessible ? 'text-gray-900' : 'text-gray-500'}`}>
+              {lesson.title}
+            </h4>
             <div className="flex items-center gap-3 text-sm text-gray-600">
               {lesson.duration && (
                 <span className="flex items-center gap-1">
@@ -192,22 +252,79 @@ function LessonItem({
                 </span>
               )}
             </div>
+            
+            {/* Message d'accès si restreint */}
+            {!accessCheck.isAccessible && accessCheck.reason === 'previous_incomplete' && accessCheck.requiredLesson && (
+              <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                Terminez d'abord : {accessCheck.requiredLesson.title}
+              </div>
+            )}
           </div>
         </div>
         
-        {!canAccess && <Lock className="h-4 w-4 text-gray-400" />}
+        {!accessCheck.isAccessible && <Lock className="h-4 w-4 text-gray-400" />}
       </div>
     </div>
   );
 }
 
+// Ajoutez ce composant dans votre fichier, après ModernVideoPlayer :
+
+function LessonContentDisplay({ 
+  lesson 
+}: { 
+  lesson: LessonWithQuiz;
+}) {
+  // Pour l'instant, simuler du contenu - remplacez par lesson.content quand disponible
+  const content = lesson.content || null;
+  
+  if (!content) {
+    return (
+      <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden mt-6">
+        <CardContent className="p-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
+            <div className="text-amber-600 mb-2">📝</div>
+            <p className="text-amber-800 font-medium">Contenu en préparation</p>
+            <p className="text-amber-700 text-sm mt-1">
+              Le contenu écrit de cette leçon sera bientôt disponible.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Si vous avez du contenu HTML, utilisez DOMPurify
+  // Pour l'instant, affichage simple
+  return (
+    <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden mt-6">
+      <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b border-emerald-100">
+        <CardTitle className="flex items-center gap-2 text-emerald-800">
+          <Sprout className="h-5 w-5" />
+          Contenu de la leçon
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        <div className="prose prose-lg max-w-none prose-emerald">
+          {/* Si vous avez du HTML, utilisez dangerouslySetInnerHTML avec DOMPurify */}
+          <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+            {content.textContent}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Composant chapitre avec ses leçons
 function ChapterSection({ 
+  course,
   chapter, 
   hasAccess, 
   activeLesson, 
   onLessonSelect 
 }: { 
+  course : CourseWithContent;
   chapter: ChapterWithLessons; 
   hasAccess: boolean;
   activeLesson?: LessonWithQuiz;
@@ -249,6 +366,8 @@ function ChapterSection({
               <LessonItem
                 key={lesson.id}
                 lesson={lesson}
+                course={course}                    // Ajoutez ceci
+                userProgress={course.userProgress} // Ajoutez ceci
                 hasAccess={hasAccess}
                 isActive={activeLesson?.id === lesson.id}
                 onClick={() => onLessonSelect(lesson)}
@@ -378,6 +497,7 @@ export function CourseDetailComponent({
                     onComplete={handleVideoComplete}
                   />
                   
+                  {/* Ajoutez le quiz existant */}
                   {activeLesson.quiz && (
                     <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl">
                       <div className="flex items-center gap-2 mb-2">
@@ -394,6 +514,7 @@ export function CourseDetailComponent({
                       </Button>
                     </div>
                   )}
+                  <LessonContentDisplay lesson={activeLesson} />  
                 </CardContent>
               </Card>
             ) : !hasAccess ? (
@@ -486,6 +607,7 @@ export function CourseDetailComponent({
                     <ChapterSection
                       key={chapter.id}
                       chapter={chapter}
+                      course={course}
                       hasAccess={hasAccess}
                       activeLesson={activeLesson}
                       onLessonSelect={handleLessonSelect}

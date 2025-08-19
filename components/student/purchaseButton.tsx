@@ -38,7 +38,7 @@ export function PurchaseButton({
     try {
       // Si le cours est gratuit, pas besoin de paiement
       if (price === 0) {
-        const response = await fetch(`/api/courses/${courseId}/enroll`, {
+        const response = await fetch(`/api/account/courses/${courseId}/enroll`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export function PurchaseButton({
         }
       } else {
         // Pour les cours payants, rediriger vers Stripe ou votre système de paiement
-        const response = await fetch(`/api/courses/${courseId}/checkout`, {
+        const response = await fetch(`/api/account/courses/${courseId}/checkout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

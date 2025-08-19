@@ -75,7 +75,7 @@ export default function CoursePurchasePage() {
       // Déterminer quelle route utiliser selon le prix
       if (course.price <= 0) {
         // Cours gratuit - utiliser l'inscription directe
-        const enrollResponse = await fetch(`/api/courses/${courseId}/enroll`, {
+        const enrollResponse = await fetch(`/api/account/courses/${courseId}/enroll`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ export default function CoursePurchasePage() {
               Cours introuvable
             </h2>
             <p className="text-gray-600 mb-4">
-              Le cours que vous cherchez n'existe pas ou n'est plus disponible.
+              Le cours que vous cherchez n'existe pas ou n'est plus disponible : {error}
             </p>
             <Button onClick={() => router.push('/dashboard/courses')}>
               Retour aux cours
