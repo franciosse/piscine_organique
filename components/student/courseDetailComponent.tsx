@@ -391,6 +391,12 @@ export function CourseDetailComponent({
     course.chapters[0]?.lessons[0] || undefined
   );
 
+  console.log('🔍 Course data:', course);
+  console.log('📚 Chapters:', course.chapters);
+  course.chapters.forEach((chapter, index) => {
+    console.log(`📖 Chapter ${index}:`, chapter);
+    console.log(`📝 Lessons in chapter ${index}:`, chapter.lessons);
+  });
   const handleLessonSelect = (lesson: LessonWithQuiz) => {
     if (hasAccess) {
       setActiveLesson(lesson);

@@ -77,8 +77,7 @@ export async function getCourseWithContentOptimized(courseId: number, userId?: n
         isNotNull(courseChapters.published)
       ))
       .leftJoin(lessons, and(
-        eq(lessons.chapterId, courseChapters.id),
-        isNotNull(lessons.published)
+        eq(lessons.chapterId, courseChapters.id)
       ))
       .leftJoin(quizzes, eq(quizzes.lessonId, lessons.id))
       .leftJoin(studentProgress, userId ? and(
