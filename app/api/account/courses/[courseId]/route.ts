@@ -20,15 +20,10 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       title: courses.title,
       description: courses.description,
       price: courses.price,
-      originalPrice: courses.originalPrice,
-      duration: courses.duration,
-      level: courses.level,
-      studentsCount: courses.studentsCount,
-      rating: courses.rating,
-      reviewsCount: courses.reviewsCount,
-      category: courses.category,
+      duration: courses.estimatedDuration,
+      level: courses.difficultyLevel,
       imageUrl: courses.imageUrl,
-      isPublished: courses.,
+      isPublished: courses.published,
       createdAt: courses.createdAt,
       updatedAt: courses.updatedAt,
       // Informations de l'instructeur
@@ -36,8 +31,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       instructorEmail: users.email,
     })
     .from(courses)
-    .leftJoin(users, eq(courses.instructorId, users.id))
-    .where(eq(courses.id, courseId))
+    .where(eq(courses.id, parseInt(courseId)))
     .limit(1);
 
     if (!courseData[0]) {
@@ -63,21 +57,11 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       title: course.title,
       description: course.description,
       price: course.price || 0,
-      originalPrice: course.originalPrice,
+      originalPrice: course.price,
       duration: course.duration || 'Non spécifié',
       level: course.level || 'Tous niveaux',
       instructor: course.instructor || 'Instructeur',
-      studentsCount: course.studentsCount || 0,
-      rating: course.rating || 4.5,
-      reviewsCount: course.reviewsCount || 0,
-      category: course.category || 'Général',
       imageUrl: course.imageUrl,
-      features: course.features || [
-        'Contenu de qualité professionnelle',
-        'Exercices pratiques',
-        'Support pédagogique',
-        'Ressources téléchargeables'
-      ],
     };
 
     return NextResponse.json(formattedCourse);
