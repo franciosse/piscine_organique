@@ -9,7 +9,7 @@ import {
   courseChapters, 
   lessons 
 } from '@/lib/db/schema';
-import { eq, sql, and } from 'drizzle-orm';
+import { eq, sql, and, isNotNull, or } from 'drizzle-orm';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
 
 
@@ -20,7 +20,7 @@ export const GET = withUserAuth(async (request, user) => {
   try {
 
     // Récupérer tous les cours achetés par l'utilisateur
-    const purchasedCoursesData = await db
+    const accessibleCoursesData = await db
       .select({
         // Données du cours
         courseId: courses.id,
@@ -36,17 +36,34 @@ export const GET = withUserAuth(async (request, user) => {
         authorId: courses.authorId,
         createdAt: courses.createdAt,
         updatedAt: courses.updatedAt,
-        // Données d'achat
+        // Données d'achat (sera null pour les cours gratuits)
         purchasedAt: coursePurchases.purchasedAt,
+        // Nouveau : indiquer si c'est acheté ou gratuit
+        isPurchased: sql<boolean>`CASE WHEN ${coursePurchases.id} IS NOT NULL THEN true ELSE false END`,
+        isFree: sql<boolean>`CASE WHEN ${courses.price} = 0 THEN true ELSE false END`,
       })
-      .from(coursePurchases)
-      .innerJoin(courses, eq(coursePurchases.courseId, courses.id))
-      .where(eq(coursePurchases.userId, user.id))
-      .orderBy(coursePurchases.purchasedAt);
+      .from(courses)
+      .leftJoin(coursePurchases, and(
+        eq(coursePurchases.courseId, courses.id),
+        eq(coursePurchases.userId, user.id)
+      ))
+      .where(
+        and(
+          isNotNull(courses.published), // Cours publié
+          or(
+            eq(courses.price, 0), // Cours gratuits
+            isNotNull(coursePurchases.id) // Cours achetés
+          )
+        )
+      )
+      .orderBy(
+        // Ordre : cours achetés d'abord (par date d'achat), puis cours gratuits (par date de création)
+        sql`CASE WHEN ${coursePurchases.purchasedAt} IS NOT NULL THEN ${coursePurchases.purchasedAt} ELSE ${courses.createdAt} END DESC`
+      );
 
     // Pour chaque cours acheté, calculer le progrès
     const coursesWithProgress = await Promise.all(
-      purchasedCoursesData.map(async (courseData) => {
+      accessibleCoursesData.map(async (courseData) => {
         // Compter le nombre total de leçons publiées dans le cours
         const totalLessonsResult = await db
           .select({ count: sql<number>`COUNT(*)`.as('count') })
