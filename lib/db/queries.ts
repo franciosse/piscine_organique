@@ -1,6 +1,6 @@
-import { desc, and, eq, isNull, like, or, count, sql, ilike } from 'drizzle-orm';
+import { desc, and, eq, isNull, like, or, ilike, count, sum, avg, gte, sql } from 'drizzle-orm';
 import { db } from './drizzle';
-import { activityLogs, users } from './schema';
+import { activityLogs, users, coursePurchases, courses, lessons, courseChapters, studentProgress } from './schema';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
 import { hashPassword } from '@/lib/auth/session';
@@ -393,6 +393,113 @@ export async function getUserStats() {
     unverified: unverifiedResult[0].count,
     recentlyCreated: recentResult[0].count,
     deletedCount: deletedResult[0].count
+  };
+}
+
+/** Stats des courses */
+
+export async function getCourseStats() {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  // Stats générales des cours
+  const [totalCourses] = await db
+    .select({ count: count() })
+    .from(courses);
+
+  const [publishedCourses] = await db
+    .select({ count: count() })
+    .from(courses)
+    .where(sql`${courses.published} IS NOT NULL`);
+
+  const [draftCourses] = await db
+    .select({ count: count() })
+    .from(courses)
+    .where(sql`${courses.published} IS NULL`);
+
+  const [freeCourses] = await db
+    .select({ count: count() })
+    .from(courses)
+    .where(eq(courses.price, 0));
+
+  const [paidCourses] = await db
+    .select({ count: count() })
+    .from(courses)
+    .where(sql`${courses.price} > 0`);
+
+  // Stats des achats
+  const [purchaseStats] = await db
+    .select({ 
+      totalPurchases: count(),
+      totalRevenue: sum(coursePurchases.amount),
+    })
+    .from(coursePurchases)
+    .where(eq(coursePurchases.status, 'completed'));
+
+  const [averagePriceResult] = await db
+    .select({ 
+      avgPrice: avg(courses.price)
+    })
+    .from(courses)
+    .where(sql`${courses.price} > 0`);
+
+  // Cours créés récemment
+  const [recentCoursesCount] = await db
+    .select({ count: count() })
+    .from(courses)
+    .where(gte(courses.createdAt, sevenDaysAgo));
+
+  // Taux de completion moyen
+  const completionRateQuery = await db
+    .select({
+      totalLessons: count(lessons.id),
+      completedLessons: count(studentProgress.id),
+    })
+    .from(lessons)
+    .leftJoin(courseChapters, eq(lessons.chapterId, courseChapters.id))
+    .leftJoin(courses, eq(courseChapters.courseId, courses.id))
+    .leftJoin(studentProgress, eq(lessons.id, studentProgress.lessonId))
+    .where(sql`${courses.published} IS NOT NULL AND ${studentProgress.completed} = true`);
+
+  // Top 5 des cours les plus populaires
+  const popularCourses = await db
+    .select({
+      id: courses.id,
+      title: courses.title,
+      purchaseCount: count(coursePurchases.id),
+      revenue: sum(coursePurchases.amount),
+    })
+    .from(courses)
+    .leftJoin(coursePurchases, eq(courses.id, coursePurchases.courseId))
+    .where(eq(coursePurchases.status, 'completed'))
+    .groupBy(courses.id, courses.title)
+    .orderBy(desc(count(coursePurchases.id)))
+    .limit(5);
+
+  // Calcul du taux de completion
+  const totalLessonsInSystem = completionRateQuery[0]?.totalLessons || 0;
+  const totalCompletedLessons = completionRateQuery[0]?.completedLessons || 0;
+  const completionRate = totalLessonsInSystem > 0 
+    ? Math.round((totalCompletedLessons / totalLessonsInSystem) * 100) 
+    : 0;
+
+  return {
+    total: totalCourses.count,
+    published: publishedCourses.count,
+    draft: draftCourses.count,
+    free: freeCourses.count,
+    paid: paidCourses.count,
+    totalPurchases: purchaseStats.totalPurchases || 0,
+    totalRevenue: Number(purchaseStats.totalRevenue) || 0,
+    averagePrice: Math.round(Number(averagePriceResult.avgPrice)) || 0,
+    recentlyCreated: recentCoursesCount.count,
+    completionRate,
+    popularCourses: popularCourses.map(course => ({
+      id: course.id,
+      title: course.title,
+      purchases: course.purchaseCount,
+      revenue: Number(course.revenue) || 0,
+    })),
   };
 }
 

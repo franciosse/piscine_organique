@@ -36,7 +36,7 @@ export default function LessonEditor({ lessonId }: LessonEditorProps) {
 
   const fetchLesson = async () => {
     try {
-      const response = await fetch(`/api/admin//chapters/${lesson?.chapterId}lessons/${lessonId}`);
+      const response = await fetch(`/api/admin//chapters/${lesson?.chapter.id}lessons/${lessonId}`);
       const data = await response.json();
       
       if (response.ok) {
