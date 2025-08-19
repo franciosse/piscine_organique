@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { courses, users } from '@/lib/db/schema';
+import { withUserAuth } from '@/app/api/_lib/route-helpers';
+
 
 interface RouteParams {
   params: {
@@ -10,9 +12,10 @@ interface RouteParams {
   };
 }
 
-export async function GET(req: NextRequest, { params }: RouteParams) {
+export const GET = withUserAuth(async (req: NextRequest, authenticatedUser, { params }) => {
   try {
-    const { courseId } = params;
+    const resolvedParams = await params;
+    const courseId = parseInt(resolvedParams.courseId);
 
     // Récupérer le cours avec les informations de l'instructeur
     const courseData = await db.select({
@@ -31,7 +34,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       instructorEmail: users.email,
     })
     .from(courses)
-    .where(eq(courses.id, parseInt(courseId)))
+    .where(eq(courses.id, courseId))
     .limit(1);
 
     if (!courseData[0]) {
@@ -73,4 +76,4 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});

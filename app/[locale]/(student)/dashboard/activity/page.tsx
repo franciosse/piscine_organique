@@ -15,6 +15,7 @@ import {
   CreditCard,
   Check,
   CheckCheck,
+  DollarSign,
 } from 'lucide-react';
 import { ActivityType } from '@/lib/db/schema';
 import { getActivityLogs } from '@/lib/db/queries';
@@ -32,6 +33,7 @@ const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.COMPLETE_LESSON]: CheckCheck,
   [ActivityType.COMPLETE_QUIZ]: Check,
   [ActivityType.CHANGE_PASSWORD]: Lock,
+  [ActivityType.COURSE_PURCHASED] : DollarSign,
 };
 
 function getRelativeTime(date: Date) {
