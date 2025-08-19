@@ -4,7 +4,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { courses, coursePurchases } from '@/lib/db/schema';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
-import { createCheckoutSessionForAPI } from '@/lib/payments/stripe';
+import { createCheckoutSession } from '@/lib/payments/stripe';
 
 interface RouteParams {
   params: {
@@ -80,17 +80,25 @@ export const POST = withUserAuth(async (req: NextRequest, authenticatedUser, { p
       );
     }
 
-    // Utiliser votre fonction createCheckoutSession modifiée
-    const checkoutSession = await createCheckoutSessionForAPI({
-      courseId: courseId,
-      userId: authenticatedUser.id,
-    });
+    // Utiliser votre fonction createCheckoutSession existante
+    try {
+      await createCheckoutSession({
+        courseId: courseId,
+        userId: authenticatedUser.id,
+      });
+      
+      // Si createCheckoutSession utilise redirect(), cette ligne ne sera jamais atteinte
+      // Mais on garde cette réponse au cas où vous modifieriez la fonction pour retourner l'URL
+      return NextResponse.json({
+        success: true,
+        message: 'Redirection vers Stripe en cours...'
+      });
 
-    return NextResponse.json({
-      success: true,
-      checkoutUrl: checkoutSession.url,
-      sessionId: checkoutSession.sessionId,
-    });
+    } catch (redirectError) {
+      // Si createCheckoutSession fait un redirect(), cela génère une erreur
+      // C'est normal avec les redirections Next.js
+      throw redirectError;
+    }
 
   } catch (error: any) {
     // Si c'est une redirection Next.js, on la laisse passer

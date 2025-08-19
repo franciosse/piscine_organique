@@ -260,3 +260,117 @@ export async function updateStripePrice(course: {
     throw error;
   }
 }
+
+export async function createCheckoutSessionForAPI({
+  courseId,
+  userId,
+  priceId
+}: {
+  courseId: number;
+  userId: number;
+  priceId?: string;
+}) {
+  try {
+    // Récupérer le cours
+    const course = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.id, courseId))
+      .limit(1);
+
+    if (course.length === 0) {
+      throw new Error('Course not found');
+    }
+
+    const courseData = course[0];
+
+    // Vérifier que l'utilisateur n'a pas déjà acheté ce cours
+    const existingPurchase = await db
+      .select()
+      .from(coursePurchases)
+      .where(and(
+        eq(coursePurchases.userId, userId),
+        eq(coursePurchases.courseId, courseId)
+      ))
+      .limit(1);
+
+    if (existingPurchase.length > 0) {
+      throw new Error('Vous êtes déjà inscrit à ce cours');
+    }
+
+    // Récupérer l'utilisateur pour l'email
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (user.length === 0) {
+      throw new Error('User not found');
+    }
+
+    // Utiliser le priceId fourni ou celui du cours
+    let stripePriceId = priceId || courseData.stripePriceId;
+
+    // Si pas de price ID, créer le produit et le prix dans Stripe
+    if (!stripePriceId) {
+      const product = await stripe.products.create({
+        name: courseData.title,
+        description: courseData.description || undefined,
+        images: courseData.imageUrl ? [courseData.imageUrl] : undefined,
+        metadata: {
+          courseId: courseId.toString(),
+          type: 'course',
+        },
+      });
+
+      const price = await stripe.prices.create({
+        unit_amount: courseData.price,
+        currency: 'eur',
+        product: product.id,
+        metadata: {
+          courseId: courseId.toString(),
+        },
+      });
+
+      stripePriceId = price.id;
+
+      // Sauvegarder l'ID du prix dans la base de données
+      await db
+        .update(courses)
+        .set({ stripePriceId })
+        .where(eq(courses.id, courseId));
+    }
+
+    // Créer la session de checkout
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: stripePriceId,
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${process.env.BASE_URL}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.BASE_URL}/dashboard/courses/${courseId}/purchase?canceled=true`,
+      customer_email: user[0].email,
+      client_reference_id: userId.toString(),
+      metadata: {
+        courseId: courseId.toString(),
+        userId: userId.toString(),
+      },
+      allow_promotion_codes: true,
+    });
+
+    // RETOURNER l'URL au lieu de faire un redirect
+    return {
+      url: session.url!,
+      sessionId: session.id,
+    };
+
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    throw error;
+  }
+}

@@ -1,16 +1,16 @@
-
-// /app/api/stripe/webhook/route.ts
+// app/api/stripe/webhook/route.ts
 import Stripe from 'stripe';
 import { handlePaymentSuccess, stripe } from '@/lib/payments/stripe';
 import { NextRequest, NextResponse } from 'next/server';
-import { withUserAuth } from '@/app/api/_lib/route-helpers';
-
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-export const POST = withUserAuth(async (request, user) => {
+// ⚠️ IMPORTANT: Les webhooks Stripe NE DOIVENT PAS utiliser withUserAuth
+// car ils viennent directement de Stripe, pas d'un utilisateur connecté
+export async function POST(request: NextRequest) {
   const payload = await request.text();
   const signature = request.headers.get('stripe-signature') as string;
+
   let event: Stripe.Event;
 
   try {
@@ -23,27 +23,36 @@ export const POST = withUserAuth(async (request, user) => {
     );
   }
 
-  switch (event.type) {
-    case 'checkout.session.completed':
-      const session = event.data.object as Stripe.Checkout.Session;
-      if (session.payment_status === 'paid') {
-        await handlePaymentSuccess(session);
-      }
-      break;
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (session.payment_status === 'paid') {
+          await handlePaymentSuccess(session);
+        }
+        break;
 
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      console.log('Payment succeeded:', paymentIntent.id);
-      break;
+      case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.log('Payment succeeded:', paymentIntent.id);
+        break;
 
-    case 'payment_intent.payment_failed':
-      const failedPayment = event.data.object as Stripe.PaymentIntent;
-      console.log('Payment failed:', failedPayment.id);
-      break;
+      case 'payment_intent.payment_failed':
+        const failedPayment = event.data.object as Stripe.PaymentIntent;
+        console.log('Payment failed:', failedPayment.id);
+        break;
 
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    return NextResponse.json({ received: true });
+
+  } catch (error) {
+    console.error('Webhook processing error:', error);
+    return NextResponse.json(
+      { error: 'Webhook processing failed' },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({ received: true });
-});
+}
