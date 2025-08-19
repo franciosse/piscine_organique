@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CircleIcon, Loader2, Eye, EyeOff, Shield, AlertTriangle } from 'lucide-react';
+import { mutate } from 'swr';
 
 // Hook pour détecter comportement humain
 function useHumanBehavior(mode : string) {
@@ -185,6 +186,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           router.push('/sign-in');
         } else {
           // Connexion réussie
+          await mutate('/api/account/user');
           const redirectUrl = json.redirect || redirect || '/dashboard';
           router.push(redirectUrl);
         }
