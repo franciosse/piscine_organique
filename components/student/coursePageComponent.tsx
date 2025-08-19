@@ -5,6 +5,8 @@ import { CourseCard } from './courseCard';
 import { Course } from '@/lib/db/schema';
 import { useState, useMemo } from 'react';
 import { Search, Filter, Grid, List } from 'lucide-react';
+import { getCourseProps } from '@/lib/course/courseHelper';
+
 
 interface CoursesPageComponentProps {
   courses: Course[];
@@ -133,15 +135,18 @@ export function CoursesPageComponent({
             ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             : "space-y-4"
         }>
-          {filteredCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              showPurchaseButton={true}
-              isPurchased={purchasedCourseIds.includes(course.id)}
-            //  viewMode={viewMode}
-            />
-          ))}
+          {filteredCourses.map((course) => {
+            const courseProps = getCourseProps(course, purchasedCourseIds);
+            
+            return (
+              <CourseCard
+                key={course.id}
+                course={course}
+                showPurchaseButton={true}
+                {...courseProps}
+              />
+            );
+          })};
         </div>
       )}
     </div>
