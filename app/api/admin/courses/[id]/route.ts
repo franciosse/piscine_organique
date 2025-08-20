@@ -14,7 +14,7 @@ const updateCourseSchema = z.object({
   difficultyLevel: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
   estimatedDuration: z.number().optional(),
   imageUrl: z.string().url().optional(),
-  published: z.string().optional(), // ISO date string ou null
+  published: z.string().datetime().nullable().optional(), // ISO date string ou null
 });
 
 
@@ -22,7 +22,7 @@ interface RouteParams {
   id: string;
 }
 
-// GET /api/admin/courses/[id] - Récupérer un cours spécifique avec ses chapitres
+// GET /api/admin/courses/[id] - Récupérer un cours spécifique avec ses chapitres 
 export const GET = withAdminAuth(async (req, adminUser, { params }) => {
   try {
       const resolvedParams = await params;
