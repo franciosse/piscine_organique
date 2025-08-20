@@ -279,13 +279,13 @@ function QuickActions() {
       icon: Search,
       color: 'from-blue-500 to-blue-600'
     },
-    {
-      title: 'Mes certificats',
-      description: 'Consultez vos réussites',
-      href: '/dashboard/certificates',
-      icon: Award,
-      color: 'from-green-500 to-green-600'
-    },
+    // {
+    //   title: 'Mes certificats',
+    //   description: 'Consultez vos réussites',
+    //   href: '/dashboard/certificates',
+    //   icon: Award,
+    //   color: 'from-green-500 to-green-600'
+    // },
     {
       title: 'Mon profil',
       description: 'Gérez vos informations',
