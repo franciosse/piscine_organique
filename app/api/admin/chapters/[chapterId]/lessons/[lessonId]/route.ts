@@ -1,7 +1,15 @@
 // app/api/admin/chapters/[chapterId]/lessons/[lessonId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
-import { lessons } from '@/lib/db/schema';
+import { 
+  lessons, 
+  courseChapters,
+  courses,
+  lessonAttachments,
+  quizzes,
+  quizQuestions,
+  quizAnswers
+} from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
@@ -58,7 +66,7 @@ async function generateUniqueSlug(title: string, chapterId: number, excludeLesso
   return slug;
 }
 
-// --- GET LESSON ---
+// --- GET LESSON WITH FULL DETAILS ---
 export const GET = withAdminAuth(async (req, adminUser, { params }) => {
   const resolvedParams = await params;
   const chapterId = parseInt(resolvedParams.chapterId);
@@ -72,9 +80,32 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
   }
 
   try {
-    const lesson = await db
-      .select()
+    // 1. Récupérer la leçon avec les infos du chapitre et du cours
+    const lessonWithChapter = await db
+      .select({
+        // Champs de la leçon
+        id: lessons.id,
+        title: lessons.title,
+        slug: lessons.slug,
+        content: lessons.content,
+        videoUrl: lessons.videoUrl,
+        position: lessons.position,
+        duration: lessons.duration,
+        published: lessons.published,
+        chapterId: lessons.chapterId,
+        createdAt: lessons.createdAt,
+        updatedAt: lessons.updatedAt,
+        // Champs du chapitre
+        chapterTitle: courseChapters.title,
+        chapterDescription: courseChapters.description,
+        // Champs du cours
+        courseId: courses.id,
+        courseTitle: courses.title,
+        courseSlug: courses.slug,
+      })
       .from(lessons)
+      .innerJoin(courseChapters, eq(lessons.chapterId, courseChapters.id))
+      .innerJoin(courses, eq(courseChapters.courseId, courses.id))
       .where(
         and(
           eq(lessons.id, lessonId),
@@ -83,14 +114,92 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
       )
       .limit(1);
 
-    if (lesson.length === 0) {
+    if (lessonWithChapter.length === 0) {
       return NextResponse.json(
         { error: 'Leçon introuvable' },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(lesson[0]);
+    const lessonData = lessonWithChapter[0];
+
+    // 2. Récupérer les attachments
+    const attachments = await db
+      .select()
+      .from(lessonAttachments)
+      .where(eq(lessonAttachments.lessonId, lessonId))
+      .orderBy(lessonAttachments.createdAt);
+
+    // 3. Récupérer les quizzes avec leurs questions et réponses
+    const quizzesData = await db
+      .select()
+      .from(quizzes)
+      .where(eq(quizzes.lessonId, lessonId))
+      .orderBy(quizzes.createdAt);
+
+    // 4. Pour chaque quiz, récupérer ses questions et réponses
+    const quizzesWithQuestions = await Promise.all(
+      quizzesData.map(async (quiz) => {
+        // Récupérer les questions du quiz
+        const questions = await db
+          .select()
+          .from(quizQuestions)
+          .where(eq(quizQuestions.quizId, quiz.id))
+          .orderBy(quizQuestions.position);
+
+        // Pour chaque question, récupérer ses réponses
+        const questionsWithAnswers = await Promise.all(
+          questions.map(async (question) => {
+            const answers = await db
+              .select()
+              .from(quizAnswers)
+              .where(eq(quizAnswers.questionId, question.id))
+              .orderBy(quizAnswers.position);
+
+            return {
+              ...question,
+              answers,
+            };
+          })
+        );
+
+        return {
+          ...quiz,
+          questions: questionsWithAnswers,
+        };
+      })
+    );
+
+    // 5. Construire la réponse finale
+    const lessonWithDetails = {
+      id: lessonData.id,
+      title: lessonData.title,
+      slug: lessonData.slug,
+      content: lessonData.content,
+      videoUrl: lessonData.videoUrl,
+      position: lessonData.position,
+      duration: lessonData.duration,
+      published: lessonData.published,
+      chapterId: lessonData.chapterId,
+      createdAt: lessonData.createdAt,
+      updatedAt: lessonData.updatedAt,
+      // Informations enrichies
+      chapter: {
+        id: lessonData.chapterId,
+        title: lessonData.chapterTitle,
+        description: lessonData.chapterDescription,
+        courseId: lessonData.courseId,
+      },
+      course: {
+        id: lessonData.courseId,
+        title: lessonData.courseTitle,
+        slug: lessonData.courseSlug,
+      },
+      attachments,
+      quizzes: quizzesWithQuestions,
+    };
+
+    return NextResponse.json(lessonWithDetails);
 
   } catch (error: any) {
     console.error('Erreur lors de la récupération de la leçon:', error);
@@ -340,7 +449,7 @@ export const DELETE = withAdminAuth(async (req, adminUser, { params }) => {
       );
     }
 
-    // Supprimer la leçon
+    // Supprimer la leçon (les cascades devraient gérer les dépendances)
     await db
       .delete(lessons)
       .where(

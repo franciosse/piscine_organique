@@ -409,7 +409,7 @@ function Header() {
             <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent sm:hidden">
               PO
             </span>
-            <p className="text-xs text-gray-500 hidden sm:block">Formation écologique</p>
+            <p className="text-xs text-gray-500 hidden sm:block">Naturelle, économique et écologique</p>
           </div>
         </Link>
 
