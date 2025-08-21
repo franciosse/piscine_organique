@@ -1,9 +1,10 @@
 // components/admin/LessonForm.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lesson, LessonAttachment, Quiz, QuizQuestion, QuizAnswer } from '@/lib/db/schema';
+import ImageSelector from '@/components/admin/imageSelector';
 
 interface LessonFormProps {
   courseId: number;
@@ -52,6 +53,10 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'lesson' | 'quiz'>('lesson');
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  
+  // Refs pour la gestion du contenu
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const [formData, setFormData] = useState<FormData>({
     title: initialData?.title || '',
@@ -76,6 +81,79 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
       }))
     })) || []
   });
+
+  // Fonction pour uploader une image
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'lesson-content');
+    
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Erreur lors de l\'upload de l\'image');
+    }
+    
+    const data = await response.json();
+    return data.url;
+  };
+
+  // Fonction pour insérer du texte à la position du curseur
+  const insertTextAtCursor = (text: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const textBefore = formData.content.substring(0, startPos);
+    const textAfter = formData.content.substring(endPos);
+    
+    const newContent = textBefore + text + textAfter;
+    setFormData(prev => ({ ...prev, content: newContent }));
+    
+    // Repositionner le curseur après l'insertion
+    setTimeout(() => {
+      const newCursorPos = startPos + text.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+      textarea.focus();
+    }, 0);
+  };
+
+  // Gestion de l'upload d'images
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Vérifier le type de fichier
+    if (!file.type.startsWith('image/')) {
+      setError('❌ Veuillez sélectionner un fichier image valide (JPG, PNG, WebP, etc.)');
+      return;
+    }
+
+    // Vérifier la taille (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('❌ L\'image ne peut pas dépasser 5MB');
+      return;
+    }
+
+    const originalError = error;
+
+    try {
+      const imageUrl = await uploadImage(file);
+      const imageHtml = `<img src="${imageUrl}" alt="Image de la leçon" class="max-w-full h-auto rounded-lg my-4" />`;
+      insertTextAtCursor(imageHtml);
+      
+      // Message de succès temporaire
+      setError('✅ Image ajoutée avec succès !');
+      setTimeout(() => setError(''), 2000);
+    } catch (err) {
+      setError('❌ Erreur lors de l\'upload de l\'image. Vérifiez le format et la taille.');
+      console.error('Upload error:', err);
+    }
+  };
 
   const handleSubmitLesson = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,6 +310,12 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  // Fonctions pour insérer du HTML rapidement
+  const insertHtmlTag = (tag: string, placeholder: string = '') => {
+    const html = `<${tag}>${placeholder}</${tag}>`;
+    insertTextAtCursor(html);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white shadow rounded-lg">
@@ -291,7 +375,7 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
 
               <div>
                 <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-700 mb-2">
-                  URL de la vidéo
+                  URL de la vidéo (optionnelle)
                 </label>
                 <input
                   type="url"
@@ -302,6 +386,9 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="https://example.com/video.mp4"
                 />
+                <p className="text-sm text-gray-500 mt-1">
+                  Laissez vide si cette leçon n'a pas de vidéo associée.
+                </p>
                 {formData.videoUrl && (
                   <div className="mt-2">
                     <video
@@ -320,7 +407,7 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
 
               <div>
                 <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
-                  Durée (secondes)
+                  Durée (secondes) {!formData.videoUrl && '(optionnelle)'}
                 </label>
                 <div className="flex items-center space-x-2">
                   <input
@@ -339,23 +426,104 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
                     </span>
                   )}
                 </div>
+                {!formData.videoUrl && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Durée estimée de lecture/compréhension du contenu.
+                  </p>
+                )}
               </div>
 
               <div>
                 <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
                   Contenu de la leçon
                 </label>
+                
+                {/* Barre d'outils pour le contenu */}
+                <div className="bg-gray-50 border border-gray-300 rounded-t-lg p-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowImageSelector(true)}
+                    className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
+                  >
+                    🖼️ Image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertHtmlTag('h2', 'Titre de section')}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                  >
+                    H2
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertHtmlTag('h3', 'Sous-titre')}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                  >
+                    H3
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertHtmlTag('p', 'Votre paragraphe...')}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                  >
+                    ¶ P
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertHtmlTag('strong', 'texte en gras')}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 font-bold"
+                  >
+                    B
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertHtmlTag('em', 'texte en italique')}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 italic"
+                  >
+                    I
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertTextAtCursor('<ul>\n  <li>Premier élément</li>\n  <li>Deuxième élément</li>\n</ul>')}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                  >
+                    • Liste
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertTextAtCursor('<blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-600 my-4">\n  Citation importante\n</blockquote>')}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                  >
+                    " Citation
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertTextAtCursor('<div class="bg-blue-50 border-l-4 border-blue-400 p-4 my-4">\n  <p class="text-blue-700"><strong>💡 Info :</strong> Information importante à retenir</p>\n</div>')}
+                    className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
+                  >
+                    💡 Info
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertTextAtCursor('<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">\n  <p class="text-yellow-700"><strong>⚠️ Attention :</strong> Point important à noter</p>\n</div>')}
+                    className="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm rounded hover:bg-yellow-200"
+                  >
+                    ⚠️ Warning
+                  </button>
+                </div>
+
                 <textarea
+                  ref={textareaRef}
                   id="content"
                   name="content"
                   value={formData.content}
                   onChange={handleChange}
                   rows={12}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border-l border-r border-b border-gray-300 rounded-b-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Rédigez le contenu de votre leçon en HTML ou Markdown..."
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Vous pouvez utiliser du HTML pour la mise en forme.
+                  Vous pouvez utiliser du HTML pour la mise en forme. Utilisez les boutons ci-dessus pour insérer rapidement des éléments.
                 </p>
               </div>
 

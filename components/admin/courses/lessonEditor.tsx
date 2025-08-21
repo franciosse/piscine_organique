@@ -1,10 +1,11 @@
 // components/admin/LessonEditor.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Lesson, LessonAttachment, Quiz, QuizQuestion, QuizAnswer } from '@/lib/db/schema';
+import ImageSelector from '@/components/admin/imageSelector';
 
 interface LessonWithDetails extends Lesson {
   attachments: LessonAttachment[];
@@ -65,13 +66,17 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   
-  // ✅ AJOUT : États pour le mode édition
+  // États pour le mode édition
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'lesson' | 'quiz'>('lesson');
   const [savingLesson, setSavingLesson] = useState(false);
   const [savingQuiz, setSavingQuiz] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  
+  // Refs pour la gestion du contenu
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // ✅ AJOUT : États pour les formulaires
+  // États pour les formulaires
   const [formData, setFormData] = useState<FormData>({
     title: '',
     content: '',
@@ -91,7 +96,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
     fetchLesson();
   }, [lessonId]);
 
-  // ✅ AJOUT : Initialiser les formulaires quand les données arrivent
+  // Initialiser les formulaires quand les données arrivent
   useEffect(() => {
     if (lesson) {
       setFormData({
@@ -141,7 +146,44 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
     }
   };
 
-  // ✅ AJOUT : Fonction pour sauvegarder la leçon
+  // Fonction pour insérer du texte à la position du curseur
+  const insertTextAtCursor = (text: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const textBefore = formData.content.substring(0, startPos);
+    const textAfter = formData.content.substring(endPos);
+    
+    const newContent = textBefore + text + textAfter;
+    setFormData(prev => ({ ...prev, content: newContent }));
+    
+    // Repositionner le curseur après l'insertion
+    setTimeout(() => {
+      const newCursorPos = startPos + text.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+      textarea.focus();
+    }, 0);
+  };
+
+  // Gestion de la sélection d'images
+  const handleImageSelect = (imageUrl: string) => {
+    const imageHtml = `<img src="${imageUrl}" alt="Image de la leçon" class="max-w-full h-auto rounded-lg my-4" />`;
+    insertTextAtCursor(imageHtml);
+    
+    // Message de succès temporaire
+    setError('✅ Image ajoutée avec succès !');
+    setTimeout(() => setError(''), 2000);
+  };
+
+  // Fonctions pour insérer du HTML rapidement
+  const insertHtmlTag = (tag: string, placeholder: string = '') => {
+    const html = `<${tag}>${placeholder}</${tag}>`;
+    insertTextAtCursor(html);
+  };
+
+  // Fonction pour sauvegarder la leçon
   const handleSaveLesson = async () => {
     if (!lesson) return;
     
@@ -159,7 +201,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
       if (response.ok) {
         await fetchLesson(); // Recharger les données
         setError('');
-        // Optionnel: message de succès
+        setIsEditing(false); // Sortir du mode édition après sauvegarde
       } else {
         setError(data.error || 'Erreur lors de la sauvegarde');
       }
@@ -170,7 +212,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
     }
   };
 
-  // ✅ AJOUT : Fonction pour sauvegarder le quiz
+  // Fonction pour sauvegarder le quiz
   const handleSaveQuiz = async () => {
     if (!lesson) return;
     
@@ -189,7 +231,6 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
       if (response.ok) {
         await fetchLesson(); // Recharger les données
         setError('');
-        // Optionnel: message de succès
       } else {
         setError(data.error || 'Erreur lors de la sauvegarde du quiz');
       }
@@ -200,7 +241,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
     }
   };
 
-  // ✅ AJOUT : Gestion des changements dans le formulaire leçon
+  // Gestion des changements dans le formulaire leçon
   const handleLessonChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
@@ -209,7 +250,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
     }));
   };
 
-  // ✅ AJOUT : Gestion des changements dans le formulaire quiz
+  // Gestion des changements dans le formulaire quiz
   const handleQuizChange = (field: keyof QuizFormData, value: any) => {
     setQuizData(prev => ({
       ...prev,
@@ -217,7 +258,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
     }));
   };
 
-  // ✅ AJOUT : Gestion des questions
+  // Gestion des questions
   const addQuestion = () => {
     const newQuestion: QuestionFormData = {
       question: '',
@@ -462,7 +503,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
             </p>
           </div>
           <div className="flex space-x-2">
-            {/* ✅ NOUVEAU : Basculer entre visualisation et édition */}
+            {/* Basculer entre visualisation et édition */}
             <button
               onClick={() => setIsEditing(!isEditing)}
               className={`px-4 py-2 rounded-lg transition-colors ${
@@ -498,7 +539,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
         </div>
       </div>
 
-      {/* ✅ NOUVEAU : Mode édition avec onglets */}
+      {/* Mode édition avec onglets */}
       {isEditing ? (
         <div className="bg-white shadow rounded-lg">
           {/* Onglets */}
@@ -549,7 +590,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
 
                 <div>
                   <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-700 mb-2">
-                    URL de la vidéo
+                    URL de la vidéo (optionnelle)
                   </label>
                   <input
                     type="url"
@@ -560,11 +601,28 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="https://example.com/video.mp4"
                   />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Laissez vide si cette leçon n'a pas de vidéo associée.
+                  </p>
+                  {formData.videoUrl && (
+                    <div className="mt-2">
+                      <video
+                        src={formData.videoUrl}
+                        controls
+                        className="max-w-md h-40 rounded"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      >
+                        Aperçu vidéo non disponible
+                      </video>
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
-                    Durée (secondes)
+                    Durée (secondes) {!formData.videoUrl && '(optionnelle)'}
                   </label>
                   <div className="flex items-center space-x-2">
                     <input
@@ -583,22 +641,116 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
                       </span>
                     )}
                   </div>
+                  {!formData.videoUrl && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Durée estimée de lecture/compréhension du contenu.
+                    </p>
+                  )}
                 </div>
 
                 <div>
                   <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
                     Contenu de la leçon
                   </label>
+                  
+                  {/* Barre d'outils pour le contenu */}
+                  <div className="bg-gray-50 border border-gray-300 rounded-t-lg p-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowImageSelector(true)}
+                      className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
+                    >
+                      🖼️ Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertHtmlTag('h2', 'Titre de section')}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                    >
+                      H2
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertHtmlTag('h3', 'Sous-titre')}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                    >
+                      H3
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertHtmlTag('p', 'Votre paragraphe...')}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                    >
+                      ¶ P
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertHtmlTag('strong', 'texte en gras')}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 font-bold"
+                    >
+                      B
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertHtmlTag('em', 'texte en italique')}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 italic"
+                    >
+                      I
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertTextAtCursor('<ul>\n  <li>Premier élément</li>\n  <li>Deuxième élément</li>\n</ul>')}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                    >
+                      • Liste
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertTextAtCursor('<blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-600 my-4">\n  Citation importante\n</blockquote>')}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
+                    >
+                      " Citation
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertTextAtCursor('<div class="bg-blue-50 border-l-4 border-blue-400 p-4 my-4">\n  <p class="text-blue-700"><strong>💡 Info :</strong> Information importante à retenir</p>\n</div>')}
+                      className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
+                    >
+                      💡 Info
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertTextAtCursor('<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">\n  <p class="text-yellow-700"><strong>⚠️ Attention :</strong> Point important à noter</p>\n</div>')}
+                      className="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm rounded hover:bg-yellow-200"
+                    >
+                      ⚠️ Warning
+                    </button>
+                  </div>
+
                   <textarea
+                    ref={textareaRef}
                     id="content"
                     name="content"
                     value={formData.content}
                     onChange={handleLessonChange}
                     rows={12}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border-l border-r border-b border-gray-300 rounded-b-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Rédigez le contenu de votre leçon en HTML ou Markdown..."
                   />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Vous pouvez utiliser du HTML pour la mise en forme. Utilisez les boutons ci-dessus pour insérer rapidement des éléments.
+                  </p>
                 </div>
+
+                {formData.content && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">Aperçu du contenu</h3>
+                    <div 
+                      className="prose max-w-none p-4 border border-gray-200 rounded-lg bg-gray-50"
+                      dangerouslySetInnerHTML={{ __html: formData.content }}
+                    />
+                  </div>
+                )}
 
                 <div className="flex justify-end space-x-4 pt-6 border-t">
                   <button
@@ -645,6 +797,19 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
                       onChange={(e) => handleQuizChange('passingScore', parseInt(e.target.value))}
                       min="0"
                       max="100"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nombre maximum de tentatives
+                    </label>
+                    <input
+                      type="number"
+                      value={quizData.maxAttempts}
+                      onChange={(e) => handleQuizChange('maxAttempts', parseInt(e.target.value))}
+                      min="1"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
@@ -817,7 +982,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
           </div>
         </div>
       ) : (
-        /* ✅ Mode visualisation normal */
+        /* Mode visualisation normal */
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Colonne gauche : Contenu principal */}
           <div className="space-y-6">
@@ -1070,6 +1235,14 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
           </div>
         </div>
       )}
+
+      {/* Sélecteur d'images */}
+      <ImageSelector
+        isOpen={showImageSelector}
+        onClose={() => setShowImageSelector(false)}
+        onSelect={handleImageSelect}
+        filter="lessons"
+      />
     </div>
   );
 }

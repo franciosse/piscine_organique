@@ -58,7 +58,7 @@ export function CoursesPageComponent({
           Tous les cours
         </h1>
         <p className="text-gray-600">
-          Découvrez notre catalogue de formations et développez vos compétences
+          Découvrez notre catalogue de formation à l'autoconstruction de piscine organqiue et développez vos compétences
         </p>
       </div>
 
