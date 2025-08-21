@@ -9,7 +9,7 @@ import {
   quizAttempts,
   quizAttemptAnswers 
 } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 
@@ -295,7 +295,6 @@ export const POST = withAdminAuth(async (req, adminUser, { params }) => {
 export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
   const resolvedParams = await params;
   const lessonId = parseInt(resolvedParams.lessonId);
-
   if (isNaN(lessonId)) {
     return NextResponse.json(
       { error: 'ID de leçon invalide' },
@@ -311,7 +310,7 @@ export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
     const validationErrors = validateQuestions(parsed.questions);
     if (validationErrors.length > 0) {
       return NextResponse.json(
-        { 
+        {
           error: 'Erreurs de validation',
           details: validationErrors
         },
@@ -350,21 +349,25 @@ export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
         .returning();
 
       // 2. Supprimer toutes les anciennes réponses et questions
-      await tx.delete(quizAnswers).where(
-        eq(quizAnswers.questionId, 
-          db.select({ id: quizQuestions.id })
-            .from(quizQuestions)
-            .where(eq(quizQuestions.quizId, quizId))
-        )
-      );
-      
+      // CORRECTION: Utiliser inArray au lieu de eq avec une sous-requête
+      const questionIds = await tx
+        .select({ id: quizQuestions.id })
+        .from(quizQuestions)
+        .where(eq(quizQuestions.quizId, quizId));
+
+      if (questionIds.length > 0) {
+        await tx.delete(quizAnswers).where(
+          inArray(quizAnswers.questionId, questionIds.map(q => q.id))
+        );
+      }
+
       await tx.delete(quizQuestions).where(eq(quizQuestions.quizId, quizId));
 
       // 3. Recréer les questions et réponses
       const createdQuestions = [];
       for (let i = 0; i < parsed.questions.length; i++) {
         const question = parsed.questions[i];
-        
+
         const [createdQuestion] = await tx
           .insert(quizQuestions)
           .values({
@@ -380,7 +383,7 @@ export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
         const createdAnswers = [];
         for (let j = 0; j < question.answers.length; j++) {
           const answer = question.answers[j];
-          
+
           const [createdAnswer] = await tx
             .insert(quizAnswers)
             .values({
@@ -414,14 +417,14 @@ export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
 
   } catch (error: any) {
     console.error('Erreur lors de la mise à jour du quiz:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
+        {
           error: 'Données invalides',
-          details: error.errors.map(e => ({ 
-            field: e.path.join('.'), 
-            message: e.message 
+          details: error.errors.map(e => ({
+            field: e.path.join('.'),
+            message: e.message
           }))
         },
         { status: 400 }

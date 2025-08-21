@@ -28,7 +28,8 @@ const {
   AlertCircle,
   Check,
   ArrowRight,
-  PlayCircle
+  PlayCircle,
+  RotateCcw
 } = LucideIcons;
 
 // Types
@@ -777,6 +778,71 @@ function ChapterSection({
   );
 }
 
+function LessonResetButton({ 
+  lesson, 
+  onReset 
+}: { 
+  lesson: LessonWithQuiz; 
+  onReset: () => void;
+}) {
+  const [isResetting, setIsResetting] = useState(false);
+  
+  const handleReset = async () => {
+    setIsResetting(true);
+    
+    // Animation de feedback
+    setTimeout(() => {
+      onReset();
+      setIsResetting(false);
+    }, 800);
+  };
+
+  // Ne pas afficher le bouton si la leçon n'est pas terminée
+  if (!lesson.isCompleted) {
+    return null;
+  }
+
+  return (
+    <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl overflow-hidden mt-6">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+              <RotateCcw className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Recommencer cette leçon</h3>
+              <p className="text-gray-600 text-sm">
+                Réinitialisez votre progression pour refaire le quiz ou revoir le contenu
+              </p>
+            </div>
+          </div>
+          <Button 
+            onClick={handleReset}
+            disabled={isResetting}
+            variant="outline"
+            className={`transition-all duration-300 border-orange-300 text-orange-600 hover:bg-orange-50 ${
+              isResetting ? 'scale-105' : ''
+            }`}
+          >
+            {isResetting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
+                Réinitialisation...
+              </>
+            ) : (
+              <>
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Recommencer
+              </>
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Composant principal
 export function CourseDetailComponent({ 
   course, 
@@ -790,14 +856,10 @@ export function CourseDetailComponent({
     course.chapters[0]?.lessons[0] || undefined
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  // ✅ État pour forcer les re-renders du curriculum
   const [updateTrigger, setUpdateTrigger] = useState(0);
-  
-  // 🔧 NOUVEAUX États pour les stats dynamiques
   const [currentStats, setCurrentStats] = useState<CourseStats>(stats);
   
-  // 🔧 Fonction pour recalculer les stats
+  // 🔧 Fonction pour recalculer les stats (inchangée)
   const recalculateStats = () => {
     const allLessons = course.chapters.flatMap(ch => ch.lessons);
     const completedLessonsCount = allLessons.filter(l => l.isCompleted).length;
@@ -818,47 +880,7 @@ export function CourseDetailComponent({
     setCurrentStats(newStats);
   };
   
-  // 🔧 Charger les données sauvegardées au montage
-  useEffect(() => {
-    const loadSavedProgress = () => {
-      try {
-        const savedProgress = localStorage.getItem(`course_${course.id}_progress`);
-        if (savedProgress) {
-          const { completedLessons } = JSON.parse(savedProgress);
-          
-          // Marquer les leçons comme terminées
-          course.chapters.forEach(chapter => {
-            chapter.lessons.forEach(lesson => {
-              if (completedLessons.includes(lesson.id)) {
-                lesson.isCompleted = true;
-              }
-            });
-          });
-          
-          // Mettre à jour userProgress
-          if (course.userProgress) {
-            course.userProgress.completedLessons = completedLessons;
-          } else {
-            course.userProgress = {
-              completedLessons,
-              totalWatchTime: 0,
-              lastAccessedAt: new Date()
-            };
-          }
-          
-          // Recalculer les stats
-          recalculateStats();
-          setUpdateTrigger(prev => prev + 1);
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement de la progression:', error);
-      }
-    };
-    
-    loadSavedProgress();
-  }, [course.id]);
-  
-  // 🔧 Fonction pour sauvegarder la progression
+  // 🔧 Fonction pour sauvegarder la progression (inchangée)
   const saveProgress = () => {
     try {
       const progressData = {
@@ -872,6 +894,73 @@ export function CourseDetailComponent({
     }
   };
 
+  // ✅ NOUVELLE fonction pour réinitialiser une leçon
+  const handleLessonReset = () => {
+    if (activeLesson) {
+      // Marquer la leçon comme non terminée
+      activeLesson.isCompleted = false;
+      
+      // Réinitialiser le quiz s'il existe
+      if (activeLesson.quiz) {
+        activeLesson.quiz.isCompleted = false;
+      }
+      
+      // Mettre à jour userProgress.completedLessons
+      if (course.userProgress) {
+        course.userProgress.completedLessons = course.userProgress.completedLessons.filter(
+          id => id !== activeLesson.id
+        );
+      }
+      
+      // Sauvegarder la progression et recalculer les stats
+      saveProgress();
+      recalculateStats();
+      
+      // Forcer le re-render
+      setActiveLesson({ ...activeLesson });
+      setUpdateTrigger(prev => prev + 1);
+      
+      console.log(`Leçon ${activeLesson.id} réinitialisée`);
+    }
+  };
+
+  // 🔧 Charger les données sauvegardées au montage (inchangé)
+  useEffect(() => {
+    const loadSavedProgress = () => {
+      try {
+        const savedProgress = localStorage.getItem(`course_${course.id}_progress`);
+        if (savedProgress) {
+          const { completedLessons } = JSON.parse(savedProgress);
+          
+          course.chapters.forEach(chapter => {
+            chapter.lessons.forEach(lesson => {
+              if (completedLessons.includes(lesson.id)) {
+                lesson.isCompleted = true;
+              }
+            });
+          });
+          
+          if (course.userProgress) {
+            course.userProgress.completedLessons = completedLessons;
+          } else {
+            course.userProgress = {
+              completedLessons,
+              totalWatchTime: 0,
+              lastAccessedAt: new Date()
+            };
+          }
+          
+          recalculateStats();
+          setUpdateTrigger(prev => prev + 1);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de la progression:', error);
+      }
+    };
+    
+    loadSavedProgress();
+  }, [course.id]);
+
   const handleLessonSelect = (lesson: LessonWithQuiz) => {
     if (hasAccess) {
       setActiveLesson(lesson);
@@ -879,20 +968,15 @@ export function CourseDetailComponent({
     }
   };
 
-      
   const handleLessonCompleteClick = () => {
     if (activeLesson) {
-      // ✅ Marquer la leçon comme terminée localement
       activeLesson.isCompleted = true;
       
-      // 🔧 CORRECTION : Mettre à jour aussi userProgress.completedLessons
       if (course.userProgress) {
-        // Ajouter l'ID de la leçon aux leçons terminées si pas déjà présent
         if (!course.userProgress.completedLessons.includes(activeLesson.id)) {
           course.userProgress.completedLessons.push(activeLesson.id);
         }
       } else {
-        // Créer userProgress s'il n'existe pas
         course.userProgress = {
           completedLessons: [activeLesson.id],
           totalWatchTime: 0,
@@ -900,23 +984,18 @@ export function CourseDetailComponent({
         };
       }
       
-      // 🔧 Sauvegarder la progression et recalculer les stats
       saveProgress();
       recalculateStats();
-      
-      // ✅ Forcer le re-render du curriculum et de la leçon active
       setActiveLesson({ ...activeLesson });
       setUpdateTrigger(prev => prev + 1);
       
-      // ✅ Appeler le callback seulement s'il existe
       if (onLessonComplete) {
         onLessonComplete(activeLesson.id);
       } else {
-        // ✅ Fallback : simuler la sauvegarde locale
         console.log(`Leçon ${activeLesson.id} marquée comme terminée`);
       }
       
-      // ✅ Passer à la leçon suivante automatiquement
+      // Passer à la leçon suivante automatiquement
       const currentChapter = course.chapters.find(ch => 
         ch.lessons.some(l => l.id === activeLesson.id)
       );
@@ -930,7 +1009,6 @@ export function CourseDetailComponent({
             setActiveLesson(nextLesson);
           }, 1500);
         } else {
-          // Chercher la première leçon du chapitre suivant
           const currentChapterIndex = course.chapters.findIndex(ch => ch.id === currentChapter.id);
           const nextChapter = course.chapters[currentChapterIndex + 1];
           
@@ -947,7 +1025,7 @@ export function CourseDetailComponent({
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       <div className="max-w-8xl mx-auto p-3 sm:p-6">
-        {/* Header du cours */}
+        {/* Header du cours - inchangé */}
         <div className="mb-6 sm:mb-8">
           <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden">
             <div className="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 p-4 sm:p-8 text-white">
@@ -988,7 +1066,7 @@ export function CourseDetailComponent({
               </div>
             </div>
             
-            {/* Barre de progression */}
+            {/* Barre de progression - inchangée */}
             {hasAccess && user && (
               <div className="p-4 sm:p-6 bg-gradient-to-r from-emerald-50 to-green-50">
                 <div className="flex items-center justify-between mb-3">
@@ -1014,9 +1092,9 @@ export function CourseDetailComponent({
           </Card>
         </div>
 
-        {/* Layout responsive */}
+        {/* Layout responsive - reste identique mais avec le nouveau bouton */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-          {/* Menu mobile */}
+          {/* Menu mobile - inchangé */}
           <div className="xl:hidden mb-4">
             <Button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -1027,7 +1105,7 @@ export function CourseDetailComponent({
             </Button>
           </div>
 
-          {/* Curriculum - Sidebar mobile/desktop */}
+          {/* Curriculum - inchangé */}
           <div className={`xl:col-span-1 space-y-4 sm:space-y-6 ${
             isMobileMenuOpen ? 'block' : 'hidden xl:block'
           }`}>
@@ -1044,7 +1122,6 @@ export function CourseDetailComponent({
               
               <CardContent className="p-4 sm:p-6 max-h-[70vh] overflow-y-auto">
                 <div className="space-y-4">
-                  {/* ✅ Ajout de key={updateTrigger} pour forcer le re-render */}
                   {course.chapters.map((chapter) => (
                     <ChapterSection
                       key={`${chapter.id}-${updateTrigger}`}
@@ -1060,7 +1137,7 @@ export function CourseDetailComponent({
             </Card>
           </div>
 
-          {/* Contenu principal - Occupe plus d'espace */}
+          {/* Contenu principal avec le nouveau bouton de réinitialisation */}
           <div className="xl:col-span-3 space-y-4 sm:space-y-6">
             {hasAccess && activeLesson ? (
               <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
@@ -1094,7 +1171,13 @@ export function CourseDetailComponent({
                   
                   <LessonContentDisplay lesson={activeLesson} />
                   
-                  {/* Composant de progression/quiz */}
+                  {/* ✅ NOUVEAU : Bouton de réinitialisation (s'affiche seulement si la leçon est terminée) */}
+                  <LessonResetButton 
+                    lesson={activeLesson}
+                    onReset={handleLessonReset}
+                  />
+                  
+                  {/* Composant de progression/quiz - inchangé */}
                   <LessonProgressComponent 
                     lesson={activeLesson}
                     onComplete={handleLessonCompleteClick}
@@ -1102,6 +1185,7 @@ export function CourseDetailComponent({
                 </CardContent>
               </Card>
             ) : !hasAccess ? (
+              // Écran d'accès premium - inchangé
               <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardContent className="p-8 sm:p-12 text-center">
                   <Lock className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500 mx-auto mb-6" />
@@ -1121,6 +1205,7 @@ export function CourseDetailComponent({
                 </CardContent>
               </Card>
             ) : (
+              // Écran de sélection - inchangé
               <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardContent className="p-8 sm:p-12 text-center">
                   <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500 mx-auto mb-6" />
@@ -1134,7 +1219,7 @@ export function CourseDetailComponent({
               </Card>
             )}
 
-            {/* Statistiques détaillées */}
+            {/* Statistiques détaillées - inchangées */}
             {hasAccess && user && (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-green-500 text-white rounded-2xl">
