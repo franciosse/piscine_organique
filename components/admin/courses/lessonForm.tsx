@@ -1,7 +1,7 @@
 // components/admin/LessonForm.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lesson, LessonAttachment, Quiz, QuizQuestion, QuizAnswer } from '@/lib/db/schema';
 import ImageSelector from '@/components/admin/imageSelector';
@@ -82,25 +82,6 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
     })) || []
   });
 
-  // Fonction pour uploader une image
-  const uploadImage = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', 'lesson-content');
-    
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      throw new Error('Erreur lors de l\'upload de l\'image');
-    }
-    
-    const data = await response.json();
-    return data.url;
-  };
-
   // Fonction pour insérer du texte à la position du curseur
   const insertTextAtCursor = (text: string) => {
     const textarea = textareaRef.current;
@@ -122,37 +103,20 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
     }, 0);
   };
 
-  // Gestion de l'upload d'images
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Gestion de la sélection d'images
+  const handleImageSelect = (imageUrl: string) => {
+    const imageHtml = `<img src="${imageUrl}" alt="Image de la leçon" class="max-w-full h-auto rounded-lg my-4" />`;
+    insertTextAtCursor(imageHtml);
+    
+    // Message de succès temporaire
+    setError('✅ Image ajoutée avec succès !');
+    setTimeout(() => setError(''), 2000);
+  };
 
-    // Vérifier le type de fichier
-    if (!file.type.startsWith('image/')) {
-      setError('❌ Veuillez sélectionner un fichier image valide (JPG, PNG, WebP, etc.)');
-      return;
-    }
-
-    // Vérifier la taille (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('❌ L\'image ne peut pas dépasser 5MB');
-      return;
-    }
-
-    const originalError = error;
-
-    try {
-      const imageUrl = await uploadImage(file);
-      const imageHtml = `<img src="${imageUrl}" alt="Image de la leçon" class="max-w-full h-auto rounded-lg my-4" />`;
-      insertTextAtCursor(imageHtml);
-      
-      // Message de succès temporaire
-      setError('✅ Image ajoutée avec succès !');
-      setTimeout(() => setError(''), 2000);
-    } catch (err) {
-      setError('❌ Erreur lors de l\'upload de l\'image. Vérifiez le format et la taille.');
-      console.error('Upload error:', err);
-    }
+  // Fonctions pour insérer du HTML rapidement
+  const insertHtmlTag = (tag: string, placeholder: string = '') => {
+    const html = `<${tag}>${placeholder}</${tag}>`;
+    insertTextAtCursor(html);
   };
 
   const handleSubmitLesson = async (e: React.FormEvent) => {
@@ -166,12 +130,30 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
         : `/api/admin/chapters/${chapterId}/lessons`;
       const method = lessonId ? 'PATCH' : 'POST';
 
+      // Construire les données en ne gardant que les champs non-vides
+      const cleanedData: any = {
+        title: formData.title,
+        content: formData.content,
+      };
+
+      // Ajouter videoUrl seulement si pas vide
+      if (formData.videoUrl && formData.videoUrl.trim()) {
+        cleanedData.videoUrl = formData.videoUrl.trim();
+      }
+
+      // Ajouter duration seulement si > 0
+      if (formData.duration && formData.duration > 0) {
+        cleanedData.duration = formData.duration;
+      }
+
+      console.log('📤 Données envoyées:', cleanedData); // Debug
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanedData),
       });
 
       const data = await response.json();
@@ -187,9 +169,11 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
         router.push(`/admin/courses/${courseId}/chapters/${chapterId}/edit`);
         router.refresh();
       } else {
-        setError(data.error || 'Erreur lors de la sauvegarde');
+        console.error('❌ Erreur API:', data); // Debug
+        setError(Array.isArray(data) ? data.map(e => e.message).join(', ') : (data.error || 'Erreur lors de la sauvegarde'));
       }
     } catch (err) {
+      console.error('❌ Erreur réseau:', err); // Debug
       setError('Erreur de connexion');
     } finally {
       setLoading(false);
@@ -308,12 +292,6 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  // Fonctions pour insérer du HTML rapidement
-  const insertHtmlTag = (tag: string, placeholder: string = '') => {
-    const html = `<${tag}>${placeholder}</${tag}>`;
-    insertTextAtCursor(html);
   };
 
   return (
@@ -770,6 +748,14 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
           )}
         </div>
       </div>
+
+      {/* Sélecteur d'images */}
+      <ImageSelector
+        isOpen={showImageSelector}
+        onClose={() => setShowImageSelector(false)}
+        onSelect={handleImageSelect}
+        filter="lessons"
+      />
     </div>
   );
 }
