@@ -11,7 +11,7 @@ import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 const updateChapterSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().optional(),
-  published: z.string().optional(), // ISO date string ou null
+  published: z.boolean().optional(), // ISO date string ou null
 });
 
 interface RouteParams {
@@ -82,6 +82,7 @@ export const PATCH = withAdminAuth(async (request, adminUser, { params }) => {
         { status: 400 }
       );
     }
+    console.log(body);
 
     // Validation des données
     const validatedData = updateChapterSchema.parse(body);
@@ -94,7 +95,7 @@ export const PATCH = withAdminAuth(async (request, adminUser, { params }) => {
     if (validatedData.title) updateData.title = validatedData.title;
     if (validatedData.description !== undefined) updateData.description = validatedData.description;
     if (validatedData.published !== undefined) {
-      updateData.published = validatedData.published ? new Date(validatedData.published) : null;
+      updateData.published = validatedData.published ? new Date() : null;
     }
 
     // Mettre à jour le chapitre

@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     console.log(`✅ Validation sécurité réussie - IP: ${context.ip}, Email: ${data.email}`);
 
     // 🐌 Délai artificiel pour ralentir les attaques brute force
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // 🔍 Chercher user par email
     const [user] = await db
