@@ -9,7 +9,7 @@ import {
   quizAttempts,
   quizAttemptAnswers 
 } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm'; // ✅ AJOUT de inArray
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 
@@ -377,16 +377,20 @@ export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
         .returning();
 
       // 2. Supprimer toutes les anciennes réponses et questions
-      // D'abord les réponses (à cause des contraintes de clé étrangère)
-      await tx.delete(quizAnswers).where(
-        eq(quizAnswers.questionId, 
-          db.select({ id: quizQuestions.id })
-            .from(quizQuestions)
-            .where(eq(quizQuestions.quizId, quizId))
-        )
-      );
-      
-      // Puis les questions
+      // ✅ CORRECTION : Utiliser inArray au lieu de eq avec sous-requête
+      const questionIds = await tx
+        .select({ id: quizQuestions.id })
+        .from(quizQuestions)
+        .where(eq(quizQuestions.quizId, quizId));
+
+      if (questionIds.length > 0) {
+        // Supprimer les réponses en utilisant inArray
+        await tx.delete(quizAnswers).where(
+          inArray(quizAnswers.questionId, questionIds.map(q => q.id))
+        );
+      }
+
+      // Supprimer les questions
       await tx.delete(quizQuestions).where(eq(quizQuestions.quizId, quizId));
 
       // 3. Recréer les questions et réponses
@@ -512,14 +516,18 @@ export const DELETE = withAdminAuth(async (req, adminUser, { params }) => {
 
     // Transaction pour supprimer le quiz et ses dépendances
     await db.transaction(async (tx) => {
-      // 1. Supprimer les réponses
-      await tx.delete(quizAnswers).where(
-        eq(quizAnswers.questionId,
-          db.select({ id: quizQuestions.id })
-            .from(quizQuestions)
-            .where(eq(quizQuestions.quizId, quizId))
-        )
-      );
+      // ✅ CORRECTION : Aussi dans DELETE, utiliser inArray
+      const questionIds = await tx
+        .select({ id: quizQuestions.id })
+        .from(quizQuestions)
+        .where(eq(quizQuestions.quizId, quizId));
+
+      if (questionIds.length > 0) {
+        // 1. Supprimer les réponses
+        await tx.delete(quizAnswers).where(
+          inArray(quizAnswers.questionId, questionIds.map(q => q.id))
+        );
+      }
 
       // 2. Supprimer les questions
       await tx.delete(quizQuestions).where(eq(quizQuestions.quizId, quizId));

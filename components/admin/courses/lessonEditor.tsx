@@ -1018,7 +1018,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
           {/* Colonne droite : Ressources et Quiz */}
           <div className="space-y-6">
             {/* Ressources attachées */}
-            <div className="bg-white shadow rounded-lg p-6">
+            {/* <div className="bg-white shadow rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Ressources ({lesson.attachments.length})</h2>
                 <Link
@@ -1068,7 +1068,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Quiz */}
             <div className="bg-white shadow rounded-lg p-6">
@@ -1198,12 +1198,12 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
               ✏️ Modifier le contenu
             </button>
             
-            <Link
+            {/* <Link
               href={`/admin/courses/${lesson.course.id}/chapters/${lesson.chapter.id}/lessons/${lessonId}/attachments/new`}
               className="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm"
             >
               📎 Ajouter une ressource
-            </Link>
+            </Link> */}
             
             <button
               onClick={() => {
