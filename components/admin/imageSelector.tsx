@@ -22,7 +22,7 @@ export default function ImageSelector({ isOpen, onClose, onSelect, filter = 'all
   const [images, setImages] = useState<ImageItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(filter === 'all' ? 'lessons' : filter);
+  const [selectedCategory, setSelectedCategory] = useState<string>(filter === 'all' ? 'all' : filter);
 
   useEffect(() => {
     if (isOpen) {
@@ -185,7 +185,7 @@ export default function ImageSelector({ isOpen, onClose, onSelect, filter = 'all
         <div className="p-4 border-t bg-gray-50">
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-500">
-              💡 Tip: Ajoutez vos images dans <code className="bg-gray-100 px-1 rounded">/public/images/lessons/</code> et redémarrez le serveur
+              💡 Tip: Ajoutez vos images dans <code className="bg-gray-100 px-1 rounded">/public/images/</code> et redémarrez le serveur
             </p>
             <button
               onClick={onClose}
