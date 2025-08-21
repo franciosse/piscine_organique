@@ -1241,7 +1241,7 @@ export default function LessonEditor({ chapterId, lessonId }: LessonEditorProps)
         isOpen={showImageSelector}
         onClose={() => setShowImageSelector(false)}
         onSelect={handleImageSelect}
-        filter="lessons"
+        filter="all"
       />
     </div>
   );
