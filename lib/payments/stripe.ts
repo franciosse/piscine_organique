@@ -5,6 +5,9 @@ import { redirect } from 'next/navigation';
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { courses, coursePurchases, users } from '@/lib/db/schema';
+import { findOrCreateUser } from '@/lib/services/userService';
+import { createOrUpdatePurchase, getCourseById } from '@/lib/services/purchaseService';
+import { sendWelcomeEmail, sendPurchaseConfirmationEmail } from '@/lib/email/emailService';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-07-30.basil', // Version plus récente
@@ -121,43 +124,108 @@ export async function createCheckoutSession({
 
 export async function handlePaymentSuccess(session: Stripe.Checkout.Session) {
   try {
-    const { courseId, userId } = session.metadata || {};
+    console.log('=== 🚀 DÉBUT TRAITEMENT PAIEMENT RÉUSSI ===');
+    console.log('Session ID:', session.id);
+    console.log('Customer email:', session.customer_details?.email);
 
-    if (!courseId || !userId) {
-      console.error('Missing metadata in successful payment session');
-      return;
+    // === VALIDATION DES DONNÉES ===
+    const { courseId, userId } = session.metadata || {};
+    const customerEmail = session.customer_details?.email;
+
+    if (!courseId || !customerEmail) {
+      console.error('❌ Métadonnées manquantes:', { courseId, customerEmail });
+      throw new Error('Métadonnées invalides dans la session Stripe');
     }
 
     const courseIdNum = parseInt(courseId);
-    const userIdNum = parseInt(userId);
+    const userIdNum = userId ? parseInt(userId) : null;
 
-    // Vérifier que l'achat n'existe pas déjà
-    const existingPurchase = await db
-      .select()
-      .from(coursePurchases)
-      .where(and(
-        eq(coursePurchases.userId, userIdNum),
-        eq(coursePurchases.courseId, courseIdNum)
-      ))
-      .limit(1);
-
-    if (existingPurchase.length > 0) {
-      console.log('Purchase already exists for user:', userId, 'course:', courseId);
-      return;
+    // === VÉRIFICATION DU COURS ===
+    console.log('📚 Vérification du cours...');
+    const course = await getCourseById(courseIdNum);
+    
+    if (!course) {
+      console.error('❌ Cours introuvable:', courseIdNum);
+      throw new Error('Cours introuvable');
     }
 
-    // Créer l'enregistrement de l'achat
-    await db.insert(coursePurchases).values({
-      userId: userIdNum,
+    console.log('✅ Cours trouvé:', course.title);
+
+    // === GESTION DE L'UTILISATEUR ===
+    console.log('👤 Gestion de l\'utilisateur...');
+    
+    let finalUserId = userIdNum;
+    let isNewUser = false;
+    let temporaryPassword: string | undefined;
+
+    if (!finalUserId) {
+      // Utilisateur non connecté - créer ou trouver le compte
+      const userResult = await findOrCreateUser({
+        email: customerEmail,
+        createdViaStripe: true,
+        isVerified: true, // Email vérifié car paiement effectué
+      });
+
+      finalUserId = userResult.userId;
+      isNewUser = userResult.isNewUser;
+      temporaryPassword = userResult.temporaryPassword;
+
+      if (isNewUser) {
+        console.log('🆕 Nouveau compte créé pour:', customerEmail);
+      } else {
+        console.log('✅ Compte existant trouvé pour:', customerEmail);
+      }
+    } else {
+      console.log('✅ Utilisateur connecté existant:', finalUserId);
+    }
+
+    // === ENREGISTREMENT DE L'ACHAT ===
+    console.log('💰 Enregistrement de l\'achat...');
+    
+    const purchaseResult = await createOrUpdatePurchase({
+      userId: finalUserId,
       courseId: courseIdNum,
+      stripeSessionId: session.id,
       stripePaymentIntentId: session.payment_intent as string,
       amount: session.amount_total || 0,
-      currency: session.currency || 'eur',
     });
 
-    console.log(`Course purchase recorded: User ${userId} purchased course ${courseId}`);
+    if (purchaseResult.isNewPurchase) {
+      console.log('✅ Nouvel achat enregistré');
+    } else {
+      console.log('ℹ️ Achat existant mis à jour');
+    }
+
+    // === ENVOI DES EMAILS ===
+    console.log('📧 Envoi des notifications...');
+    
+    // Email de bienvenue pour les nouveaux comptes
+    if (isNewUser && temporaryPassword) {
+      await sendWelcomeEmail({
+        email: customerEmail,
+        name: customerEmail.split('@')[0],
+        temporaryPassword,
+      });
+    }
+
+    // Email de confirmation d'achat
+    await sendPurchaseConfirmationEmail({
+      email: customerEmail,
+      course: {
+        id: course.id,
+        title: course.title,
+        price: course.price,
+      },
+    });
+
+    console.log('=== ✅ TRAITEMENT TERMINÉ AVEC SUCCÈS ===');
+    console.log(`Résumé: User ${finalUserId} - Course ${courseIdNum} - New User: ${isNewUser}`);
+
   } catch (error) {
-    console.error('Error handling payment success:', error);
+    console.error('=== ❌ ERREUR LORS DU TRAITEMENT ===');
+    console.error('Session ID:', session.id);
+    console.error('Error:', error);
+    throw error;
   }
 }
 

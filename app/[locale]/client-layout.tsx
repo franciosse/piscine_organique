@@ -91,10 +91,10 @@ function UserMenu() {
     return (
       <>
         <Link 
-          href="/pricing" 
+          href="/courses" 
           className="flex items-center hover:text-emerald-600 transition-all duration-300 font-medium relative group"
         >
-          {t('pricing')}
+          {t('courses')}
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
         </Link>
         <Button asChild className="rounded-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
@@ -111,10 +111,10 @@ function UserMenu() {
     return (
       <>
         <Link 
-          href="/pricing" 
+          href="/courses" 
           className="flex items-center hover:text-emerald-600 transition-all duration-300 font-medium relative group"
         >
-          {t('pricing')}
+          {t('courses')}
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
         </Link>
         <Button asChild className="rounded-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">

@@ -22,6 +22,8 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   deletedAt: timestamp('deleted_at'),
   isVerified: boolean('is_verified').default(false),
+  createdViaStripe: boolean('created_via_stripe').default(false),
+  needsPasswordReset: boolean('needs_password_reset').default(false),
 });
 
 
