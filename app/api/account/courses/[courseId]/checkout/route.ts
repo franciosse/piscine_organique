@@ -10,6 +10,7 @@ import { getSession } from '@/lib/auth/session';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import  {getBaseUrl } from '@/lib/utils'
 
 
 interface RouteParams {
@@ -81,6 +82,8 @@ export const POST = withUserAuth(async (request, authUser, { params }) => {
       });
     }
 
+    const baseUrl = getBaseUrl();
+
     // Créer session Stripe
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -96,8 +99,8 @@ export const POST = withUserAuth(async (request, authUser, { params }) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${process.env.NEXTAUTH_URL || process.env.APP_URL}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL || process.env.APP_URL}/courses/${courseId}`,
+      success_url: `${baseUrl}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/courses/${courseId}`,
       client_reference_id: authUser.id.toString(),
       metadata: {
         courseId: courseId.toString(),

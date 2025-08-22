@@ -44,3 +44,19 @@ export function getUserInitials(name: string | null, email: string): string {
   
   return 'U';
 }
+
+export function getBaseUrl(): string {
+  if (process.env.BASE_URL) {
+    return process.env.BASE_URL;
+  }
+  
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  throw new Error('❌ BASE_URL non défini dans les variables d\'environnement');
+}

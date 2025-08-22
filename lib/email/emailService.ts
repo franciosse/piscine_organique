@@ -1,22 +1,7 @@
 // /lib/email.ts
 import nodemailer from 'nodemailer';
+import  {getBaseUrl } from '../utils'
 
-// 🛡️ Fonction utilitaire pour récupérer l'URL de base
-function getBaseUrl(): string {
-  if (process.env.BASE_URL) {
-    return process.env.BASE_URL;
-  }
-  
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3000';
-  }
-  
-  throw new Error('❌ BASE_URL non défini dans les variables d\'environnement');
-}
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
