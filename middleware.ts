@@ -1,24 +1,23 @@
-// middleware.ts (racine)
+// middleware.ts - Version alternative plus claire
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { signToken, verifyToken } from '@/lib/auth/session';
-import { getUserFromRequest } from '@/lib/auth/getUserFromRequest';
+import { verifyToken } from '@/lib/auth/session';
 import { routing } from '@/i18n/routing';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
 // Toutes les routes protégées
-const protectedRoutes = ['/dashboard'];
+const protectedRoutes = ['/dashboard', '/admin'];
+
 const roleProtectedRoutes: Record<string, string[]> = {
-  // '/admin': ['admin'],
-  // '/courses/create': ['admin'],
+  '/admin': ['admin'],
 };
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Assets statiques
+  // ✅ Assets statiques
   const isStaticAsset = pathname.startsWith('/images/') ||
     pathname.startsWith('/icons/') ||
     pathname.startsWith('/assets/') ||
@@ -29,81 +28,79 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Routes publiques (auth, API publique, etc.)
-  const publicPaths = [
-    '/api/public', 
-    '/sign-in', 
-    '/register',
-    '/api/auth',
-    '/verify-email'
-  ];
+  // ✅ EXCEPTION SPÉCIALE : Pages de succès après paiement (non protégées)
+  const isSuccessPage = pathname.match(/\/dashboard\/courses\/\d+\/success$/) ||
+                       pathname.match(/\/(fr|en|eu|es)\/dashboard\/courses\/\d+\/success$/);
   
-  const isPublicPath = publicPaths.some(path => 
-    pathname === path || pathname.match(new RegExp(`^/(fr|en|eu|es)${path}`))
-  );
-
-  if (isPublicPath) {
+  if (isSuccessPage) {
+    console.log('✅ Page de succès détectée (non protégée):', pathname);
     return intlMiddleware(request);
   }
 
-  // Middleware i18n d'abord
+  // ✅ Routes publiques standard
+  const publicPaths = [
+    '/api/auth',
+    '/api/account',
+    '/api/stripe',
+    '/sign-in',
+    '/sign-up',
+    '/register',
+    '/verify-email',
+    '/courses',
+  ];
+
+  const isPublicPath = publicPaths.some(path => {
+    if (path.startsWith('/api/')) {
+      return pathname.startsWith(path);
+    }
+    return pathname === path || pathname.match(new RegExp(`^/(fr|en|eu|es)${path}`));
+  });
+
+  if (isPublicPath) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.next();
+    }
+    return intlMiddleware(request);
+  }
+
+  // ✅ Middleware i18n pour les autres routes
   let response = intlMiddleware(request);
-  
-  // Vérification de l'authentification
+
+  // ✅ Vérification de l'authentification
   const sessionCookie = request.cookies.get('session');
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathname.startsWith(route) || 
+  
+  const isProtectedRoute = protectedRoutes.some(route =>
+    pathname.startsWith(route) ||
     pathname.match(new RegExp(`^/(fr|en|es)${route}`))
   );
 
-  // Routes API : retourner 401 au lieu de rediriger
+  // ✅ Routes API protégées : retourner 401
   if (pathname.startsWith('/api/') && !sessionCookie) {
+    console.log('🚫 API route without session:', pathname);
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Redirection si route protégée sans session
+  // ✅ Redirection si route protégée sans session
   if (isProtectedRoute && !sessionCookie) {
+    console.log('🔄 Redirecting to sign-in from protected route:', pathname);
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
-  // Vérification des rôles pour routes spécifiques
+  // ✅ Vérification des rôles (simplifiée)
   if (sessionCookie && Object.keys(roleProtectedRoutes).length > 0) {
     try {
-      const user = await getUserFromRequest(request);
-      if (user) {
-        for (const [routePrefix, allowedRoles] of Object.entries(roleProtectedRoutes)) {
-          const matchesRoute = pathname.startsWith(routePrefix) || 
-            pathname.match(new RegExp(`^/(fr|en|es)${routePrefix}`));
-            
-          if (matchesRoute && !allowedRoles.includes(user.role)) {
-            return NextResponse.redirect(new URL('/unauthorized', request.url));
-          }
+      const parsed = await verifyToken(sessionCookie.value);
+      
+      for (const [routePrefix, allowedRoles] of Object.entries(roleProtectedRoutes)) {
+        const matchesRoute = pathname.startsWith(routePrefix) ||
+          pathname.match(new RegExp(`^/(fr|en|es)${routePrefix}`));
+        
+        if (matchesRoute) {
+          console.log('🔍 Role-protected route accessed:', routePrefix);
         }
       }
     } catch (error) {
-      console.error('Role verification error:', error);
-    }
-  }
-
-  // Rafraîchir la session
-  if (sessionCookie && request.method === 'GET') {
-    try {
-      const parsed = await verifyToken(sessionCookie.value);
-      const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      
-      response.cookies.set({
-        name: 'session',
-        value: await signToken({
-          ...parsed,
-          expires: expiresInOneDay.toISOString()
-        }),
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        expires: expiresInOneDay
-      });
-    } catch (error) {
-      console.error('Error updating session:', error);
+      console.error('❌ Session verification error in middleware:', error);
       response.cookies.delete('session');
       if (isProtectedRoute) {
         return NextResponse.redirect(new URL('/sign-in', request.url));

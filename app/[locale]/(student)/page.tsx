@@ -21,7 +21,6 @@ export default function HomePage() {
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <a
                   href="/dashboard/courses"
-                  target="_blank"
                 >
                   <Button
                     size="lg"

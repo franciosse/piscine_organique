@@ -1,46 +1,29 @@
-// =============================================================================
-// METTEZ À JOUR : app/api/courses/[courseId]/checkout/route.ts
-// Création de session de paiement (avec votre auth personnalisé)
-// =============================================================================
-
+// /app/api/courses/[courseId]/checkout/route.ts - VERSION CORRIGÉE
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { users, coursePurchases, courses } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth/session';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
-import { withUserAuth } from '@/app/api/_lib/route-helpers';
-import  {getBaseUrl } from '@/lib/utils'
-
+import { getBaseUrl } from '@/lib/utils';
 
 interface RouteParams {
-  courseId: string ;
+  courseId: string;
 }
 
-export const POST = withUserAuth(async (request, authUser, { params }) => {
+interface RouteContext {
+  params: Promise<RouteParams>;
+}
+
+// ⚠️ IMPORTANT : On retire withUserAuth pour permettre les achats sans connexion
+export async function POST(request: Request, context: RouteContext) {
   try {
     const session = await getSession();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-    }
-
-    const resolvedParams = await params;
+    const resolvedParams = await context.params;
     const courseId = parseInt(resolvedParams.courseId);
 
     if (isNaN(courseId)) {
       return NextResponse.json({ error: 'ID de cours invalide' }, { status: 400 });
-    }
-
-    // Récupérer l'utilisateur complet
-    const user = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, authUser.id))
-      .limit(1);
-
-    if (user.length === 0) {
-      return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 });
     }
 
     // Vérifier le cours
@@ -62,34 +45,56 @@ export const POST = withUserAuth(async (request, authUser, { params }) => {
       return NextResponse.json({ error: 'Ce cours est gratuit, utilisez l\'inscription directe' }, { status: 400 });
     }
 
-    // Vérifier si déjà acheté
-    const existingPurchase = await db
-      .select()
-      .from(coursePurchases)
-      .where(
-        and(
-          eq(coursePurchases.userId, authUser.id),
-          eq(coursePurchases.courseId, courseId)
-        )
-      )
-      .limit(1);
+    let userId = null;
+    let customerEmail = null;
 
-    if (existingPurchase.length > 0) {
-      return NextResponse.json({
-        success: true,
-        message: 'Cours déjà acheté',
-        purchased: true
-      });
+    // Si utilisateur connecté, récupérer ses infos
+    if (session?.user?.id) {
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, session.user.id))
+        .limit(1);
+
+      if (user.length > 0) {
+        userId = user[0].id;
+        customerEmail = user[0].email;
+
+        // Vérifier si déjà acheté
+        const existingPurchase = await db
+          .select()
+          .from(coursePurchases)
+          .where(
+            and(
+              eq(coursePurchases.userId, userId),
+              eq(coursePurchases.courseId, courseId)
+            )
+          )
+          .limit(1);
+
+        if (existingPurchase.length > 0) {
+          return NextResponse.json({
+            success: true,
+            message: 'Cours déjà acheté',
+            purchased: true
+          });
+        }
+      }
     }
 
     const baseUrl = getBaseUrl(request);
-    console.log('=== DEBUG URL ===');
-    console.log('BASE_URL env:', process.env.BASE_URL);
-    console.log('NEXTAUTH_URL env:', process.env.NEXTAUTH_URL);
-    console.log('APP_URL env:', process.env.APP_URL);
-    console.log('baseUrl utilisée:', baseUrl);
-    console.log('success_url finale:', `${baseUrl}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
-    console.log('=================');
+
+    // 🎯 URL CORRIGÉE : Redirection vers la page de succès du cours, pas l'API
+    const successUrl = `${baseUrl}/dashboard/courses/${courseId}/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/dashboard/courses/${courseId}`;
+
+    console.log('=== DEBUG CHECKOUT ===');
+    console.log('Course ID:', courseId);
+    console.log('User ID:', userId);
+    console.log('Customer Email:', customerEmail);
+    console.log('Success URL:', successUrl);
+    console.log('Cancel URL:', cancelUrl);
+    console.log('=====================');
 
     // Créer session Stripe
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -106,14 +111,22 @@ export const POST = withUserAuth(async (request, authUser, { params }) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${baseUrl}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/courses/${courseId}`,
-      client_reference_id: authUser.id.toString(),
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      
+      // Métadonnées pour le webhook
       metadata: {
         courseId: courseId.toString(),
-        userId: authUser.id.toString(),
+        userId: userId ? userId.toString() : '', // Peut être vide si pas connecté
       },
-      customer_email: user[0].email || undefined,
+      
+      // Email client si connecté, sinon Stripe le demandera
+      customer_email: customerEmail || undefined,
+      
+      // Si pas connecté, forcer la collecte de l'email
+      ...((!customerEmail) && {
+        billing_address_collection: 'required',
+      }),
     });
 
     return NextResponse.json({
@@ -129,4 +142,4 @@ export const POST = withUserAuth(async (request, authUser, { params }) => {
       { status: 500 }
     );
   }
-});
+}

@@ -1,57 +1,102 @@
-// app/api/stripe/webhook/route.ts
-import Stripe from 'stripe';
-import { handlePaymentSuccess, stripe } from '@/lib/payments/stripe';
+// /app/api/stripe/webhook/route.ts - Version avec debug renforcé
+import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { stripe } from '@/lib/payments/stripe';
+import { handlePaymentSuccess } from '@/lib/payments/stripe';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-// ⚠️ IMPORTANT: Les webhooks Stripe NE DOIVENT PAS utiliser withUserAuth
-// car ils viennent directement de Stripe, pas d'un utilisateur connecté
 export async function POST(request: NextRequest) {
-  const payload = await request.text();
-  const signature = request.headers.get('stripe-signature') as string;
-
-  let event: Stripe.Event;
-
+  console.log('🔔 =========================');
+  console.log('🔔 WEBHOOK STRIPE APPELÉ !');
+  console.log('🔔 =========================');
+  
   try {
-    event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-  } catch (err) {
-    console.error('Webhook signature verification failed.', err);
-    return NextResponse.json(
-      { error: 'Webhook signature verification failed.' },
-      { status: 400 }
-    );
-  }
+    const body = await request.text();
+    const headersList = await headers();
+    const signature = headersList.get('stripe-signature');
 
-  try {
-    switch (event.type) {
-      case 'checkout.session.completed':
-        const session = event.data.object as Stripe.Checkout.Session;
-        if (session.payment_status === 'paid') {
-          await handlePaymentSuccess(session);
-        }
-        break;
+    console.log('📋 Headers reçus:', Object.fromEntries(headersList.entries()));
+    console.log('📧 Signature présente:', !!signature);
+    console.log('🔑 Webhook secret configuré:', !!webhookSecret);
+    console.log('📦 Body length:', body.length);
 
-      case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log('Payment succeeded:', paymentIntent.id);
-        break;
-
-      case 'payment_intent.payment_failed':
-        const failedPayment = event.data.object as Stripe.PaymentIntent;
-        console.log('Payment failed:', failedPayment.id);
-        break;
-
-      default:
-        console.log(`Unhandled event type ${event.type}`);
+    if (!signature) {
+      console.error('❌ Signature Stripe manquante');
+      return NextResponse.json({ error: 'Signature manquante' }, { status: 400 });
     }
 
-    return NextResponse.json({ received: true });
+    if (!webhookSecret) {
+      console.error('❌ STRIPE_WEBHOOK_SECRET non configuré !');
+      return NextResponse.json({ error: 'Configuration webhook manquante' }, { status: 500 });
+    }
 
-  } catch (error) {
-    console.error('Webhook processing error:', error);
+    // Vérifier la signature du webhook
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      console.log('✅ Signature webhook validée avec succès');
+    } catch (err: any) {
+      console.error('❌ ERREUR DE VÉRIFICATION WEBHOOK:');
+      console.error('- Message:', err.message);
+      console.error('- Signature reçue:', signature?.substring(0, 50) + '...');
+      console.error('- Secret utilisé:', webhookSecret?.substring(0, 10) + '...');
+      return NextResponse.json({ error: 'Signature invalide' }, { status: 400 });
+    }
+
+    console.log('📦 ÉVÉNEMENT STRIPE:');
+    console.log('- Type:', event.type);
+    console.log('- ID:', event.id);
+    console.log('- Created:', new Date(event.created * 1000).toISOString());
+
+    // Traiter l'événement de paiement réussi
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as any;
+      
+      console.log('💳 ======================');
+      console.log('💳 SESSION DE CHECKOUT:');
+      console.log('💳 ======================');
+      console.log('- Session ID:', session.id);
+      console.log('- Payment Status:', session.payment_status);
+      console.log('- Customer Email:', session.customer_details?.email);
+      console.log('- Amount Total:', session.amount_total);
+      console.log('- Currency:', session.currency);
+      console.log('- Metadata:', JSON.stringify(session.metadata, null, 2));
+      console.log('- Customer Details:', JSON.stringify(session.customer_details, null, 2));
+
+      if (session.payment_status === 'paid') {
+        console.log('💰 PAIEMENT CONFIRMÉ - Début du traitement...');
+        
+        try {
+          await handlePaymentSuccess(session);
+          console.log('✅ TRAITEMENT DU PAIEMENT TERMINÉ AVEC SUCCÈS');
+        } catch (processError) {
+          console.error('💥 ERREUR LORS DU TRAITEMENT DU PAIEMENT:');
+          console.error(processError);
+          throw processError; // Re-throw pour que Stripe reessaie
+        }
+      } else {
+        console.log('⚠️ PAIEMENT NON CONFIRMÉ:', session.payment_status);
+      }
+    } else {
+      console.log(`ℹ️ Événement non traité: ${event.type}`);
+    }
+
+    console.log('🔔 ===========================');
+    console.log('🔔 WEBHOOK TERMINÉ AVEC SUCCÈS');
+    console.log('🔔 ===========================');
+
+    return NextResponse.json({ received: true });
+  } catch (error: any) {
+    console.error('💥 ===============================');
+    console.error('💥 ERREUR CRITIQUE WEBHOOK STRIPE:');
+    console.error('💥 ===============================');
+    console.error('Message:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('💥 ===============================');
+    
     return NextResponse.json(
-      { error: 'Webhook processing failed' },
+      { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }

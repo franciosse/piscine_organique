@@ -1,22 +1,19 @@
-// /app/dashboard/courses/page.tsx (Page Server Component)
-import { CoursesPageComponent } from '@/components/student/coursePageComponent';
+import { CoursePageComponent } from '@/components/student/coursePageComponent';
 import { db } from '@/lib/db/drizzle';
 import { courses, coursePurchases } from '@/lib/db/schema';
 import { eq, isNotNull } from 'drizzle-orm';
 import { getUser } from '@/lib/auth/session';
 import { Course } from '@/lib/db/schema';
+import { redirect } from 'next/navigation';
 
-// Services/Queries - Logique métier pure
 async function getCourses(): Promise<Course[]> {
   try {
     console.log('Fetching courses from database...');
-    
     const allCourses = await db
       .select()
       .from(courses)
-      .where(isNotNull(courses.published)) 
+      .where(isNotNull(courses.published))
       .orderBy(courses.createdAt);
-    
     console.log(`Found ${allCourses.length} courses`);
     return allCourses;
   } catch (error) {
@@ -28,16 +25,14 @@ async function getCourses(): Promise<Course[]> {
 async function getPurchasedCourseIds(): Promise<number[]> {
   try {
     const user = await getUser();
-    
     if (!user) {
-      return [];
+      redirect('/auth/signin');
     }
-    
+
     const purchases = await db
       .select({ courseId: coursePurchases.courseId })
       .from(coursePurchases)
       .where(eq(coursePurchases.userId, user.id));
-    
     return purchases.map(p => p.courseId);
   } catch (error) {
     console.error('Erreur lors de la récupération des cours achetés:', error);
@@ -45,30 +40,28 @@ async function getPurchasedCourseIds(): Promise<number[]> {
   }
 }
 
-// Page Component (Server) - Orchestration
-export default async function CoursesPage() {
+export default async function DashboardCoursesPage() {
   try {
-    // Récupération des données côté serveur
     const [coursesData, purchasedCourseIds] = await Promise.all([
       getCourses(),
       getPurchasedCourseIds(),
     ]);
 
-    // Rendu du composant UI avec les données
     return (
-      <CoursesPageComponent 
+      <CoursePageComponent
         courses={coursesData}
         purchasedCourseIds={purchasedCourseIds}
+        mode="dashboard"
+        title="Tous les cours"
+        description="Découvrez notre catalogue de formation à l'autoconstruction de piscine organique et développez vos compétences"
       />
     );
   } catch (error) {
-    console.error('Error in CoursesPage:', error);
-    
-    // Composant d'erreur
+    console.error('Error in DashboardCoursesPage:', error);
     return (
-      <CoursesPageComponent 
+      <CoursePageComponent
         courses={[]}
-        purchasedCourseIds={[]}
+        mode="dashboard"
         error="Impossible de charger les cours. Veuillez réessayer plus tard."
       />
     );

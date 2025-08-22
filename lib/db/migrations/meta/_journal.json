@@ -43,6 +43,13 @@
       "when": 1755270434737,
       "tag": "0005_flashy_gorilla_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1755871287943,
+      "tag": "0006_colossal_thunderbird",
+      "breakpoints": true
     }
   ]
 }

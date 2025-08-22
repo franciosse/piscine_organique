@@ -56,7 +56,9 @@ function useHumanBehavior(mode : string) {
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '';
+  const redirect = searchParams.get('redirect') || 
+                  searchParams.get('callbackUrl') || 
+                  searchParams.get('callback') || ''; 
   const priceId = searchParams.get('priceId') || '';
   const inviteId = searchParams.get('inviteId') || '';
   const router = useRouter();
@@ -132,10 +134,16 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
     setRetryAfter(null);
     setPending(true);
 
+    const callbackUrl = searchParams.get('callbackUrl') || 
+                     searchParams.get('redirect') || 
+                     searchParams.get('callback') || '';
+
     // Préparer les données avec métadonnées de sécurité
     const body: any = { 
       email: email.toLowerCase().trim(), 
       password,
+      callbackUrl,
+      redirect,
       // Métadonnées de sécurité
       timestamp: pageLoadTime.current,
       userAgent: navigator.userAgent,
@@ -177,18 +185,37 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           setError(json.error || 'Une erreur est survenue');
         }
       } else {
-        // Succès
-        submitAttempts.current = 0; // Reset attempts on success
+        // ✅ Connexion réussie
+        submitAttempts.current = 0;
         
         if (mode === 'signup') {
           // Inscription réussie
-          alert('Compte créé avec succès ! Un email de vérification a été envoyé. Veuillez vérifier votre boîte mail.');
-          router.push('/sign-in');
+          alert('Compte créé avec succès ! Un email de vérification a été envoyé.');
+          const signinUrl = callbackUrl 
+            ? `/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`
+            : '/sign-in';
+          router.push(signinUrl);
         } else {
-          // Connexion réussie
-          await mutate('/api/account/user');
-          const redirectUrl = json.redirect || redirect || '/dashboard';
-          router.push(redirectUrl);
+          // ✅ Connexion réussie - Redirection IMMÉDIATE sans mutate
+          console.log('✅ Connexion réussie côté client');
+          
+          let redirectUrl = json.redirect || callbackUrl || '/dashboard';
+          
+          if (redirectUrl && redirectUrl.includes('%')) {
+            redirectUrl = decodeURIComponent(redirectUrl);
+          }
+          
+          console.log('🚀 Redirection immédiate vers:', redirectUrl);
+          
+          // ❌ PAS de mutate - cause des problèmes
+          // await mutate('/api/account/user');
+          
+          // ✅ Redirection directe avec un petit délai pour laisser le serveur traiter
+          setTimeout(() => {
+            if (typeof window !== 'undefined') {
+              window.location.href = redirectUrl;
+            }
+          }, 100); // 100ms pour laisser le temps au serveur
         }
       }
     } catch (e) {
@@ -232,6 +259,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <form className="space-y-6" onSubmit={handleSubmit}>
           <input type="hidden" name="redirect" value={redirect} />
+          <input type="hidden" name="callbackUrl" value={redirect} />
           <input type="hidden" name="priceId" value={priceId} />
           <input type="hidden" name="inviteId" value={inviteId} />
 
@@ -375,9 +403,11 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
           <div className="mt-6">
             <Link
-              href={`${mode === 'signin' ? '/sign-up' : '/sign-in'}${redirect ? `?redirect=${redirect}` : ''}${
-                priceId ? `&priceId=${priceId}` : ''
-              }`}
+              href={
+                mode === 'signin' 
+                  ? `/sign-up${redirect ? `?callbackUrl=${encodeURIComponent(redirect)}` : ''}${priceId ? `&priceId=${priceId}` : ''}`
+                  : `/sign-in${redirect ? `?callbackUrl=${encodeURIComponent(redirect)}` : ''}${priceId ? `&priceId=${priceId}` : ''}`
+              }
               className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               {mode === 'signin' ? 'Créer un compte' : 'Se connecter'}

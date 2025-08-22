@@ -1,29 +1,54 @@
-//components/pages/CoursesPageComponent.tsx (Composant UI)
+// /components/courses/coursePageComponent.tsx
 'use client';
 
 import { CourseCard } from './courseCard';
 import { Course } from '@/lib/db/schema';
 import { useState, useMemo } from 'react';
-import { Search, Filter, Grid, List } from 'lucide-react';
+import { Search, Grid, List } from 'lucide-react';
 import { getCourseProps } from '@/lib/course/courseHelper';
 
-
-interface CoursesPageComponentProps {
+interface coursePageComponentProps {
   courses: Course[];
-  purchasedCourseIds: number[];
+  purchasedCourseIds?: number[];
   error?: string;
+  mode: 'public' | 'dashboard';
+  title?: string;
+  description?: string;
 }
 
-export function CoursesPageComponent({ 
+export function CoursePageComponent({ 
   courses, 
-  purchasedCourseIds, 
-  error 
-}: CoursesPageComponentProps) {
+  purchasedCourseIds = [], 
+  error,
+  mode,
+  title,
+  description
+}: coursePageComponentProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Filtrage côté client (interactif)
+  // Configuration selon le mode
+  const config = useMemo(() => {
+    if (mode === 'public') {
+      return {
+        title: title || 'Nos Cours',
+        description: description || 'Découvrez notre sélection de cours. Connectez-vous pour accéder aux cours gratuits ou achetez directement les cours payants.',
+        showPurchaseButton: true,
+        emptyStateTitle: 'Aucun cours disponible',
+        emptyStateDescription: 'Les cours seront bientôt disponibles. Revenez plus tard !',
+      };
+    } else {
+      return {
+        title: title || 'Tous les cours',
+        description: description || 'Découvrez notre catalogue de formation à l\'autoconstruction de piscine organique et développez vos compétences',
+        showPurchaseButton: true,
+        emptyStateTitle: 'Aucun cours disponible',
+        emptyStateDescription: 'Les cours seront bientôt disponibles. Revenez plus tard !',
+      };
+    }
+  }, [mode, title, description]);
+
+  // Filtrage côté client
   const filteredCourses = useMemo(() => {
     return courses.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -31,9 +56,7 @@ export function CoursesPageComponent({
       
       return matchesSearch;
     });
-  }, [courses, searchTerm, filterCategory]);
-
-
+  }, [courses, searchTerm]);
 
   if (error) {
     return (
@@ -55,10 +78,10 @@ export function CoursesPageComponent({
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Tous les cours
+          {config.title}
         </h1>
         <p className="text-gray-600">
-          Découvrez notre catalogue de formation à l'autoconstruction de piscine organqiue et développez vos compétences
+          {config.description}
         </p>
       </div>
 
@@ -78,18 +101,19 @@ export function CoursesPageComponent({
           </div>
 
           <div className="flex items-center gap-4">
-
             {/* Toggle vue */}
             <div className="flex border border-gray-300 rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 ${viewMode === 'grid' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                title="Vue grille"
               >
                 <Grid className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-2 ${viewMode === 'list' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                title="Vue liste"
               >
                 <List className="h-4 w-4" />
               </button>
@@ -111,10 +135,10 @@ export function CoursesPageComponent({
         <div className="text-center py-12">
           <div className="max-w-md mx-auto">
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Aucun cours disponible
+              {config.emptyStateTitle}
             </h3>
             <p className="text-gray-500">
-              Les cours seront bientôt disponibles. Revenez plus tard !
+              {config.emptyStateDescription}
             </p>
           </div>
         </div>
@@ -142,11 +166,12 @@ export function CoursesPageComponent({
               <CourseCard
                 key={course.id}
                 course={course}
-                showPurchaseButton={true}
+                showPurchaseButton={config.showPurchaseButton}
+                mode={mode}
                 {...courseProps}
               />
             );
-          })};
+          })}
         </div>
       )}
     </div>

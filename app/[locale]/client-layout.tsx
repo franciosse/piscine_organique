@@ -90,13 +90,6 @@ function UserMenu() {
   if (error) {
     return (
       <>
-        <Link 
-          href="/courses" 
-          className="flex items-center hover:text-emerald-600 transition-all duration-300 font-medium relative group"
-        >
-          {t('courses')}
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
-        </Link>
         <Button asChild className="rounded-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
           <Link className="flex items-center text-white font-semibold px-6" href="/sign-in">
             <Sprout className="h-4 w-4 mr-2" />
@@ -110,13 +103,6 @@ function UserMenu() {
   if (!user) {
     return (
       <>
-        <Link 
-          href="/courses" 
-          className="flex items-center hover:text-emerald-600 transition-all duration-300 font-medium relative group"
-        >
-          {t('courses')}
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
-        </Link>
         <Button asChild className="rounded-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
           <Link className="flex items-center text-white font-semibold px-6" href="/sign-in">
             <Sprout className="h-4 w-4 mr-2" />
@@ -305,11 +291,11 @@ function MobileMenu() {
               </Link>
               
               <Link 
-                href="/pricing" 
+                href="/courses" 
                 className="flex items-center py-3 px-4 hover:bg-emerald-50 rounded-xl transition-all duration-200 group"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <span className="font-medium text-gray-700 group-hover:text-emerald-700">{t('pricing')}</span>
+                <span className="font-medium text-gray-700 group-hover:text-emerald-700">{t('courses')}</span>
               </Link>
               
               <Link 
@@ -435,6 +421,13 @@ function Header() {
               className="flex items-center hover:text-emerald-600 transition-all duration-300 font-medium relative group py-2"
             >
               {t('services')}
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link 
+              href="/courses" 
+              className="flex items-center hover:text-emerald-600 transition-all duration-300 font-medium relative group py-2"
+            >
+              {t('courses')}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link 

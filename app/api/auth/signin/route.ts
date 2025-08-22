@@ -18,6 +18,7 @@ const signInSchema = z.object({
   email: z.string().email().min(3).max(255).toLowerCase().trim(),
   password: z.string().min(8).max(100),
   redirect: z.string().optional(),
+  callbackUrl: z.string().optional(), // ✅ Ajouter callbackUrl
   priceId: z.string().optional(),
   // Champs de sécurité (optionnels pour signin - peut être plus rapide)
   timestamp: z.number().optional(),
@@ -132,11 +133,16 @@ export async function POST(request: NextRequest) {
       // Ne pas faire échouer la connexion si le log échoue
     }
 
+    // ✅ Déterminer l'URL de redirection - Priorité : callbackUrl > redirect > défaut
+    const redirectUrl = data.callbackUrl || data.redirect || '/dashboard';
+    
+    console.log('🔄 API signin - redirection vers:', redirectUrl);
+
     // 🎉 Réponse de succès
     return NextResponse.json({
       success: true,
       message: 'Connexion réussie',
-      redirect: data.redirect || '/dashboard',
+      redirect: redirectUrl, // ✅ URL de redirection corrigée
       priceId: data.priceId || null,
       user: {
         id: user.id,

@@ -1,13 +1,18 @@
-// components/courses/CourseCard.tsx
-// Version Server Component (sans hooks) - Améliorée
+// /components/pages/courseCard.tsx - Version avec votre style préféré
+'use client';
 
-import Link from 'next/link';
 import { Course } from '@/lib/db/schema';
-import { PurchaseButtonWrapper } from './purchaseButtonWrapper';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
+import { formatPrice } from '@/lib/utils';
+import Image from 'next/image';
 
 interface CourseCardProps {
   course: Course;
   showPurchaseButton?: boolean;
+  mode?: 'public' | 'dashboard';
   showProgress?: boolean;
   progressData?: {
     completed_lessons: number;
@@ -15,49 +20,41 @@ interface CourseCardProps {
     completion_percentage: number;
     last_accessed?: Date;
   };
+  // Props du getCourseProps
   isPurchased?: boolean;
-  isFree?: boolean;        // Nouveau
-  hasAccess?: boolean;     // Nouveau
-  needsPurchase?: boolean; // Nouveau
+  canAccess?: boolean;
+  buttonText?: string;
+  buttonVariant?: 'default' | 'outline' | 'ghost';
+  statusBadge?: {
+    text: string;
+    variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  };
   userId?: number;
 }
 
 export function CourseCard({ 
   course, 
-  showPurchaseButton = false, 
+  showPurchaseButton = true,
+  mode = 'dashboard',
   showProgress = false,
   progressData,
   isPurchased = false,
-  isFree = false,
-  hasAccess = false,
-  needsPurchase = false,
+  canAccess = false,
+  buttonText,
+  buttonVariant = 'default',
+  statusBadge,
   userId
 }: CourseCardProps) {
-  
-  // Debug logs (à retirer en production)
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`CourseCard Debug:`, {
-      courseId: course.id,
-      courseTitle: course.title,
-      price: course.price,
-      isPurchased,
-      isFree,
-      hasAccess,
-      needsPurchase,
-      userId,
-      showPurchaseButton,
-      showProgress
-    });
-  }
+  const router = useRouter();
 
-  const formatPrice = (priceInCents: number) => {
-    if (priceInCents === 0) return 'Gratuit';
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(priceInCents / 100);
-  };
+  // Logique calculée
+  const computedIsFree = course.price === 0;
+  const computedHasAccess = canAccess || computedIsFree || isPurchased;
+  const computedNeedsPurchase = !computedHasAccess && course.price > 0;
+  const isPublished = course.published !== null;
+  const hasProgress = showProgress && progressData;
 
+  // Fonctions utilitaires (comme dans votre ancien composant)
   const getDifficultyColor = (level: string) => {
     switch (level) {
       case 'beginner':
@@ -93,22 +90,127 @@ export function CourseCard({
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
   };
 
-  const isPublished = course.published !== null;
-  const hasProgress = showProgress && progressData;
-  
-  // Calcul automatique des statuts si pas fournis
-  const computedIsFree = isFree || course.price === 0;
-  const computedHasAccess = hasAccess || computedIsFree || isPurchased;
-  const computedNeedsPurchase = needsPurchase || (!computedHasAccess && course.price > 0);
+  const handleCourseAction = async () => {
+    if (mode === 'public') {
+      // Mode public - logique pour visiteurs
+      if (course.price === 0) {
+        // Cours gratuit - rediriger vers la connexion puis vers le cours
+        const callbackUrl = encodeURIComponent(`/dashboard/courses/${course.id}`);
+        router.push(`/sign-in?callbackUrl=${callbackUrl}`);
+      } else {
+        // Cours payant - rediriger vers checkout
+        try {
+          const response = await fetch(`/api/account/courses/${course.id}/checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.checkoutUrl) {
+            window.location.href = data.checkoutUrl;
+          } else {
+            // Si pas connecté pour un achat, rediriger vers signin
+            if (response.status === 401) {
+              const callbackUrl = encodeURIComponent(`/dashboard/courses/${course.id}`);
+              router.push(`/sign-in?callbackUrl=${callbackUrl}`);
+            } else {
+              alert('Erreur lors de la création du paiement');
+            }
+          }
+        } catch (error) {
+          console.error('Erreur checkout:', error);
+          alert('Erreur lors de la création du paiement');
+        }
+      }
+    } else {
+      // Mode dashboard - logique pour utilisateurs connectés
+      if (computedHasAccess || hasProgress) {
+        router.push(`/dashboard/courses/${course.id}`);
+      } else if (course.price === 0) {
+        // Cours gratuit - inscription directe ou démarrer
+        router.push(`/dashboard/courses/${course.id}/`);
+      } else {
+        // Cours payant - aller au checkout
+        try {
+          const response = await fetch(`/api/account/courses/${course.id}/checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.checkoutUrl) {
+            window.location.href = data.checkoutUrl;
+          } else {
+            alert('Erreur lors de la création du paiement');
+          }
+        } catch (error) {
+          console.error('Erreur checkout:', error);
+          alert('Erreur lors de la création du paiement');
+        }
+      }
+    }
+  };
+
+  // const handleViewDetails = () => {
+  //   router.push(`/dashboard/courses/${course.id}`);
+  // };
+
+  // Déterminer le texte du bouton principal selon le mode
+  const getMainButtonText = () => {
+    if (buttonText) return buttonText;
+
+    if (mode === 'public') {
+      return course.price === 0 
+        ? "Se connecter pour commencer"
+        : `Acheter maintenant - ${formatPrice(course.price)}`;
+    } else {
+      if (progressData?.completion_percentage === 100) {
+        return 'Revoir le cours';
+      } else if (hasProgress) {
+        return 'Continuer le cours';
+      } else if (computedHasAccess) {
+        return computedIsFree ? 'Commencer gratuitement' : 'Accéder au cours';
+      } else {
+        return `Acheter - ${formatPrice(course.price)}`;
+      }
+    }
+  };
+
+  // Déterminer le badge de prix/statut
+  const getPriceBadge = () => {
+    if (statusBadge) {
+      return (
+        <Badge variant={statusBadge.variant}>
+          {statusBadge.text}
+        </Badge>
+      );
+    }
+
+    if (isPurchased && !computedIsFree) {
+      return <Badge variant="secondary">Acheté</Badge>;
+    }
+
+    return course.price === 0 ? (
+      <Badge variant="secondary">Gratuit</Badge>
+    ) : (
+      <Badge variant="default">
+        {formatPrice(course.price)}
+      </Badge>
+    );
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-emerald-100">
-      {/* Image de couverture */}
+      {/* Image de couverture avec badges overlay */}
       <div className="relative">
         {course.imageUrl ? (
-          <img
+          <Image
             src={course.imageUrl}
             alt={course.title}
+            width={400}
+            height={192}
             className="w-full h-48 object-cover"
             onError={(e) => {
               e.currentTarget.src = '/placeholder-course.jpg';
@@ -122,43 +224,35 @@ export function CourseCard({
           </div>
         )}
         
-        {/* Badge du prix avec logique améliorée */}
+        {/* Badge du prix dans le coin */}
         <div className="absolute top-3 right-3">
-          <span className={`px-3 py-1 rounded-full text-sm font-semibold shadow-lg ${
-            computedIsFree 
-              ? 'bg-emerald-500 text-white' 
-              : isPurchased
-                ? 'bg-green-500 text-white'
-                : 'bg-white/90 text-gray-800'
-          }`}>
-            {computedIsFree ? 'Gratuit' : formatPrice(course.price)}
-          </span>
+          {getPriceBadge()}
         </div>
 
         {/* Badge de statut d'achat */}
         {isPurchased && !computedIsFree && (
           <div className="absolute top-3 left-3">
-            <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+            <Badge variant="secondary" className="bg-green-500 text-white shadow-lg">
               ✓ Acheté
-            </span>
+            </Badge>
           </div>
         )}
 
         {/* Badge cours gratuit */}
         {computedIsFree && (
           <div className="absolute top-3 left-3">
-            <span className="bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+            <Badge variant="secondary" className="bg-emerald-500 text-white shadow-lg">
               🌱 Gratuit
-            </span>
+            </Badge>
           </div>
         )}
 
-        {/* Badge de statut pour l'admin */}
+        {/* Badge brouillon */}
         {!isPublished && (
           <div className="absolute bottom-3 left-3">
-            <span className="bg-amber-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+            <Badge variant="outline" className="bg-amber-500 text-white border-amber-600">
               Brouillon
-            </span>
+            </Badge>
           </div>
         )}
       </div>
@@ -194,7 +288,7 @@ export function CourseCard({
         </div>
 
         {/* Barre de progression (si applicable) */}
-        {hasProgress && (
+        {hasProgress && progressData && (
           <div className="mb-4 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-emerald-800">Progression</span>
@@ -219,56 +313,44 @@ export function CourseCard({
           </div>
         )}
 
-        {/* Actions avec logique complète */}
+        {/* Date de création */}
+        <div className="text-sm text-gray-500 mb-4">
+          <p>Créé le {new Date(course.createdAt).toLocaleDateString()}</p>
+        </div>
+
+        {/* Actions */}
         <div className="space-y-3">
-          {/* Bouton principal - Logique pour tous les cas */}
-          {(computedHasAccess || hasProgress) ? (
-            <Link
-              href={`/dashboard/courses/${course.id}`}
-              className="block w-full text-center py-3 px-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+          {/* Bouton principal */}
+          {showPurchaseButton && isPublished && (
+            <Button
+              onClick={handleCourseAction}
+              className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] border-0"
+              variant="default"
             >
-              <span className="flex items-center justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-10v20m0 0l3-3m-3 3l-3-3" />
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-                {progressData?.completion_percentage === 100 ? 'Revoir le cours' : 
-                 hasProgress ? 'Continuer le cours' : 
-                 computedIsFree ? 'Commencer gratuitement' :
-                 'Accéder au cours'}
+                {getMainButtonText()}
               </span>
-            </Link>
-          ) : (
-            <Link
-              href={`/dashboard/courses/${course.id}/purchase`}
-              className="block w-full text-center py-3 px-4 border-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-xl font-semibold transition-all duration-300"
-            >
-              <span className="flex items-center justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                Voir les détails
-              </span>
-            </Link>
+            </Button>
           )}
-
-          {/* Wrapper du bouton d'achat - Seulement pour cours payants non achetés */}
-          {showPurchaseButton && isPublished && computedNeedsPurchase && (
-            <PurchaseButtonWrapper
-              courseId={course.id}
-              price={course.price}
-              title={course.title}
-              initialPurchaseStatus={isPurchased}
-            />
-          )}
-
-          {/* Debug info (development only) */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              Debug: isFree={computedIsFree.toString()}, isPurchased={isPurchased.toString()}, 
-              hasAccess={computedHasAccess.toString()}, needsPurchase={computedNeedsPurchase.toString()}
-            </div>
-          )}
+          
+          {/* Bouton voir les détails */}
+          {/* <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleViewDetails}
+            className="w-full border-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400 font-medium py-2.5 px-4 rounded-xl transition-all duration-300 hover:shadow-md"
+          >
+            <span className="flex items-center justify-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Voir les détails
+            </span>
+          </Button> */}
 
           {/* Cours non publié */}
           {!isPublished && (

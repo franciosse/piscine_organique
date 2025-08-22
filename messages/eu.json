@@ -29,7 +29,7 @@
 "HomePage": {
     "title": "Igerileku organikoak",
     "subtitle": "Ikasi zure igerileku organikoa eraikitzen",
-    "description": "Jarrai itzazu urratsak igerileku jasangarri eta ekologiko bat sortzeko.",
+    "description": "Jarraitu urratsak igerileku jasangarri eta ekologiko bat sortzeko. Eman izena gure online DYI ikastaroetan.",
     "offer" : "Hasi",
     "about": "'Honi buruz' orrialdera joan",
     "services": "Zerbitzuak",
@@ -39,7 +39,7 @@
     "trainingDescription": "Ikasi zure igerileku organikoa zaintzen gure prestakuntza-programekin.",
     "support": "Laguntza",
     "supportDescription": "Lortu etengabeko laguntza eta baliabideak zure igerileku organikorako.",
-    "ready": "Prest al zaude zure igerileku organikoa eraikitzeko?",
+    "ready": "Prest al zaude zure igerileku organikoa eraikitzeko, baina laguntza pixka bat behar duzu? Jarri gurekin harremanetan",
     "readyDescription": "Elkartu gure komunitateari eta hasi zure bidaia igeri-esperientzia jasangarri batera."
  } ,
 "ServicesPage": {

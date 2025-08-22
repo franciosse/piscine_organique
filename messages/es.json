@@ -29,7 +29,7 @@
 "HomePage": {
     "title": "Piscinas orgánicas",
     "subtitle": "Aprende a construir tu propia piscina orgánica",
-    "description": "Sigue los pasos para crear una piscina sostenible y ecológica.",
+    "description": "Sigue los pasos para crear una piscina sostenible y ecológica. Inscríbete en nuestros cursos DIY online.",
     "offer" : "Comenzar",
     "about": "Ir a la página Acerca de",
     "services": "Servicios",
@@ -39,7 +39,7 @@
     "trainingDescription": "Aprende a cuidar tu piscina orgánica con nuestros programas de formación.",
     "support": "Soporte",
     "supportDescription": "Obtén soporte continuo y recursos para tu piscina orgánica.",
-    "ready": "¿Listo para construir tu propia piscina orgánica?",
+    "ready": "¿Listo para construir tu propia piscina orgánica, pero necesitas ayuda? Contáctanos.",
     "readyDescription": "Únete a nuestra comunidad y comienza tu viaje hacia una experiencia de natación sostenible."
  },
 "ServicesPage": {
