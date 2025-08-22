@@ -82,7 +82,14 @@ export const POST = withUserAuth(async (request, authUser, { params }) => {
       });
     }
 
-    const baseUrl = getBaseUrl();
+    const baseUrl = getBaseUrl(request);
+    console.log('=== DEBUG URL ===');
+    console.log('BASE_URL env:', process.env.BASE_URL);
+    console.log('NEXTAUTH_URL env:', process.env.NEXTAUTH_URL);
+    console.log('APP_URL env:', process.env.APP_URL);
+    console.log('baseUrl utilisée:', baseUrl);
+    console.log('success_url finale:', `${baseUrl}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
+    console.log('=================');
 
     // Créer session Stripe
     const checkoutSession = await stripe.checkout.sessions.create({
