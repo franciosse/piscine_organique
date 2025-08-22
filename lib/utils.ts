@@ -46,20 +46,19 @@ export function getUserInitials(name: string | null, email: string): string {
 }
 
 export const getBaseUrl = (request?: Request): string => {
-  // En développement
-  if (process.env.NODE_ENV === 'development') {
-    return process.env.NEXTAUTH_URL || 'http://localhost:3000';
-  }
-  
-  // Variables d'environnement en priorité (recommandé pour la production)
-  if (process.env.NEXTAUTH_URL) {
-    return process.env.NEXTAUTH_URL;
-  }
-  
+
   if (process.env.BASE_URL) {
     return process.env.BASE_URL;
   }
-  
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+
   // Si on a une requête, on peut construire depuis les headers
   if (request) {
     const host = request.headers.get('host');
