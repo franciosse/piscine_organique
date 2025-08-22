@@ -45,18 +45,35 @@ export function getUserInitials(name: string | null, email: string): string {
   return 'U';
 }
 
-export function getBaseUrl(): string {
+export const getBaseUrl = (request?: Request): string => {
+  // En développement
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  }
+  
+  // Variables d'environnement en priorité (recommandé pour la production)
+  if (process.env.NEXTAUTH_URL) {
+    return process.env.NEXTAUTH_URL;
+  }
+  
   if (process.env.BASE_URL) {
     return process.env.BASE_URL;
   }
   
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  // Si on a une requête, on peut construire depuis les headers
+  if (request) {
+    const host = request.headers.get('host');
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    
+    // Sur Vercel, filtrer les URLs de déploiement temporaires
+    if (host && host.includes('vercel.app')) {
+      // Extraire le nom de base (avant le premier tiret avec suffixe)
+      const baseHost = host.split('-').slice(0, 2).join('-') + '.vercel.app';
+      return `${protocol}://${baseHost}`;
+    }
+    
+    return `${protocol}://${host}`;
   }
   
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3000';
-  }
-  
-  throw new Error('❌ BASE_URL non défini dans les variables d\'environnement');
-}
+  throw new Error('Unable to determine base URL');
+};
