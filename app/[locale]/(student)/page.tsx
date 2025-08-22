@@ -20,7 +20,7 @@ export default function HomePage() {
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <a
-                  href="/pricing"
+                  href="/dashboard/courses"
                   target="_blank"
                 >
                   <Button
@@ -104,7 +104,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <a href="/sign-in">
+              <a href="/services">
                 <Button
                   size="lg"
                   variant="outline"
