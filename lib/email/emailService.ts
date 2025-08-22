@@ -212,7 +212,7 @@ function generatePurchaseEmailHTML(course: { id: number; title: string; price: n
       <p>Vous pouvez maintenant accéder à votre cours et commencer votre apprentissage dès maintenant !</p>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${baseUrl}/courses/${course.id}/start" 
+        <a href="${baseUrl}/dashboard/courses/${course.id}" 
            style="display: inline-block; background: #16a34a; color: white; padding: 12px 24px; 
                   text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
           🚀 Commencer le cours

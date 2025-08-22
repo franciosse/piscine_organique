@@ -90,7 +90,7 @@ export function AutoLoginComponent({
         // Redirection automatique vers le cours après 2 secondes
         setTimeout(() => {
           console.log('🚀 Redirection vers le cours...');
-          router.push(`/courses/${courseId}/start`);
+          router.push(`/dashboard/courses/${courseId}`);
         }, 2000);
         
       } else {
@@ -116,7 +116,7 @@ export function AutoLoginComponent({
   };
 
   const handleManualLogin = () => {
-    const loginUrl = `/sign-in?callbackUrl=${encodeURIComponent(`/courses/${courseId}/start`)}`;
+    const loginUrl = `/sign-in?callbackUrl=${encodeURIComponent(`/dashboard/courses/${courseId}`)}`;
     router.push(loginUrl);
   };
 
@@ -323,7 +323,7 @@ export function AutoLoginComponent({
           
           <div className="flex flex-col sm:flex-row gap-4">
             <Button asChild className="flex-1">
-              <Link href={`/courses/${courseId}/start`}>
+              <Link href={`/dashboard/courses/${courseId}`}>
                 📚 Commencer maintenant
               </Link>
             </Button>
