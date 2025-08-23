@@ -1,7 +1,7 @@
 import { CoursePageComponent } from '@/components/student/coursePageComponent';
 import { db } from '@/lib/db/drizzle';
 import { courses, coursePurchases } from '@/lib/db/schema';
-import { eq, isNotNull } from 'drizzle-orm';
+import { eq, isNotNull, and, or, gte } from 'drizzle-orm';
 import { getUser } from '@/lib/auth/session';
 import { Course } from '@/lib/db/schema';
 import { redirect } from 'next/navigation';
@@ -28,12 +28,37 @@ async function getPurchasedCourseIds(): Promise<number[]> {
     if (!user) {
       redirect('/auth/signin');
     }
+  const pendingLimit = new Date(Date.now() - 2 * 60 * 60 * 1000);
 
-    const purchases = await db
-      .select({ courseId: coursePurchases.courseId })
+  const purchasedCourses = await db
+      .select({
+        courseId: coursePurchases.courseId,
+        purchaseDate: coursePurchases.purchasedAt,
+        course: {
+          id: courses.id,
+          title: courses.title,
+          price: courses.price,
+          imageUrl: courses.imageUrl,
+        }
+      })
       .from(coursePurchases)
-      .where(eq(coursePurchases.userId, user.id));
-    return purchases.map(p => p.courseId);
+      .innerJoin(courses, eq(coursePurchases.courseId, courses.id))
+      .where(
+        and(
+          eq(coursePurchases.userId, user.id),
+          or(
+            eq(coursePurchases.status, 'completed'),
+            eq(coursePurchases.status, 'paid'),
+            // Inclure les pending récents
+            and(
+              eq(coursePurchases.status, 'pending'),
+              gte(coursePurchases.purchasedAt, pendingLimit)
+            )
+          )
+        )
+      )
+      .orderBy(coursePurchases.purchasedAt);
+    return purchasedCourses.map(p => p.courseId);
   } catch (error) {
     console.error('Erreur lors de la récupération des cours achetés:', error);
     return [];
