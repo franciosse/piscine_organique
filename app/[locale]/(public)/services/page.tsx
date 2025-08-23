@@ -2,15 +2,11 @@
 // app/[locale]/services/page.tsx
 import { Brain, NotebookPen, Hammer } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-// À placer à la fin de app/[locale]/services/page.tsx (après le contenu existant)
 import Image from "next/image";
 
 
-
-
-
 export default function ServicesPage() {
-  const t = useTranslations('ServicesPage'); // si tu veux traduire plus tard
+  const t = useTranslations('ServicesPage'); 
 
   return (
     <main>
@@ -37,7 +33,7 @@ export default function ServicesPage() {
                 {t('onlineTrainingDescription')}
               </p>
               <a
-                href="/pricing"
+                href="/courses"
                 className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 transition-colors"
               >
                 {t('discoverOnlineTraining')}

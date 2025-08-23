@@ -1,4 +1,4 @@
-// /components/pages/courseCard.tsx - Version avec votre style préféré
+// /components/pages/courseCard.tsx - Version mise à jour
 'use client';
 
 import { Course } from '@/lib/db/schema';
@@ -30,6 +30,14 @@ interface CourseCardProps {
     variant: 'default' | 'secondary' | 'destructive' | 'outline';
   };
   userId?: number;
+  // Nouvelle prop pour l'état du cours
+  courseStatus?: {
+    isPurchased: boolean;
+    isFree: boolean;
+    canAccess: boolean;
+    buttonText: string;
+    buttonAction: 'access' | 'purchase';
+  };
 }
 
 export function CourseCard({ 
@@ -43,14 +51,17 @@ export function CourseCard({
   buttonText,
   buttonVariant = 'default',
   statusBadge,
-  userId
+  userId,
+  courseStatus
 }: CourseCardProps) {
   const router = useRouter();
 
-  // Logique calculée
-  const computedIsFree = course.price === 0;
-  const computedHasAccess = canAccess || computedIsFree || isPurchased;
-  const computedNeedsPurchase = !computedHasAccess && course.price > 0;
+  // Utiliser courseStatus en priorité, sinon fallback sur les anciennes props
+  const actualIsPurchased = courseStatus?.isPurchased ?? isPurchased;
+  const actualIsFree = courseStatus?.isFree ?? (course.price === 0);
+  const actualCanAccess = courseStatus?.canAccess ?? canAccess ?? actualIsFree ?? actualIsPurchased;
+  const actualButtonAction = courseStatus?.buttonAction ?? (actualCanAccess ? 'access' : 'purchase');
+
   const isPublished = course.published !== null;
   const hasProgress = showProgress && progressData;
 
@@ -91,9 +102,16 @@ export function CourseCard({
   };
 
   const handleCourseAction = async () => {
+    // Si on peut accéder au cours (acheté ou gratuit), rediriger directement
+    if (actualButtonAction === 'access') {
+      router.push(`/dashboard/courses/${course.id}`);
+      return;
+    }
+
+    // Sinon, gérer l'achat selon le mode
     if (mode === 'public') {
       // Mode public - logique pour visiteurs
-      if (course.price === 0) {
+      if (actualIsFree) {
         // Cours gratuit - rediriger vers la connexion puis vers le cours
         const callbackUrl = encodeURIComponent(`/dashboard/courses/${course.id}`);
         router.push(`/sign-in?callbackUrl=${callbackUrl}`);
@@ -125,11 +143,9 @@ export function CourseCard({
       }
     } else {
       // Mode dashboard - logique pour utilisateurs connectés
-      if (computedHasAccess || hasProgress) {
+      if (actualIsFree) {
+        // Cours gratuit - accès direct
         router.push(`/dashboard/courses/${course.id}`);
-      } else if (course.price === 0) {
-        // Cours gratuit - inscription directe ou démarrer
-        router.push(`/dashboard/courses/${course.id}/`);
       } else {
         // Cours payant - aller au checkout
         try {
@@ -153,25 +169,37 @@ export function CourseCard({
     }
   };
 
-  // const handleViewDetails = () => {
-  //   router.push(`/dashboard/courses/${course.id}`);
-  // };
-
-  // Déterminer le texte du bouton principal selon le mode
+  // Déterminer le texte du bouton principal
   const getMainButtonText = () => {
-    if (buttonText) return buttonText;
+    // Priorité aux props courseStatus
+    if (courseStatus?.buttonText) {
+      return courseStatus.buttonText;
+    }
 
+    // Priorité au buttonText passé directement
+    if (buttonText) {
+      return buttonText;
+    }
+
+    // Logique par défaut
     if (mode === 'public') {
-      return course.price === 0 
-        ? "Se connecter pour commencer"
-        : `Acheter maintenant - ${formatPrice(course.price)}`;
+      if (actualIsFree) {
+        return "Se connecter pour commencer";
+      } else if (actualIsPurchased) {
+        return "Se connecter pour accéder";
+      } else {
+        return `Acheter maintenant - ${formatPrice(course.price)}`;
+      }
     } else {
+      // Mode dashboard
       if (progressData?.completion_percentage === 100) {
         return 'Revoir le cours';
       } else if (hasProgress) {
         return 'Continuer le cours';
-      } else if (computedHasAccess) {
-        return computedIsFree ? 'Commencer gratuitement' : 'Accéder au cours';
+      } else if (actualCanAccess) {
+        return 'Accéder au cours';
+      } else if (actualIsFree) {
+        return 'Commencer gratuitement'
       } else {
         return `Acheter - ${formatPrice(course.price)}`;
       }
@@ -188,17 +216,28 @@ export function CourseCard({
       );
     }
 
-    if (isPurchased && !computedIsFree) {
+    if (actualIsPurchased && !actualIsFree) {
       return <Badge variant="secondary">Acheté</Badge>;
     }
 
-    return course.price === 0 ? (
+    return actualIsFree ? (
       <Badge variant="secondary">Gratuit</Badge>
     ) : (
       <Badge variant="default">
         {formatPrice(course.price)}
       </Badge>
     );
+  };
+
+  // Déterminer la couleur du bouton selon l'action
+  const getButtonClassName = () => {
+    const baseClass = "w-full font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] border-0";
+    
+    if (actualButtonAction === 'access') {
+      return `${baseClass} bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white`;
+    } else {
+      return `${baseClass} bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white`;
+    }
   };
 
   return (
@@ -230,7 +269,7 @@ export function CourseCard({
         </div>
 
         {/* Badge de statut d'achat */}
-        {isPurchased && !computedIsFree && (
+        {actualIsPurchased && !actualIsFree && (
           <div className="absolute top-3 left-3">
             <Badge variant="secondary" className="bg-green-500 text-white shadow-lg">
               ✓ Acheté
@@ -239,7 +278,7 @@ export function CourseCard({
         )}
 
         {/* Badge cours gratuit */}
-        {computedIsFree && (
+        {actualIsFree && (
           <div className="absolute top-3 left-3">
             <Badge variant="secondary" className="bg-emerald-500 text-white shadow-lg">
               🌱 Gratuit
@@ -324,33 +363,23 @@ export function CourseCard({
           {showPurchaseButton && isPublished && (
             <Button
               onClick={handleCourseAction}
-              className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] border-0"
+              className={getButtonClassName()}
               variant="default"
             >
               <span className="flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+                {actualButtonAction === 'access' ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-7 4h12l-5 5-5-5z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 3H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                  </svg>
+                )}
                 {getMainButtonText()}
               </span>
             </Button>
           )}
-          
-          {/* Bouton voir les détails */}
-          {/* <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewDetails}
-            className="w-full border-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400 font-medium py-2.5 px-4 rounded-xl transition-all duration-300 hover:shadow-md"
-          >
-            <span className="flex items-center justify-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              Voir les détails
-            </span>
-          </Button> */}
 
           {/* Cours non publié */}
           {!isPublished && (

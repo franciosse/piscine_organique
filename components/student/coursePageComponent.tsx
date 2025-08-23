@@ -58,6 +58,27 @@ export function CoursePageComponent({
     });
   }, [courses, searchTerm]);
 
+  // Fonction pour déterminer l'état d'un cours
+  const getCourseStatus = (course: Course): {
+    isPurchased: boolean;
+    isFree: boolean;
+    canAccess: boolean;
+    buttonText: string;
+    buttonAction: 'access' | 'purchase';
+  } => {
+    const isPurchased = purchasedCourseIds.includes(course.id);
+    const isFree = course.price === 0 || course.price === null;
+    const canAccess = isPurchased || isFree;
+    
+    return {
+      isPurchased,
+      isFree,
+      canAccess,
+      buttonText: canAccess ? 'Accéder au cours' : 'Acheter',
+      buttonAction: canAccess ? 'access' as const : 'purchase' as const
+    };
+  };
+
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -161,6 +182,7 @@ export function CoursePageComponent({
         }>
           {filteredCourses.map((course) => {
             const courseProps = getCourseProps(course, purchasedCourseIds);
+            const courseStatus = getCourseStatus(course);
             
             return (
               <CourseCard
@@ -168,6 +190,7 @@ export function CoursePageComponent({
                 course={course}
                 showPurchaseButton={config.showPurchaseButton}
                 mode={mode}
+                courseStatus={courseStatus}
                 {...courseProps}
               />
             );
