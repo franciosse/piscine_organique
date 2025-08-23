@@ -133,12 +133,12 @@ export function CourseCard({
               const callbackUrl = encodeURIComponent(`/dashboard/courses/${course.id}`);
               router.push(`/sign-in?callbackUrl=${callbackUrl}`);
             } else {
-              alert('Erreur lors de la création du paiement :' + {response});
+              alert('Erreur lors de la création du paiement');
             }
           }
         } catch (error) {
           console.error('Erreur checkout:', error);
-          alert('Erreur lors de la création du paiement :' + {error});
+          alert('Erreur lors de la création du paiement');
         }
       }
     } else {
@@ -149,21 +149,43 @@ export function CourseCard({
       } else {
         // Cours payant - aller au checkout
         try {
+          console.log('🚀 Tentative de checkout pour le cours:', course.id);
+          
           const response = await fetch(`/api/account/courses/${course.id}/checkout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
           });
 
+          console.log('📡 Réponse checkout:', {
+            status: response.status,
+            statusText: response.statusText,
+            ok: response.ok
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Erreur HTTP:', errorText);
+            alert(`Erreur ${response.status}: ${errorText}`);
+            return;
+          }
+
           const data = await response.json();
+          console.log('📦 Données reçues:', data);
 
           if (data.success && data.checkoutUrl) {
+            console.log('✅ Redirection vers Stripe:', data.checkoutUrl);
             window.location.href = data.checkoutUrl;
           } else {
-            alert('Erreur lors de la création du paiement :' + {response});
+            console.error('❌ Réponse inattendue:', data);
+            alert(`Erreur: ${data.message || 'Réponse inattendue du serveur'}`);
           }
         } catch (error) {
-          console.error('Erreur checkout:', error);
-          alert('Erreur lors de la création du paiement :' + {error});
+          console.error('💥 Erreur catch:', {
+            message: error instanceof Error ? error.message : 'Erreur inconnue',
+            stack: error instanceof Error ? error.stack : undefined,
+            error
+          });
+          alert(`Erreur réseau: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
         }
       }
     }
@@ -197,9 +219,7 @@ export function CourseCard({
       } else if (hasProgress) {
         return 'Continuer le cours';
       } else if (actualCanAccess) {
-        return 'Accéder au cours';
-      } else if (actualIsFree) {
-        return 'Commencer gratuitement'
+        return actualIsFree ? 'Commencer gratuitement' : 'Accéder au cours';
       } else {
         return `Acheter - ${formatPrice(course.price)}`;
       }
