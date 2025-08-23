@@ -133,12 +133,12 @@ export function CourseCard({
               const callbackUrl = encodeURIComponent(`/dashboard/courses/${course.id}`);
               router.push(`/sign-in?callbackUrl=${callbackUrl}`);
             } else {
-              alert('Erreur lors de la création du paiement');
+              alert('Erreur lors de la création du paiement :' + {response});
             }
           }
         } catch (error) {
           console.error('Erreur checkout:', error);
-          alert('Erreur lors de la création du paiement');
+          alert('Erreur lors de la création du paiement :' + {error});
         }
       }
     } else {
@@ -159,11 +159,11 @@ export function CourseCard({
           if (data.success && data.checkoutUrl) {
             window.location.href = data.checkoutUrl;
           } else {
-            alert('Erreur lors de la création du paiement');
+            alert('Erreur lors de la création du paiement :' + {response});
           }
         } catch (error) {
           console.error('Erreur checkout:', error);
-          alert('Erreur lors de la création du paiement');
+          alert('Erreur lors de la création du paiement :' + {error});
         }
       }
     }
