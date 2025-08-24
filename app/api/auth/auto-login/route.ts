@@ -5,6 +5,8 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { users, coursePurchases } from '@/lib/db/schema';
 import { setSession } from '@/lib/auth/session';
+import logger from '@/lib/logger/logger';
+
 
 const autoLoginSchema = z.object({
   userId: z.number(),
@@ -16,7 +18,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = autoLoginSchema.parse(body);
 
-    console.log('🔐 Tentative de connexion automatique pour utilisateur:', data.userId);
+    logger.info('🔐 Tentative de connexion automatique pour utilisateur:' + data.userId);
 
     // Vérifier que l'utilisateur existe
     const [user] = await db
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!user) {
-      console.error('❌ Utilisateur introuvable:', data.userId);
+      logger.error('❌ Utilisateur introuvable:' + data.userId);
       return NextResponse.json(
         { error: 'Utilisateur introuvable' },
         { status: 404 }
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       if (purchase.length === 0 || purchase[0].userId !== data.userId) {
-        console.error('❌ Session Stripe invalide ou utilisateur non correspondant');
+        logger.error('❌ Session Stripe invalide ou utilisateur non correspondant');
         return NextResponse.json(
           { error: 'Session invalide' },
           { status: 403 }
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
     // ✅ Créer la session utilisateur
     await setSession(user);
 
-    console.log('✅ Connexion automatique réussie pour:', user.email);
+    logger.info('✅ Connexion automatique réussie pour:' + user.email);
 
     return NextResponse.json({
       success: true,
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('❌ Erreur lors de la connexion automatique:', error);
+    logger.error('❌ Erreur lors de la connexion automatique:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

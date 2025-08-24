@@ -3,6 +3,8 @@ import { NextRequest } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth/getUserFromRequest';
 import { createAuthError, logAuthAttempt } from '@/lib/types/utils';
 import type { AuthUserResult } from '@/lib/types/auth';
+import logger from '@/lib/logger/logger';
+
 
 export async function checkAdminPermission(request: NextRequest): Promise<AuthUserResult> {
   try {
@@ -31,7 +33,7 @@ export async function checkAdminPermission(request: NextRequest): Promise<AuthUs
     return { success: true, data: user };
     
   } catch (error) {
-    console.error('Erreur lors de la vérification admin:', error);
+    logger.error('Erreur lors de la vérification admin:'+ error);
     return createAuthError(
       'SERVER_ERROR',
       'Erreur interne du serveur',

@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import { formatPrice } from '@/lib/utils';
 import Image from 'next/image';
+import logger from '@/lib/logger/logger';
+
 
 interface CourseCardProps {
   course: Course;
@@ -139,7 +141,7 @@ export function CourseCard({
             }
           }
         } catch (error) {
-          console.error('Erreur checkout:', error);
+          logger.error('Erreur checkout:'+ error);
           alert('Erreur lors de la création du paiement');
         }
       }
@@ -151,14 +153,14 @@ export function CourseCard({
       } else {
         // Cours payant - aller au checkout
         try {
-          console.log('🚀 Tentative de checkout pour le cours:', course.id);
+          logger.info('🚀 Tentative de checkout pour le cours:'+ course.id);
           
           const response = await fetch(`/api/account/courses/${course.id}/checkout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
           });
 
-          console.log('📡 Réponse checkout:', {
+          logger.info('📡 Réponse checkout:'+ {
             status: response.status,
             statusText: response.statusText,
             ok: response.ok
@@ -166,23 +168,23 @@ export function CourseCard({
 
           if (!response.ok) {
             const errorText = await response.text();
-            console.error('❌ Erreur HTTP:', errorText);
+            logger.error('❌ Erreur HTTP:'+ errorText);
             alert(`Erreur ${response.status}: ${errorText}`);
             return;
           }
 
           const data = await response.json();
-          console.log('📦 Données reçues:', data);
+          logger.info('📦 Données reçues:', data);
 
           if (data.success && data.checkoutUrl) {
-            console.log('✅ Redirection vers Stripe:', data.checkoutUrl);
+            logger.info('✅ Redirection vers Stripe:', data.checkoutUrl);
             window.location.href = data.checkoutUrl;
           } else {
-            console.error('❌ Réponse inattendue:', data);
+            logger.error('❌ Réponse inattendue:', data);
             alert(`Erreur: ${data.message || 'Réponse inattendue du serveur'}`);
           }
         } catch (error) {
-          console.error('💥 Erreur catch:', {
+          logger.error('💥 Erreur catch:'+ {
             message: error instanceof Error ? error.message : 'Erreur inconnue',
             stack: error instanceof Error ? error.stack : undefined,
             error

@@ -2,6 +2,8 @@ import { bulkUpdateUsers, bulkDeleteUsers } from '@/lib/db/queries';
 import { NextRequest, NextResponse } from 'next/server';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import { z } from 'zod';
+import logger from '@/lib/logger/logger';
+
 
 const bulkActionSchema = z.object({
   action: z.enum(['verify', 'unverify', 'delete', 'role_change']),
@@ -71,7 +73,7 @@ export const POST = withAdminAuth(async (req, adminUser) => {
     });
     
   } catch (error: any) {
-    console.error('Erreur lors de l\'action en masse:', error);
+    logger.error('Erreur lors de l\'action en masse:', error);
     
     if (error.name === 'ZodError') {
       return NextResponse.json(

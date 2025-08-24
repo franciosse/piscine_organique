@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CourseChapter, Lesson, Quiz } from '@/lib/db/schema';
+import logger from '@/lib/logger/logger';
+
 
 interface ChapterWithDetails extends CourseChapter {
   lessons: (Lesson & {
@@ -150,7 +152,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
   const reorderLessons = async (lessonId: number, newPosition: number) => {
     if (!chapter) return;
 
-    console.log(`Déplacement de la leçon ${lessonId} vers la position ${newPosition}`);
+    logger.info(`Déplacement de la leçon ${lessonId} vers la position ${newPosition}`);
 
     // Créer une copie des leçons triées par position actuelle
     const sortedLessons = [...chapter.lessons].sort((a, b) => a.position - b.position);
@@ -174,7 +176,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
       position: index + 1,
     }));
 
-    console.log('Payload envoyé:', { lessons: updatedLessons });
+    logger.info('Payload envoyé:'+ { lessons: updatedLessons });
 
     try {
       const response = await fetch(`/api/admin/chapters/${chapterId}/lessons/reorder`, {
@@ -185,9 +187,9 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
         body: JSON.stringify({ lessons: updatedLessons }),
       });
 
-      console.log('Status:', response.status);
+      logger.info('Status:'+ response.status);
       const data = await response.json();
-      console.log('Réponse API:', data);
+      logger.info('Réponse API:', data);
 
       if (response.ok) {
         fetchChapter(); // Recharger les données
@@ -195,7 +197,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
         setError(data.error || 'Erreur lors de la réorganisation');
       }
     } catch (err) {
-      console.error('Erreur de connexion:', err);
+      logger.error('Erreur de connexion:'+ err);
       setError('Erreur de connexion');
     }
   };

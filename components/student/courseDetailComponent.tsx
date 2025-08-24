@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import * as LucideIcons from 'lucide-react';
 import { checkLessonAccess } from '@/lib/course/lesson-sequencing';
+import logger from '@/lib/logger/logger';
+
 
 // Import explicite des icônes pour éviter les conflits
 const {
@@ -334,7 +336,7 @@ function ModernVideoPlayer({
 
       return url;
     } catch (error) {
-      console.error('Error processing video URL:', error);
+      logger.error('Error processing video URL:'+ error);
       setHasError(true);
       return url;
     }
@@ -344,7 +346,7 @@ function ModernVideoPlayer({
   const isEmbedVideo = embedUrl && (embedUrl.includes('youtube.com') || embedUrl.includes('vimeo.com'));
 
   const handleVideoError = (error: any) => {
-    console.error('Video error:', error);
+    logger.error('Video error:', error);
     setHasError(true);
     setIsLoading(false);
   };
@@ -890,7 +892,7 @@ export function CourseDetailComponent({
       
       localStorage.setItem(`course_${course.id}_progress`, JSON.stringify(progressData));
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
+      logger.error('Erreur lors de la sauvegarde:'+ error);
     }
   };
 
@@ -920,7 +922,7 @@ export function CourseDetailComponent({
       setActiveLesson({ ...activeLesson });
       setUpdateTrigger(prev => prev + 1);
       
-      console.log(`Leçon ${activeLesson.id} réinitialisée`);
+      logger.info(`Leçon ${activeLesson.id} réinitialisée`);
     }
   };
 
@@ -954,7 +956,7 @@ export function CourseDetailComponent({
           setUpdateTrigger(prev => prev + 1);
         }
       } catch (error) {
-        console.error('Erreur lors du chargement de la progression:', error);
+        logger.error('Erreur lors du chargement de la progression:'+ error);
       }
     };
     
@@ -992,7 +994,7 @@ export function CourseDetailComponent({
       if (onLessonComplete) {
         onLessonComplete(activeLesson.id);
       } else {
-        console.log(`Leçon ${activeLesson.id} marquée comme terminée`);
+        logger.info(`Leçon ${activeLesson.id} marquée comme terminée`);
       }
       
       // Passer à la leçon suivante automatiquement
@@ -1165,8 +1167,8 @@ export function CourseDetailComponent({
                   <ModernVideoPlayer 
                     videoUrl={activeLesson.videoUrl!} 
                     title={activeLesson.title}
-                    onProgress={(progress) => console.log(`Video progress: ${progress}%`)}
-                    onComplete={() => console.log('Video completed')}
+                    onProgress={(progress) => logger.info(`Video progress: ${progress}%`)}
+                    onComplete={() => logger.info('Video completed')}
                   />
                   
                   <LessonContentDisplay lesson={activeLesson} />

@@ -9,6 +9,8 @@ import { coursePurchases, courses } from '@/lib/db/schema';
 import { getSession  } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 interface RouteParams {
   courseId: string ;
@@ -90,7 +92,7 @@ export const GET = withUserAuth(async (request, authUser, { params }) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la vérification de l\'achat:', error);
+    logger.error('Erreur lors de la vérification de l\'achat:'+ error);
     
     return NextResponse.json(
       { 

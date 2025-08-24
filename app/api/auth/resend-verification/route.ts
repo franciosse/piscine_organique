@@ -6,7 +6,9 @@ import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateEmailVerificationToken } from '@/lib/auth/emailVerification';
 import { sendVerificationEmail } from '@/lib/email/emailService';
-import { decodeJwt } from 'jose'; // Utiliser jose comme dans votre emailVerification
+import { decodeJwt } from 'jose'; 
+import logger from '@/lib/logger/logger';
+
 
 const resendSchema = z.object({
   email: z.string().email().optional(),
@@ -89,7 +91,7 @@ export async function POST(request: NextRequest) {
     const newToken = await generateEmailVerificationToken(userId);
     await sendVerificationEmail(userEmail, newToken);
 
-    console.log(`📧 Email de vérification renvoyé à: ${userEmail}`);
+    logger.info(`📧 Email de vérification renvoyé à: ${userEmail}`);
 
     return NextResponse.json({
       success: true,
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('❌ Erreur renvoi email:', error);
+    logger.error('❌ Erreur renvoi email:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -125,7 +127,7 @@ async function decodeExpiredToken(token: string): Promise<number> {
     
     return payload.userId as number;
   } catch (error) {
-    console.error('Erreur décodage token:', error);
+    logger.error('Erreur décodage token:' + error);
     throw new Error('Token invalide');
   }
 }

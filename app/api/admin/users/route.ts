@@ -2,6 +2,8 @@ import { getAllUsersWithFilters, createUser } from '@/lib/db/queries';
 import { NextRequest, NextResponse } from 'next/server';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import { z } from 'zod';
+import logger from '@/lib/logger/logger';
+
 
 // Schéma de validation pour création d'utilisateur
 const createUserSchema = z.object({
@@ -45,7 +47,7 @@ export const GET = withAdminAuth(async (req, adminUser) => {
     });
     
   } catch (error: any) {
-    console.error('Erreur lors de la récupération des utilisateurs:', error);
+    logger.error('Erreur lors de la récupération des utilisateurs:', error);
     
     if (error.name === 'ZodError') {
       return NextResponse.json(
@@ -82,7 +84,7 @@ export const POST = withAdminAuth(async (req, adminUser) => {
     }, { status: 201 });
     
   } catch (error: any) {
-    console.error('Erreur lors de la création d\'utilisateur:', error);
+    logger.error('Erreur lors de la création d\'utilisateur:', error);
     
     if (error.name === 'ZodError') {
       return NextResponse.json(

@@ -8,6 +8,8 @@ import { hashPassword, setSession } from '@/lib/auth/session';
 import { generateEmailVerificationToken } from '@/lib/auth/emailVerification';
 import { sendVerificationEmail } from '@/lib/email/emailService';
 import { getSecurityContext, validateSecurity } from '@/lib/security/antiSpam';
+import logger from '@/lib/logger/logger';
+
 
 const signUpSchema = z.object({
   email: z.string().email().toLowerCase().trim(),
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = signUpSchema.parse(body);
 
-    console.log(`📝 Tentative d'inscription pour: ${data.email}`);
+    logger.info(`📝 Tentative d'inscription pour: ${data.email}`);
 
     // 🛡️ VALIDATION DE SÉCURITÉ CENTRALISÉE
     const context = getSecurityContext(request, 'signup', body);
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`✅ Validation sécurité réussie - IP: ${context.ip}, Email: ${data.email}`);
+    logger.info(`✅ Validation sécurité réussie - IP: ${context.ip}, Email: ${data.email}`);
 
     // 🔍 Vérifier si l'utilisateur existe déjà
     const existingUser = await db
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingUser.length > 0) {
-      console.log(`⚠️ Utilisateur existant trouvé: ${data.email}`);
+      logger.info(`⚠️ Utilisateur existant trouvé: ${data.email}`);
       return NextResponse.json(
         { 
           error: 'Un compte avec cet email existe déjà. Essayez de vous connecter ou de réinitialiser votre mot de passe.',
@@ -85,7 +87,7 @@ export async function POST(request: NextRequest) {
       isVerified: false,
     };
 
-    console.log('🔄 Insertion du nouvel utilisateur...');
+    logger.info('🔄 Insertion du nouvel utilisateur...');
 
     // 💾 Créer l'utilisateur (l'ID sera auto-généré)
     const [createdUser] = await db
@@ -94,30 +96,30 @@ export async function POST(request: NextRequest) {
       .returning();
 
     if (!createdUser) {
-      console.error('❌ Échec de création utilisateur');
+      logger.error('❌ Échec de création utilisateur');
       return NextResponse.json(
         { error: 'Impossible de créer le compte. Veuillez réessayer.' },
         { status: 500 }
       );
     }
 
-    console.log(`✅ Utilisateur créé avec ID: ${createdUser.id}`);
+    logger.info(`✅ Utilisateur créé avec ID: ${createdUser.id}`);
 
     // 📧 Générer token de vérification email
     try {
       const token = await generateEmailVerificationToken(createdUser.id);
       await sendVerificationEmail(data.email, token);
-      console.log('📧 Email de vérification envoyé');
+      logger.info('📧 Email de vérification envoyé');
     } catch (emailError) {
-      console.error('⚠️ Erreur envoi email:', emailError);
+      logger.error('⚠️ Erreur envoi email:' + emailError);
       // Ne pas faire échouer l'inscription si l'email échoue
     }
 
     // 🍪 Définir la session
-    console.log('🍪 Création de la session...');
+    logger.info('🍪 Création de la session...');
     await setSession(createdUser);
 
-    console.log(`🎉 Inscription réussie pour ${data.email} depuis IP: ${context.ip}`);
+    logger.info(`🎉 Inscription réussie pour ${data.email} depuis IP: ${context.ip}`);
 
     return NextResponse.json({
       success: true,
@@ -134,7 +136,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     const context = getSecurityContext(request, 'signup');
-    console.error(`❌ Erreur lors de l'inscription - IP: ${context.ip}`, error);
+    logger.error(`❌ Erreur lors de l'inscription - IP: ${context.ip}`, error);
 
     // 🔍 Gestion d'erreurs spécifiques
     if (error.code === '23505') { // PostgreSQL unique violation

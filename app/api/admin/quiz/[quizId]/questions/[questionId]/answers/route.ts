@@ -9,6 +9,8 @@ import {
 import { eq, and, max } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 // --- SCHEMAS DE VALIDATION ---
 const createAnswerSchema = z.object({
@@ -156,7 +158,7 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la récupération des réponses:', error);
+    logger.error('Erreur lors de la récupération des réponses:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des réponses' },
       { status: 500 }
@@ -268,7 +270,7 @@ export const POST = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la création des réponses:', error);
+    logger.error('Erreur lors de la création des réponses:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -388,7 +390,7 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la mise à jour des réponses:', error);
+    logger.error('Erreur lors de la mise à jour des réponses:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -481,7 +483,7 @@ export const DELETE = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la suppression des réponses:', error);
+    logger.error('Erreur lors de la suppression des réponses:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la suppression des réponses' },
       { status: 500 }

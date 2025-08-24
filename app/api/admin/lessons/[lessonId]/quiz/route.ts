@@ -12,6 +12,8 @@ import {
 import { eq, and, inArray } from 'drizzle-orm'; // ✅ AJOUT de inArray
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 // --- SCHEMAS DE VALIDATION ---
 const answerSchema = z.object({
@@ -147,7 +149,7 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la récupération du quiz:', error);
+    logger.error('Erreur lors de la récupération du quiz:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération du quiz' },
       { status: 500 }
@@ -279,7 +281,7 @@ export const POST = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la création du quiz:', error);
+    logger.error('Erreur lors de la création du quiz:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -446,7 +448,7 @@ export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la mise à jour du quiz:', error);
+    logger.error('Erreur lors de la mise à jour du quiz:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -542,7 +544,7 @@ export const DELETE = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la suppression du quiz:', error);
+    logger.error('Erreur lors de la suppression du quiz:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la suppression du quiz' },
       { status: 500 }

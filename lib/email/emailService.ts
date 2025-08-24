@@ -1,6 +1,8 @@
 // /lib/email.ts
 import nodemailer from 'nodemailer';
 import { getBaseUrl } from '@/lib/utils';
+import logger from '@/lib/logger/logger';
+
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -49,8 +51,8 @@ export interface EmailResult {
  */
 async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   try {
-    console.log(`📧 Envoi email à: ${options.to}`);
-    console.log(`📝 Sujet: ${options.subject}`);
+    logger.info(`📧 Envoi email à: ${options.to}`);
+    logger.info(`📝 Sujet: ${options.subject}`);
 
     const mailOptions = {
       from: '"Piscine Organique" <noreply@piscineorganique.com>',
@@ -62,14 +64,14 @@ async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 
     const result = await transporter.sendMail(mailOptions);
     
-    console.log('✅ Email envoyé avec succès:', result.messageId);
+    logger.info('✅ Email envoyé avec succès:'+ result.messageId);
     return { 
       success: true, 
       messageId: result.messageId 
     };
     
   } catch (error) {
-    console.error('❌ Erreur envoi email:', error);
+    logger.error('❌ Erreur envoi email:'+ error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
@@ -246,7 +248,7 @@ export async function sendVerificationEmail(email: string, token: string): Promi
     });
     
   } catch (error) {
-    console.error('❌ Erreur envoi email de vérification:', error);
+    logger.error('❌ Erreur envoi email de vérification:'+ error);
     throw new Error(`Impossible d'envoyer l'email de vérification: ${error}`);
   }
 }
@@ -263,7 +265,7 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
     });
     
   } catch (error) {
-    console.error('❌ Erreur envoi email de reset:', error);
+    logger.error('❌ Erreur envoi email de reset:'+ error);
     throw new Error(`Impossible d'envoyer l'email de réinitialisation: ${error}`);
   }
 }
@@ -289,7 +291,7 @@ export async function sendContactEmail(name: string, email: string, message: str
     });
     
   } catch (error) {
-    console.error('❌ Erreur envoi email de contact:', error);
+    logger.error('❌ Erreur envoi email de contact:'+ error);
     throw new Error(`Impossible d'envoyer l'email de contact: ${error}`);
   }
 }
@@ -303,7 +305,7 @@ export async function sendWelcomeEmail({ email, name, temporaryPassword }: Welco
     });
     
   } catch (error) {
-    console.error('❌ Erreur envoi email de bienvenue:', error);
+    logger.error('❌ Erreur envoi email de bienvenue:'+ error);
     // Ne pas faire échouer le processus pour un email
     return { success: false, error: 'Erreur envoi email de bienvenue' };
   }
@@ -318,7 +320,7 @@ export async function sendPurchaseConfirmationEmail({ email, course }: PurchaseE
     });
     
   } catch (error) {
-    console.error('❌ Erreur envoi email de confirmation:', error);
+    logger.error('❌ Erreur envoi email de confirmation:' + error);
     // Ne pas faire échouer le processus pour un email
     return { success: false, error: 'Erreur envoi email de confirmation' };
   }

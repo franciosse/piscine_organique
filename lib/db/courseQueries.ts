@@ -13,11 +13,13 @@ import {
   Lesson
 } from '@/lib/db/schema';
 import { eq, and, asc, isNotNull, sql } from 'drizzle-orm';
+import logger from '@/lib/logger/logger';
+
 
 // Service optimisé avec une seule requête principale
 export async function getCourseWithContentOptimized(courseId: number, userId?: number) {
   try {
-    console.log(`🌱 Fetching course ${courseId} with optimized query...`);
+    logger.info(`🌱 Fetching course ${courseId} with optimized query...`);
 
     // Requête principale avec tous les JOINs nécessaires
     const courseData = await db
@@ -148,7 +150,7 @@ export async function getCourseWithContentOptimized(courseId: number, userId?: n
     return buildCourseStructure(courseData, questionsData, isPurchased);
     
   } catch (error) {
-    console.error('❌ Error in optimized course query:', error);
+    logger.error('❌ Error in optimized course query:'+ error);
     throw error;
   }
 }

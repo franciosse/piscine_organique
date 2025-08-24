@@ -9,6 +9,8 @@ import { users, coursePurchases, courses } from '@/lib/db/schema';
 import { getSession, setSession } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 interface RouteParams {
   courseId: string ;
@@ -107,7 +109,7 @@ export const POST = withUserAuth(async (request, user, { params }) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de l\'inscription:', error);
+    logger.error('Erreur lors de l\'inscription:'+ error);
     
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

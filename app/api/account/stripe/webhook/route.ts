@@ -2,31 +2,33 @@
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { handlePaymentSuccess, handlePaymentFailed, stripe } from '@/lib/payments/stripe';
+import logger from '@/lib/logger/logger';
+
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(request: NextRequest) {
-  console.log('🔔 =========================');
-  console.log('🔔 WEBHOOK STRIPE APPELÉ !');
-  console.log('🔔 =========================');
+  logger.info('🔔 =========================');
+  logger.info('🔔 WEBHOOK STRIPE APPELÉ !');
+  logger.info('🔔 =========================');
   
   try {
     const body = await request.text();
     const headersList = await headers();
     const signature = headersList.get('stripe-signature');
 
-    console.log('📋 Headers reçus:', Object.fromEntries(headersList.entries()));
-    console.log('📧 Signature présente:', !!signature);
-    console.log('🔑 Webhook secret configuré:', !!webhookSecret);
-    console.log('📦 Body length:', body.length);
+    logger.info('📋 Headers reçus:'+ Object.fromEntries(headersList.entries()));
+    logger.info('📧 Signature présente:'+ !!signature);
+    logger.info('🔑 Webhook secret configuré:'+ !!webhookSecret);
+    logger.info('📦 Body length:'+ body.length);
 
     if (!signature) {
-      console.error('❌ Signature Stripe manquante');
+      logger.error('❌ Signature Stripe manquante');
       return NextResponse.json({ error: 'Signature manquante' }, { status: 400 });
     }
 
     if (!webhookSecret) {
-      console.error('❌ STRIPE_WEBHOOK_SECRET non configuré !');
+      logger.error('❌ STRIPE_WEBHOOK_SECRET non configuré !');
       return NextResponse.json({ error: 'Configuration webhook manquante' }, { status: 500 });
     }
 
@@ -34,19 +36,19 @@ export async function POST(request: NextRequest) {
     let event;
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-      console.log('✅ Signature webhook validée avec succès');
+      logger.info('✅ Signature webhook validée avec succès');
     } catch (err: any) {
-      console.error('❌ ERREUR DE VÉRIFICATION WEBHOOK:');
-      console.error('- Message:', err.message);
-      console.error('- Signature reçue:', signature?.substring(0, 50) + '...');
-      console.error('- Secret utilisé:', webhookSecret?.substring(0, 10) + '...');
+      logger.error('❌ ERREUR DE VÉRIFICATION WEBHOOK:');
+      logger.error('- Message:'+ err.message);
+      logger.error('- Signature reçue:'+ signature?.substring(0, 50) + '...');
+      logger.error('- Secret utilisé:'+webhookSecret?.substring(0, 10) + '...');
       return NextResponse.json({ error: 'Signature invalide' }, { status: 400 });
     }
 
-    console.log('📦 ÉVÉNEMENT STRIPE:');
-    console.log('- Type:', event.type);
-    console.log('- ID:', event.id);
-    console.log('- Created:', new Date(event.created * 1000).toISOString());
+    logger.info('📦 ÉVÉNEMENT STRIPE:');
+    logger.info('- Type:'+ event.type);
+    logger.info('- ID:'+ event.id);
+    logger.info('- Created:'+ new Date(event.created * 1000).toISOString());
 
     // Traiter différents types d'événements
     switch (event.type) {
@@ -72,22 +74,22 @@ export async function POST(request: NextRequest) {
 
       // ℹ️ Autres événements non traités
       default:
-        console.log(`ℹ️ Événement non traité: ${event.type}`);
+        logger.info(`ℹ️ Événement non traité: ${event.type}`);
         break;
     }
 
-    console.log('🔔 ===========================');
-    console.log('🔔 WEBHOOK TERMINÉ AVEC SUCCÈS');
-    console.log('🔔 ===========================');
+    logger.info('🔔 ===========================');
+    logger.info('🔔 WEBHOOK TERMINÉ AVEC SUCCÈS');
+    logger.info('🔔 ===========================');
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error('💥 ===============================');
-    console.error('💥 ERREUR CRITIQUE WEBHOOK STRIPE:');
-    console.error('💥 ===============================');
-    console.error('Message:', error.message);
-    console.error('Stack:', error.stack);
-    console.error('💥 ===============================');
+    logger.error('💥 ===============================');
+    logger.error('💥 ERREUR CRITIQUE WEBHOOK STRIPE:');
+    logger.error('💥 ===============================');
+    logger.error('Message:', error.message);
+    logger.error('Stack:', error.stack);
+    logger.error('💥 ===============================');
     
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
@@ -100,29 +102,29 @@ export async function POST(request: NextRequest) {
 async function handleCheckoutCompleted(event: any) {
   const session = event.data.object;
   
-  console.log('💳 ======================');
-  console.log('💳 SESSION DE CHECKOUT:');
-  console.log('💳 ======================');
-  console.log('- Session ID:', session.id);
-  console.log('- Payment Status:', session.payment_status);
-  console.log('- Customer Email:', session.customer_details?.email);
-  console.log('- Amount Total:', session.amount_total);
-  console.log('- Currency:', session.currency);
-  console.log('- Payment Intent:', session.payment_intent);
-  console.log('- Metadata:', JSON.stringify(session.metadata, null, 2));
+  logger.info('💳 ======================');
+  logger.info('💳 SESSION DE CHECKOUT:');
+  logger.info('💳 ======================');
+  logger.info('- Session ID:'+ session.id);
+  logger.info('- Payment Status:'+ session.payment_status);
+  logger.info('- Customer Email:'+ session.customer_details?.email);
+  logger.info('- Amount Total:'+ session.amount_total);
+  logger.info('- Currency:'+ session.currency);
+  logger.info('- Payment Intent:'+ session.payment_intent);
+  logger.info('- Metadata:'+ JSON.stringify(session.metadata, null, 2));
 
   if (session.payment_status === 'paid') {
-    console.log('💰 PAIEMENT CONFIRMÉ VIA CHECKOUT - Traitement...');
+    logger.info('💰 PAIEMENT CONFIRMÉ VIA CHECKOUT - Traitement...');
     
     try {
       await handlePaymentSuccess(session);
-      console.log('✅ CHECKOUT: Traitement terminé avec succès');
+      logger.info('✅ CHECKOUT: Traitement terminé avec succès');
     } catch (error) {
-      console.error('💥 CHECKOUT: Erreur lors du traitement:', error);
+      logger.error('💥 CHECKOUT: Erreur lors du traitement:'+ error);
       throw error;
     }
   } else {
-    console.log('⚠️ CHECKOUT: Paiement non confirmé:', session.payment_status);
+    logger.info('⚠️ CHECKOUT: Paiement non confirmé:', session.payment_status);
   }
 }
 
@@ -130,15 +132,15 @@ async function handleCheckoutCompleted(event: any) {
 async function handlePaymentIntentSucceeded(event: any) {
   const paymentIntent = event.data.object;
   
-  console.log('💰 ==========================');
-  console.log('💰 PAYMENT INTENT RÉUSSI:');
-  console.log('💰 ==========================');
-  console.log('- Payment Intent ID:', paymentIntent.id);
-  console.log('- Amount:', paymentIntent.amount);
-  console.log('- Currency:', paymentIntent.currency);
-  console.log('- Status:', paymentIntent.status);
-  console.log('- Customer:', paymentIntent.customer);
-  console.log('- Metadata:', JSON.stringify(paymentIntent.metadata, null, 2));
+  logger.info('💰 ==========================');
+  logger.info('💰 PAYMENT INTENT RÉUSSI:');
+  logger.info('💰 ==========================');
+  logger.info('- Payment Intent ID:'+ paymentIntent.id);
+  logger.info('- Amount:'+ paymentIntent.amount);
+  logger.info('- Currency:'+ paymentIntent.currency);
+  logger.info('- Status:'+ paymentIntent.status);
+  logger.info('- Customer:'+ paymentIntent.customer);
+  logger.info('- Metadata:'+ JSON.stringify(paymentIntent.metadata, null, 2));
 
   try {
     // Essayer de confirmer le paiement via Payment Intent aussi
@@ -150,9 +152,9 @@ async function handlePaymentIntentSucceeded(event: any) {
       customer_details: { email: paymentIntent.receipt_email },
       metadata: paymentIntent.metadata
     });
-    console.log('✅ PAYMENT_INTENT: Traitement terminé avec succès');
+    logger.info('✅ PAYMENT_INTENT: Traitement terminé avec succès');
   } catch (error) {
-    console.error('💥 PAYMENT_INTENT: Erreur lors du traitement:', error);
+    logger.error('💥 PAYMENT_INTENT: Erreur lors du traitement:'+ error);
     // Ne pas re-throw car c'est une confirmation supplémentaire
   }
 }
@@ -161,21 +163,21 @@ async function handlePaymentIntentSucceeded(event: any) {
 async function handlePaymentIntentFailed(event: any) {
   const paymentIntent = event.data.object;
   
-  console.log('❌ ========================');
-  console.log('❌ PAIEMENT ÉCHOUÉ:');
-  console.log('❌ ========================');
-  console.log('- Payment Intent ID:', paymentIntent.id);
-  console.log('- Failure Code:', paymentIntent.last_payment_error?.code);
-  console.log('- Failure Message:', paymentIntent.last_payment_error?.message);
-  console.log('- Customer:', paymentIntent.customer);
+  logger.info('❌ ========================');
+  logger.info('❌ PAIEMENT ÉCHOUÉ:');
+  logger.info('❌ ========================');
+  logger.info('- Payment Intent ID:'+ paymentIntent.id);
+  logger.info('- Failure Code:'+ paymentIntent.last_payment_error?.code);
+  logger.info('- Failure Message:'+ paymentIntent.last_payment_error?.message);
+  logger.info('- Customer:'+ paymentIntent.customer);
 
   try {
     if (handlePaymentFailed) {
       await handlePaymentFailed(paymentIntent);
-      console.log('✅ Échec de paiement traité');
+      logger.info('✅ Échec de paiement traité');
     }
   } catch (error) {
-    console.error('💥 Erreur lors du traitement de l\'échec:', error);
+    logger.error('💥 Erreur lors du traitement de l\'échec:'+ error);
   }
 }
 
@@ -183,12 +185,12 @@ async function handlePaymentIntentFailed(event: any) {
 async function handleCheckoutExpired(event: any) {
   const session = event.data.object;
   
-  console.log('⏰ ========================');
-  console.log('⏰ SESSION EXPIRÉE:');
-  console.log('⏰ ========================');
-  console.log('- Session ID:', session.id);
-  console.log('- Customer Email:', session.customer_details?.email);
-  console.log('- Metadata:', JSON.stringify(session.metadata, null, 2));
+  logger.info('⏰ ========================');
+  logger.info('⏰ SESSION EXPIRÉE:');
+  logger.info('⏰ ========================');
+  logger.info('- Session ID:'+ session.id);
+  logger.info('- Customer Email:'+ session.customer_details?.email);
+  logger.info('- Metadata:'+ JSON.stringify(session.metadata, null, 2));
 
   // Optionnel : nettoyer les enregistrements pending expirés
   // ou envoyer un email de rappel à l'utilisateur

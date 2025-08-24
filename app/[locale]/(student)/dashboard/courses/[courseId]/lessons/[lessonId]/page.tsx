@@ -26,6 +26,8 @@ import type {
   StudentProgress,
   LessonAttachment
 } from '@/lib/db/schema';
+import logger from '@/lib/logger/logger';
+
 
 export interface LessonWithDetails extends Lesson {
   chapter: CourseChapter & {
@@ -240,7 +242,7 @@ async function getLessonWithDetails(lessonId: number, userId?: number): Promise<
       previousLesson,
     };
   } catch (error) {
-    console.error('Error fetching lesson details:', error);
+    logger.error('Error fetching lesson details:'+ error);
     throw new Error('Erreur lors du chargement de la leçon');
   }
 }
@@ -261,7 +263,7 @@ async function checkLessonAccess(courseId: number, userId: number): Promise<bool
 
     return !!purchase;
   } catch (error) {
-    console.error('Error checking lesson access:', error);
+    logger.error('Error checking lesson access:'+ error);
     return false;
   }
 }
@@ -307,7 +309,7 @@ export default async function LessonPage({
       />
     );
   } catch (error) {
-    console.error('Error in LessonPage:', error);
+    logger.error('Error in LessonPage:'+ error);
     
     return (
       <div className="container mx-auto px-4 py-8">

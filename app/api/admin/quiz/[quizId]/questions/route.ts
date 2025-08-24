@@ -11,6 +11,8 @@ import {
 import { eq, and, desc, max } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 // --- SCHEMAS DE VALIDATION ---
 const answerSchema = z.object({
@@ -158,7 +160,7 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la récupération des questions:', error);
+    logger.error('Erreur lors de la récupération des questions:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des questions' },
       { status: 500 }
@@ -273,7 +275,7 @@ export const POST = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la création de la question:', error);
+    logger.error('Erreur lors de la création de la question:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(

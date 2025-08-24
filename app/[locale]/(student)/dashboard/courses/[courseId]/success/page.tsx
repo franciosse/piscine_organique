@@ -5,6 +5,8 @@ import { eq } from 'drizzle-orm';
 import { stripe } from '@/lib/payments/stripe';
 import { AutoLoginComponent } from '@/components/auth/AutoLoginComponent';
 import { Suspense } from 'react';
+import logger from '@/lib/logger/logger';
+
 
 interface PageProps {
   params: Promise<{ courseId: string; locale?: string }>;
@@ -15,12 +17,12 @@ interface PageProps {
 
 async function SuccessContent({ courseId, sessionId }: { courseId: number; sessionId: string }) {
   try {
-    console.log('🎉 Page de succès - Session ID:', sessionId);
+    logger.info('🎉 Page de succès - Session ID:'+ sessionId);
 
     // Récupérer les détails de la session Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     
-    console.log('💳 Session Stripe récupérée:', {
+    logger.info('💳 Session Stripe récupérée:'+ {
       id: session.id,
       paymentStatus: session.payment_status,
       customerEmail: session.customer_details?.email
@@ -61,7 +63,7 @@ async function SuccessContent({ courseId, sessionId }: { courseId: number; sessi
       .where(eq(coursePurchases.stripeSessionId, sessionId))
       .limit(1);
 
-    console.log('🔍 Achat trouvé:', purchase[0] ? 'Oui' : 'Non');
+    logger.info('🔍 Achat trouvé:'+ purchase[0] ? 'Oui' : 'Non');
 
     if (purchase.length === 0) {
       // L'achat n'est pas encore traité par le webhook
@@ -78,7 +80,7 @@ async function SuccessContent({ courseId, sessionId }: { courseId: number; sessi
       throw new Error('Utilisateur introuvable');
     }
 
-    console.log('👤 Utilisateur trouvé:', {
+    logger.info('👤 Utilisateur trouvé:'+ {
       id: user.id,
       email: user.email,
       createdViaStripe: user.createdViaStripe
@@ -99,7 +101,7 @@ async function SuccessContent({ courseId, sessionId }: { courseId: number; sessi
     />;
 
   } catch (error) {
-    console.error('❌ Erreur page de succès:', error);
+    logger.error('❌ Erreur page de succès:'+ error);
     return <AutoLoginComponent 
       status="error" 
       message="Erreur lors de la récupération des informations de paiement"

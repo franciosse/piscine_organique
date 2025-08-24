@@ -1,6 +1,7 @@
 // lib/auth/utils.ts
 import { NextResponse } from 'next/server';
 import type { AuthResult, AuthError } from './auth';
+import logger from '@/lib/logger/logger';
 
 
 /**
@@ -21,9 +22,9 @@ export function logAuthAttempt(
   };
   
   if (success) {
-    console.log('🔐 AUTH SUCCESS:', logData);
+    logger.info('🔐 AUTH SUCCESS:'+ logData);
   } else {
-    console.warn('🚨 AUTH FAILED:', logData);
+    console.warn('🚨 AUTH FAILED:'+ logData);
   }
 }
 

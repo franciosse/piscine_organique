@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendContactEmail } from '@/lib/email/emailService';
 import { getSecurityContext, validateSecurity } from '@/lib/security/antiSpam';
+import logger from '@/lib/logger/logger';
+
 
 const contactSchema = z.object({
   name: z.string().min(2).max(50).trim(),
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
     // ✅ Envoyer l'email
     await sendContactEmail(data.name, data.email, data.message);
     
-    console.log(`✅ Contact envoyé - IP: ${context.ip}, Email: ${data.email}`);
+    logger.info(`✅ Contact envoyé - IP: ${context.ip}, Email: ${data.email}`);
     
     return NextResponse.json({
       success: true,
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     const context = getSecurityContext(request, 'contact');
-    console.error(`❌ Erreur contact - IP: ${context.ip}`, error);
+    logger.error(`❌ Erreur contact - IP: ${context.ip}`, error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(

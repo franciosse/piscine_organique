@@ -2,6 +2,8 @@
 'use client';
 
 import { useState } from 'react';
+import logger from '@/lib/logger/logger';
+
 
 interface PurchaseButtonProps {
   courseId: number;
@@ -80,7 +82,7 @@ export function PurchaseButton({
         }
       }
     } catch (error) {
-      console.error('Erreur lors de l\'achat:', error);
+      logger.error('Erreur lors de l\'achat:' +  error);
       // Vous pouvez ajouter une notification d'erreur ici
       alert('Une erreur est survenue lors de l\'achat. Veuillez réessayer.');
     } finally {

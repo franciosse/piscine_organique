@@ -4,6 +4,8 @@ import { withUserAuth } from '@/app/api/_lib/route-helpers';
 import { db } from '@/lib/db/drizzle';
 import { users, courses, coursePurchases } from '@/lib/db/schema'; // Ajustez selon votre schéma
 import { eq, and, count } from 'drizzle-orm';
+import logger from '@/lib/logger/logger';
+
 
 export const GET = withUserAuth(async (req, authenticatedUser) => {
   try {
@@ -49,7 +51,7 @@ export const GET = withUserAuth(async (req, authenticatedUser) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des statistiques:', error);
+    logger.error('Erreur lors de la récupération des statistiques:'+ error);
     return NextResponse.json(
       { error: 'Impossible de récupérer les statistiques' },
       { status: 500 }

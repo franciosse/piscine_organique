@@ -2,6 +2,8 @@ import { updateUserRole } from '@/lib/db/queries';
 import { NextRequest, NextResponse } from 'next/server';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import { z } from 'zod';
+import logger from '@/lib/logger/logger';
+
 
 const roleUpdateSchema = z.object({
   role: z.enum(['admin', 'student', 'teacher'])
@@ -55,7 +57,7 @@ export const PATCH = withAdminAuth(async (req, adminUser, context) => {
     });
     
   } catch (error: any) {
-    console.error('Erreur lors du changement de rôle:', error);
+    logger.error('Erreur lors du changement de rôle:', error);
     
     if (error.name === 'ZodError') {
       return NextResponse.json(

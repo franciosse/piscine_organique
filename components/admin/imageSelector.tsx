@@ -2,6 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import logger from '@/lib/logger/logger';
+
 
 interface ImageItem {
   name: string;
@@ -35,10 +37,10 @@ export default function ImageSelector({ isOpen, onClose, onSelect, filter = 'all
     try {
       const response = await fetch('/api/admin/images');
       const data = await response.json();
-      console.log('Images chargées:', data); // Debug
+      logger.info('Images chargées:', data); // Debug
       setImages(data.images || []);
     } catch (error) {
-      console.error('Erreur lors du chargement des images:', error);
+      logger.error('Erreur lors du chargement des images:' +  error);
     } finally {
       setLoading(false);
     }
@@ -149,10 +151,10 @@ export default function ImageSelector({ isOpen, onClose, onSelect, filter = 'all
                       alt={image.name}
                       className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                       onError={(e) => {
-                        console.error('Erreur chargement image:', image.url);
+                        logger.error('Erreur chargement image:' + image.url);
                         e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f3f4f6"/><text x="50" y="50" text-anchor="middle" dy=".3em" fill="%236b7280">❌</text></svg>';
                       }}
-                      onLoad={() => console.log('Image chargée:', image.url)}
+                      onLoad={() => logger.info('Image chargée:' +  image.url)}
                     />
                   </div>
                   

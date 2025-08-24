@@ -2,6 +2,8 @@
 import { getCourseStats } from '@/lib/db/queries';
 import { NextRequest, NextResponse } from 'next/server';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 // GET - Statistiques des cours
 export const GET = withAdminAuth(async (req, adminUser) => {
@@ -26,7 +28,7 @@ export const GET = withAdminAuth(async (req, adminUser) => {
       generatedAt: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Erreur lors de la génération des statistiques des cours:', error);
+    logger.error('Erreur lors de la génération des statistiques des cours:'+ error);
     return NextResponse.json(
       { error: 'Erreur lors de la génération des statistiques des cours' },
       { status: 500 }

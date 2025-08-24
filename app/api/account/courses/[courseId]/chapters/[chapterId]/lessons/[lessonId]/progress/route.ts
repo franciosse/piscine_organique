@@ -4,6 +4,8 @@ import { db } from '@/lib/db/drizzle';
 import { lessons, studentProgress, users, coursePurchases, courseChapters } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 interface RouteParams {
   courseId: string;
@@ -162,7 +164,7 @@ export const PATCH = withUserAuth(async (request: NextRequest, user, { params })
     }
 
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du progrès:', error);
+    logger.error('Erreur lors de la mise à jour du progrès:'+ error);
     return NextResponse.json(
       { error: 'Erreur serveur interne' },
       { status: 500 }
@@ -262,7 +264,7 @@ export const GET = withUserAuth(async (request: NextRequest, user, { params }) =
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération du progrès:', error);
+    logger.error('Erreur lors de la récupération du progrès:'+ error);
     return NextResponse.json(
       { error: 'Erreur serveur interne' },
       { status: 500 }

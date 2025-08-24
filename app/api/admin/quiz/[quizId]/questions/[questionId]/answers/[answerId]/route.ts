@@ -9,6 +9,8 @@ import {
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 // --- SCHEMAS DE VALIDATION ---
 const updateAnswerSchema = z.object({
@@ -149,7 +151,7 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
     return NextResponse.json(answer[0]);
 
   } catch (error: any) {
-    console.error('Erreur lors de la récupération de la réponse:', error);
+    logger.error('Erreur lors de la récupération de la réponse:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération de la réponse' },
       { status: 500 }
@@ -255,7 +257,7 @@ export const PATCH = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la mise à jour de la réponse:', error);
+    logger.error('Erreur lors de la mise à jour de la réponse:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -421,7 +423,7 @@ export const DELETE = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la suppression de la réponse:', error);
+    logger.error('Erreur lors de la suppression de la réponse:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la suppression de la réponse' },
       { status: 500 }

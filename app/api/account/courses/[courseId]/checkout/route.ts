@@ -6,6 +6,8 @@ import { getSession } from '@/lib/auth/session';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
 import { getBaseUrl } from '@/lib/utils';
+import logger from '@/lib/logger/logger';
+
 
 interface RouteParams {
   courseId: string;
@@ -88,13 +90,13 @@ export async function POST(request: Request, context: RouteContext) {
     const successUrl = `${baseUrl}/dashboard/courses/${courseId}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/dashboard/courses/${courseId}`;
 
-    console.log('=== DEBUG CHECKOUT ===');
-    console.log('Course ID:', courseId);
-    console.log('User ID:', userId);
-    console.log('Customer Email:', customerEmail);
-    console.log('Success URL:', successUrl);
-    console.log('Cancel URL:', cancelUrl);
-    console.log('=====================');
+    logger.info('=== DEBUG CHECKOUT ===');
+    logger.info('Course ID:'+ courseId);
+    logger.info('User ID:'+ userId);
+    logger.info('Customer Email:'+ customerEmail);
+    logger.info('Success URL:'+ successUrl);
+    logger.info('Cancel URL:'+ cancelUrl);
+    logger.info('=====================');
 
     // Créer session Stripe
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -136,7 +138,7 @@ export async function POST(request: Request, context: RouteContext) {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la création du checkout:', error);
+    logger.error('Erreur lors de la création du checkout:'+ error);
     return NextResponse.json(
       { error: 'Erreur lors de la création du paiement' },
       { status: 500 }

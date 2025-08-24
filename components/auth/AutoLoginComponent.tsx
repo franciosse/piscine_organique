@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Mail, Book, Key, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import logger from '@/lib/logger/logger';
+
 
 interface AutoLoginComponentProps {
   status: 'pending' | 'processing' | 'success' | 'error';
@@ -40,12 +42,12 @@ export function AutoLoginComponent({
     if (status === 'pending' || status === 'processing') {
       // ✅ LIMITE : Maximum 10 tentatives (50 secondes)
       if (retryCount >= 10) {
-        console.log('❌ Limite d\'auto-refresh atteinte');
+        logger.info('❌ Limite d\'auto-refresh atteinte');
         return;
       }
 
       const interval = setInterval(() => {
-        console.log(`🔄 Auto-refresh ${retryCount + 1}/10 de la page...`);
+        logger.info(`🔄 Auto-refresh ${retryCount + 1}/10 de la page...`);
         setRetryCount(prev => prev + 1);
         window.location.reload();
       }, 5000); // Refresh toutes les 5 secondes
@@ -68,7 +70,7 @@ export function AutoLoginComponent({
     setLoginError('');
 
     try {
-      console.log('🔐 Tentative de connexion automatique pour:', user.email);
+      logger.info('🔐 Tentative de connexion automatique pour:', user.email);
 
       // ✅ Appeler une API pour créer la session côté client
       const response = await fetch('/api/auth/auto-login', {
@@ -85,20 +87,20 @@ export function AutoLoginComponent({
       const data = await response.json();
 
       if (response.ok) {
-        console.log('✅ Connexion automatique réussie');
+        logger.info('✅ Connexion automatique réussie');
         
         // Redirection automatique vers le cours après 2 secondes
         setTimeout(() => {
-          console.log('🚀 Redirection vers le cours...');
+          logger.info('🚀 Redirection vers le cours...');
           router.push(`/dashboard/courses/${courseId}`);
         }, 2000);
         
       } else {
-        console.error('❌ Erreur connexion automatique:', data.error);
+        logger.error('❌ Erreur connexion automatique:', data.error);
         setLoginError('Erreur de connexion automatique');
       }
     } catch (error) {
-      console.error('❌ Erreur lors de la connexion automatique:', error);
+      logger.error('❌ Erreur lors de la connexion automatique:'+ error);
       setLoginError('Erreur réseau lors de la connexion');
     } finally {
       setIsLoggingIn(false);

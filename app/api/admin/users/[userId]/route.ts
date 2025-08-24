@@ -2,6 +2,8 @@ import { getUserById, updateUser, deleteUser } from '@/lib/db/queries';
 import { NextRequest, NextResponse } from 'next/server';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import { z } from 'zod';
+import logger from '@/lib/logger/logger';
+
 
 const updateUserSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -45,7 +47,7 @@ export const GET = withAdminAuth(async (req, adminUser, context) => {
     });
     
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+    logger.error('Erreur lors de la récupération de l\'utilisateur:'+ error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération de l\'utilisateur' },
       { status: 500 }
@@ -99,7 +101,7 @@ export const PUT = withAdminAuth(async (req, adminUser, context) => {
     });
     
   } catch (error: any) {
-    console.error('Erreur lors de la mise à jour:', error);
+    logger.error('Erreur lors de la mise à jour:', error);
     
     if (error.name === 'ZodError') {
       return NextResponse.json(
@@ -155,7 +157,7 @@ export const DELETE = withAdminAuth(async (req, adminUser, context) => {
     });
     
   } catch (error) {
-    console.error('Erreur lors de la suppression:', error);
+    logger.error('Erreur lors de la suppression:'+ error);
     return NextResponse.json(
       { error: 'Erreur lors de la suppression de l\'utilisateur' },
       { status: 500 }

@@ -20,6 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import logger from '@/lib/logger/logger';
+
 
 interface LessonPlayerComponentProps {
   lesson: LessonWithDetails;
@@ -46,7 +48,7 @@ export function LessonPlayerComponent({ lesson, user }: LessonPlayerComponentPro
         setIsCompleted(true);
       }
     } catch (error) {
-      console.error('Error marking lesson as completed:', error);
+      logger.error('Error marking lesson as completed:'+ error);
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +63,7 @@ export function LessonPlayerComponent({ lesson, user }: LessonPlayerComponentPro
         body: JSON.stringify({ watchTime: Math.round(currentTime) }),
       });
     } catch (error) {
-      console.error('Error updating watch time:', error);
+      logger.error('Error updating watch time:'+ error);
     }
   };
 

@@ -2,6 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import logger from '@/lib/logger/logger';
+
 
 export function usePurchasedCourses() {
   const [purchasedCourses, setPurchasedCourses] = useState<Set<number>>(new Set());
@@ -19,7 +21,7 @@ export function usePurchasedCourses() {
         setPurchasedCourses(new Set(data.courseIds));
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération des cours achetés:', error);
+      logger.error('Erreur lors de la récupération des cours achetés:'+ error);
     } finally {
       setLoading(false);
     }

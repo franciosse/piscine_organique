@@ -4,6 +4,8 @@ import { checkAdminPermission } from './checkPermissionsHelper';
 import {getAuthenticatedUser} from './getAuthenticatedUserHelper'
 import { isAuthSuccess } from '@/lib/types/utils';
 import type { User } from '@/lib/db/schema';
+import logger from '@/lib/logger/logger';
+
 
 type AdminRouteHandler = (
   req: NextRequest, 
@@ -27,7 +29,7 @@ export function withAdminAuth(handler: AdminRouteHandler) {
       return await handler(req, authResult.data, context);
       
     } catch (error: any) {
-      console.error(`❌ Error in admin route ${req.url}:`, error);
+      logger.error(`❌ Error in admin route ${req.url}:`, error);
       return NextResponse.json(
         { error: 'Erreur interne du serveur' },
         { status: 500 }
@@ -57,7 +59,7 @@ export function withUserAuth(handler: UserRouteHandler) {
       return await handler(req, authResult.data, context);
 
     } catch (error: any) {
-      console.error(`❌ Error in user route:`, error);
+      logger.error(`❌ Error in user route:`, error);
       return NextResponse.json(
         { error: 'Erreur interne du serveur' },
         { status: 500 }

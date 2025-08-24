@@ -2,9 +2,11 @@ import { stripe } from '../payments/stripe';
 import { db } from './drizzle';
 import { users } from './schema';
 import { hashPassword } from '@/lib/auth/session';
+import logger from '@/lib/logger/logger';
+
 
 async function createStripeProducts() {
-  console.log('Creating Stripe products and prices...');
+  logger.info('Creating Stripe products and prices...');
 
   const baseProduct = await stripe.products.create({
     name: 'Base',
@@ -36,7 +38,7 @@ async function createStripeProducts() {
     },
   });
 
-  console.log('Stripe products and prices created successfully.');
+  logger.info('Stripe products and prices created successfully.');
 }
 
 async function seed() {
@@ -56,7 +58,7 @@ async function seed() {
     ])
     .returning();
 
-  console.log('Initial user created.');
+  logger.info('Initial user created.');
 
 
   await createStripeProducts();
@@ -64,10 +66,10 @@ async function seed() {
 
 seed()
   .catch((error) => {
-    console.error('Seed process failed:', error);
+    logger.error('Seed process failed:', error);
     process.exit(1);
   })
   .finally(() => {
-    console.log('Seed process finished. Exiting...');
+    logger.info('Seed process finished. Exiting...');
     process.exit(0);
   });

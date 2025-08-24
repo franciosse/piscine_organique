@@ -3,6 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { PurchaseButton } from './purchaseButton';
+import logger from '@/lib/logger/logger';
+
 
 interface PurchaseButtonWrapperProps {
   courseId: number;
@@ -34,7 +36,7 @@ export function PurchaseButtonWrapper({
       const data = await response.json();
       setIsPurchased(data.purchased);
     } catch (error) {
-      console.error('Erreur lors de la vérification de l\'achat:', error);
+      logger.error('Erreur lors de la vérification de l\'achat:' +  error);
     } finally {
       setCheckingPurchase(false);
     }

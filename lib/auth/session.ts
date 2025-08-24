@@ -6,6 +6,8 @@ import { NewUser } from '@/lib/db/schema';
 import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import logger from '@/lib/logger/logger';
+
 
 const key = new TextEncoder().encode(process.env.AUTH_SECRET);
 const SALT_ROUNDS = 10;
@@ -47,14 +49,14 @@ export async function getSession() {
     const session = cookieStore.get('session')?.value;
     
     if (!session) {
-      console.log('🍪 Aucun cookie de session trouvé');
+      logger.info('🍪 Aucun cookie de session trouvé');
       return null;
     }
 
-    console.log('🍪 Cookie de session trouvé, vérification...');
+    logger.info('🍪 Cookie de session trouvé, vérification...');
     const verified = await verifyToken(session);
     
-    console.log('✅ Session valide pour utilisateur:', verified.user.id);
+    logger.info('✅ Session valide pour utilisateur:'+ verified.user.id);
     return verified;
   } catch (error : any) {
     console.warn('❌ Session invalide:', error.message);
@@ -89,7 +91,7 @@ export async function setSession(user: NewUser) {
     path: '/', // ✅ Important : définir le path
   });
 
-  console.log('🍪 Session créée pour utilisateur:', user.id);
+  logger.info('🍪 Session créée pour utilisateur:'+ user.id);
   
   // ❌ PAS de redirect() ici !
   // La redirection est gérée côté client
@@ -98,7 +100,7 @@ export async function setSession(user: NewUser) {
 export async function getUser() {
   const session = await getSession();
   if (!session) {
-    console.log('❌ Aucune session pour getUser()');
+    logger.info('❌ Aucune session pour getUser()');
     return null;
   }
 
@@ -110,14 +112,14 @@ export async function getUser() {
       .limit(1);
 
     if (!user) {
-      console.log('❌ Utilisateur introuvable en base pour ID:', session.user.id);
+      logger.info('❌ Utilisateur introuvable en base pour ID:' +  session.user.id);
       return null;
     }
 
-    console.log('✅ Utilisateur récupéré:', user.email);
+    logger.info('✅ Utilisateur récupéré:'+ user.email);
     return user;
   } catch (error) {
-    console.error('❌ Erreur récupération utilisateur:', error);
+    logger.error('❌ Erreur récupération utilisateur:'+ error);
     return null;
   }
 }
@@ -127,8 +129,8 @@ export async function destroySession() {
   try {
     const cookieStore = await cookies();
     cookieStore.delete('session');
-    console.log('🍪 Session supprimée');
+    logger.info('🍪 Session supprimée');
   } catch (error) {
-    console.error('Erreur suppression session:', error);
+    logger.error('Erreur suppression session:' + error);
   }
 }

@@ -1,5 +1,7 @@
 import { getUserStats } from '@/lib/db/queries';
 import { NextRequest, NextResponse } from 'next/server';
+import logger from '@/lib/logger/logger';
+
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 
 // GET - Statistiques des utilisateurs
@@ -21,7 +23,7 @@ export const GET = withAdminAuth(async (req, adminUser) => {
     });
     
   } catch (error) {
-    console.error('Erreur lors de la génération des statistiques:', error);
+    logger.error('Erreur lors de la génération des statistiques:'+ error);
     return NextResponse.json(
       { error: 'Erreur lors de la génération des statistiques' },
       { status: 500 }

@@ -5,6 +5,8 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lesson, LessonAttachment, Quiz, QuizQuestion, QuizAnswer } from '@/lib/db/schema';
 import ImageSelector from '@/components/admin/imageSelector';
+import logger from '@/lib/logger/logger';
+
 
 interface LessonFormProps {
   courseId: number;
@@ -146,7 +148,7 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
         cleanedData.duration = formData.duration;
       }
 
-      console.log('📤 Données envoyées:', cleanedData); // Debug
+      logger.info('📤 Données envoyées:', cleanedData); // Debug
 
       const response = await fetch(url, {
         method,
@@ -169,11 +171,11 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
         router.push(`/admin/courses/${courseId}/chapters/${chapterId}/edit`);
         router.refresh();
       } else {
-        console.error('❌ Erreur API:', data); // Debug
+        logger.error('❌ Erreur API:'+ data); // Debug
         setError(Array.isArray(data) ? data.map(e => e.message).join(', ') : (data.error || 'Erreur lors de la sauvegarde'));
       }
     } catch (err) {
-      console.error('❌ Erreur réseau:', err); // Debug
+      logger.error('❌ Erreur réseau:'+ err); // Debug
       setError('Erreur de connexion');
     } finally {
       setLoading(false);

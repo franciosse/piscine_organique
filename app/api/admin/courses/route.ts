@@ -5,6 +5,7 @@ import { courses, users } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth, withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
 
 
 // Schema de validation pour créer un cours
@@ -57,7 +58,7 @@ export const GET = withUserAuth(async (request, adminUser) => {
       total: allCourses.length,
     });
   } catch (error) {
-    console.error('Erreur lors de la récupération des cours:', error);
+    logger.error('Erreur lors de la récupération des cours:'+ error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erreur serveur' },
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
@@ -110,7 +111,7 @@ export const POST = withAdminAuth(async (request, adminUser) => {
       course: newCourse,
     }, { status: 201 });
   } catch (error) {
-    console.error('Erreur lors de la création du cours:', error);
+    logger.error('Erreur lors de la création du cours:'+ error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(

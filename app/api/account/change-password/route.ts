@@ -7,6 +7,8 @@ import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { logActivity, ActivityType } from '@/lib/auth/activity';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
@@ -76,7 +78,7 @@ export const POST = withUserAuth(async (req, authenticatedUser) => {
     });
 
   } catch (error: any) {
-    console.error('Change password error:', error);
+    logger.error('Change password error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(

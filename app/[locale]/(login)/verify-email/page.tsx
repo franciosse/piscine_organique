@@ -4,6 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import logger from '@/lib/logger/logger';
+
 
 type VerificationState = 'loading' | 'success' | 'error' | 'missing-token';
 
@@ -62,7 +64,7 @@ export default function VerifyEmailPage() {
     } catch (error) {
       setState('error');
       setMessage('Une erreur inattendue s\'est produite.');
-      console.error('Erreur vérification email:', error);
+      logger.error('Erreur vérification email:'+ error);
     }
   };
 
@@ -79,7 +81,7 @@ export default function VerifyEmailPage() {
         setMessage('Email de vérification renvoyé !');
       }
     } catch (error) {
-      console.error('Erreur renvoi email:', error);
+      logger.error('Erreur renvoi email:' + error);
     }
   };
 

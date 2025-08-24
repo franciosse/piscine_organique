@@ -1,39 +1,41 @@
 // /app/api/account/user/route.ts - Fix Edge Runtime
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, getUser } from '@/lib/auth/session';
+import logger from '@/lib/logger/logger';
+
 
 // ✅ Forcer l'utilisation du Node.js runtime (pas Edge)
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📋 API /account/user appelée');
+    logger.info('📋 API /account/user appelée');
 
     // Récupérer la session
     const session = await getSession();
     
     if (!session) {
-      console.log('❌ Aucune session trouvée');
+      logger.info('❌ Aucune session trouvée');
       return NextResponse.json(
         { error: 'Non authentifié', user: null },
         { status: 401 }
       );
     }
 
-    console.log('✅ Session trouvée pour utilisateur:', session.user.id);
+    logger.info('✅ Session trouvée pour utilisateur:'+ session.user.id);
 
     // Récupérer les données complètes de l'utilisateur
     const user = await getUser();
     
     if (!user) {
-      console.log('❌ Utilisateur introuvable en base');
+      logger.info('❌ Utilisateur introuvable en base');
       return NextResponse.json(
         { error: 'Utilisateur introuvable', user: null },
         { status: 404 }
       );
     }
 
-    console.log('✅ Utilisateur récupéré:', user.email);
+    logger.info('✅ Utilisateur récupéré:'+ user.email);
 
     // Retourner les données utilisateur (sans le mot de passe)
     return NextResponse.json({
@@ -49,7 +51,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erreur API /account/user:', error);
+    logger.error('❌ Erreur API /account/user:'+ error);
     return NextResponse.json(
       { error: 'Erreur serveur', user: null },
       { status: 500 }

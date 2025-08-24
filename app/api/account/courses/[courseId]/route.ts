@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { courses, users } from '@/lib/db/schema';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
 
 
 interface RouteParams {
@@ -70,7 +71,7 @@ export const GET = withUserAuth(async (req: NextRequest, authenticatedUser, { pa
     return NextResponse.json(formattedCourse);
 
   } catch (error) {
-    console.error('Get course error:', error);
+    logger.error('Get course error:'+ error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération du cours' },
       { status: 500 }

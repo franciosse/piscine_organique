@@ -4,6 +4,8 @@ import { verifyToken } from './session';
 import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { and, eq, isNull } from 'drizzle-orm';
+import logger from '@/lib/logger/logger';
+
 
 export async function getUserFromRequest(request: NextRequest) {
   try {
@@ -40,7 +42,7 @@ export async function getUserFromRequest(request: NextRequest) {
     return user[0];
 
   } catch (error) {
-    console.error('Invalid session in getUserFromRequest:', error);
+    logger.error('Invalid session in getUserFromRequest:'+ error);
     return null;
   }
 }

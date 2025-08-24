@@ -4,20 +4,22 @@ import { courses } from '@/lib/db/schema';
 import { isNotNull } from 'drizzle-orm';
 import { Course } from '@/lib/db/schema';
 import { CoursePageComponent } from '@/components/student/coursePageComponent';
+import logger from '@/lib/logger/logger';
+
 
 async function getPublicCourses(): Promise<Course[]> {
   try {
-    console.log('Fetching public courses...');
+    logger.info('Fetching public courses...');
     const publicCourses = await db
       .select()
       .from(courses)
       .where(isNotNull(courses.published)) 
       .orderBy(courses.createdAt);
     
-    console.log(`Found ${publicCourses.length} public courses`);
+    logger.info(`Found ${publicCourses.length} public courses`);
     return publicCourses;
   } catch (error) {
-    console.error('Error fetching public courses:', error);
+    logger.error('Error fetching public courses:'+ error);
     throw new Error('Erreur lors du chargement des cours');
   }
 }
@@ -35,7 +37,7 @@ export default async function PublicCoursesPage() {
       />
     );
   } catch (error) {
-    console.error('Error in PublicCoursesPage:', error);
+    logger.error('Error in PublicCoursesPage:'+ error);
     return (
       <CoursePageComponent
         courses={[]}

@@ -5,19 +5,21 @@ import { eq, isNotNull, and, or, gte } from 'drizzle-orm';
 import { getUser } from '@/lib/auth/session';
 import { Course } from '@/lib/db/schema';
 import { redirect } from 'next/navigation';
+import logger from '@/lib/logger/logger';
+
 
 async function getCourses(): Promise<Course[]> {
   try {
-    console.log('Fetching courses from database...');
+    logger.info('Fetching courses from database...');
     const allCourses = await db
       .select()
       .from(courses)
       .where(isNotNull(courses.published))
       .orderBy(courses.createdAt);
-    console.log(`Found ${allCourses.length} courses`);
+    logger.info(`Found ${allCourses.length} courses`);
     return allCourses;
   } catch (error) {
-    console.error('Error fetching courses from database:', error);
+    logger.error('Error fetching courses from database:'+ error);
     throw new Error('Erreur lors du chargement des cours');
   }
 }
@@ -60,7 +62,7 @@ async function getPurchasedCourseIds(): Promise<number[]> {
       .orderBy(coursePurchases.purchasedAt);
     return purchasedCourses.map(p => p.courseId);
   } catch (error) {
-    console.error('Erreur lors de la récupération des cours achetés:', error);
+    logger.error('Erreur lors de la récupération des cours achetés:'+ error);
     return [];
   }
 }
@@ -82,7 +84,7 @@ export default async function DashboardCoursesPage() {
       />
     );
   } catch (error) {
-    console.error('Error in DashboardCoursesPage:', error);
+    logger.error('Error in DashboardCoursesPage:'+ error);
     return (
       <CoursePageComponent
         courses={[]}

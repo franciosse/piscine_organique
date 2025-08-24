@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { join } from 'path';
 import { readdir, stat } from 'fs/promises';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 
 export const GET = withAdminAuth(async (req, adminUser) => {
@@ -53,7 +55,7 @@ export const GET = withAdminAuth(async (req, adminUser) => {
     });
 
   } catch (error) {
-    console.error('❌ Erreur listage images:', error);
+    logger.error('❌ Erreur listage images:'+ error);
     return NextResponse.json({ 
       images: [], 
       total: 0,

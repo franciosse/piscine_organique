@@ -5,6 +5,8 @@ import { lessons, courseChapters } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 // --- SCHEMAS DE VALIDATION ---
 const lessonPositionSchema = z.object({
@@ -58,11 +60,11 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
   const resolvedParams = await params;
   const chapterId = parseInt(resolvedParams.chapterId);
 
-  console.log('=== REORDER API CALLED ===');
-  console.log('Chapter ID:', chapterId);
+  logger.info('=== REORDER API CALLED ===');
+  logger.info('Chapter ID:'+ chapterId);
 
   if (isNaN(chapterId)) {
-    console.log('❌ Invalid chapter ID');
+    logger.info('❌ Invalid chapter ID');
     return NextResponse.json(
       { error: 'ID de chapitre invalide' },
       { status: 400 }
@@ -70,16 +72,16 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
   }
 
   try {
-    const body = await req.json();
-    console.log('📦 Body received:', JSON.stringify(body, null, 2));
+    const body = await req.json();  
+    logger.info('📦 Body received:'+ JSON.stringify(body, null, 2));
     
     const parsed = reorderLessonsSchema.parse(body);
-    console.log('✅ Schema validation passed');
+    logger.info('✅ Schema validation passed');
 
     // Validation métier des positions
     const validationErrors = validateLessonsPositions(parsed.lessons);
     if (validationErrors.length > 0) {
-      console.log('❌ Business validation failed:', validationErrors);
+      logger.info('❌ Business validation failed:'+ validationErrors);
       return NextResponse.json(
         { 
           error: 'Erreurs de validation',
@@ -88,7 +90,7 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
         { status: 400 }
       );
     }
-    console.log('✅ Business validation passed');
+    logger.info('✅ Business validation passed');
 
     // Vérifier que le chapitre existe
     const chapter = await db
@@ -98,13 +100,13 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
       .limit(1);
 
     if (chapter.length === 0) {
-      console.log('❌ Chapter not found');
+      logger.info('❌ Chapter not found');
       return NextResponse.json(
         { error: 'Chapitre introuvable' },
         { status: 404 }
       );
     }
-    console.log('✅ Chapter found:', chapter[0].title);
+    logger.info('✅ Chapter found:'+ chapter[0].title);
 
     // Récupérer toutes les leçons actuelles du chapitre
     const existingLessons = await db
@@ -112,17 +114,17 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
       .from(lessons)
       .where(eq(lessons.chapterId, chapterId));
 
-    console.log('📚 Existing lessons:', existingLessons.map(l => l.id));
+    logger.info('📚 Existing lessons:'+ existingLessons.map(l => l.id));
 
     const existingLessonIds = existingLessons.map(l => l.id);
     const providedLessonIds = parsed.lessons.map(l => l.id);
 
-    console.log('🔄 Provided lesson IDs:', providedLessonIds);
+    logger.info('🔄 Provided lesson IDs:'+ providedLessonIds);
 
     // Vérifier que toutes les leçons fournies appartiennent au chapitre
     const invalidLessonIds = providedLessonIds.filter(id => !existingLessonIds.includes(id));
     if (invalidLessonIds.length > 0) {
-      console.log('❌ Invalid lesson IDs:', invalidLessonIds);
+      logger.info('❌ Invalid lesson IDs:'+ invalidLessonIds);
       return NextResponse.json(
         { 
           error: `Les leçons suivantes n'appartiennent pas à ce chapitre: ${invalidLessonIds.join(', ')}` 
@@ -134,7 +136,7 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
     // Vérifier que toutes les leçons du chapitre sont incluses
     const missingLessonIds = existingLessonIds.filter(id => !providedLessonIds.includes(id));
     if (missingLessonIds.length > 0) {
-      console.log('❌ Missing lesson IDs:', missingLessonIds);
+      logger.info('❌ Missing lesson IDs:'+ missingLessonIds);
       return NextResponse.json(
         { 
           error: `Les leçons suivantes du chapitre sont manquantes: ${missingLessonIds.join(', ')}`,
@@ -144,17 +146,17 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
       );
     }
 
-    console.log('✅ All validations passed, starting transaction...');
+    logger.info('✅ All validations passed, starting transaction...');
 
     // Transaction pour mettre à jour toutes les positions
     const updatedLessons = await db.transaction(async (tx) => {
       const results = [];
 
-      console.log('🔄 Starting 2-step position update to avoid unique constraint violations...');
+      logger.info('🔄 Starting 2-step position update to avoid unique constraint violations...');
 
       // ÉTAPE 1: Mettre toutes les leçons à des positions temporaires (négatives)
       // pour éviter les conflits de contrainte d'unicité
-      console.log('📝 Step 1: Setting temporary positions...');
+      logger.info('📝 Step 1: Setting temporary positions...');
       for (let i = 0; i < parsed.lessons.length; i++) {
         const lesson = parsed.lessons[i];
         const tempPosition = -(i + 1000); // Position temporaire négative pour éviter les conflits
@@ -169,13 +171,13 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
             )
           );
         
-        console.log(`  ✅ Lesson ${lesson.id} -> temp position ${tempPosition}`);
+        logger.info(`  ✅ Lesson ${lesson.id} -> temp position ${tempPosition}`);
       }
 
       // ÉTAPE 2: Mettre les vraies positions finales
-      console.log('📝 Step 2: Setting final positions...');
+      logger.info('📝 Step 2: Setting final positions...');
       for (const lesson of parsed.lessons) {
-        console.log(`  📝 Updating lesson ${lesson.id} to final position ${lesson.position}`);
+        logger.info(`  📝 Updating lesson ${lesson.id} to final position ${lesson.position}`);
         
         const [updatedLesson] = await tx
           .update(lessons)
@@ -193,20 +195,20 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
 
         if (updatedLesson) {
           results.push(updatedLesson);
-          console.log(`  ✅ Updated lesson ${lesson.id} to position ${lesson.position}`);
+          logger.info(`  ✅ Updated lesson ${lesson.id} to position ${lesson.position}`);
         } else {
-          console.log(`  ❌ Failed to update lesson ${lesson.id}`);
+          logger.info(`  ❌ Failed to update lesson ${lesson.id}`);
         }
       }
 
       return results;
     });
 
-    console.log(`✅ Transaction completed. Updated ${updatedLessons.length} lessons`);
+    logger.info(`✅ Transaction completed. Updated ${updatedLessons.length} lessons`);
 
     // Vérifier que toutes les mises à jour ont réussi
     if (updatedLessons.length !== parsed.lessons.length) {
-      console.log('❌ Not all lessons were updated');
+      logger.info('❌ Not all lessons were updated');
       return NextResponse.json(
         { error: 'Certaines leçons n\'ont pas pu être mises à jour' },
         { status: 500 }
@@ -220,7 +222,7 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
       .where(eq(lessons.chapterId, chapterId))
       .orderBy(lessons.position);
 
-    console.log('📋 Final lessons order:', finalLessons.map(l => `${l.id}:${l.position}`));
+    logger.info('📋 Final lessons order:'+ finalLessons.map(l => `${l.id}:${l.position}`));
 
     const response = {
       success: true,
@@ -229,14 +231,14 @@ export const PUT = withAdminAuth(async (req, adminUser, { params }) => {
       reorderedCount: updatedLessons.length
     };
 
-    console.log('🎉 Sending success response');
+    logger.info('🎉 Sending success response');
     return NextResponse.json(response);
 
   } catch (error: any) {
-    console.error('💥 Error in reorder API:', error);
+    logger.error('💥 Error in reorder API:', error);
     
     if (error instanceof z.ZodError) {
-      console.log('❌ Zod validation error:', error.errors);
+      logger.info('❌ Zod validation error:'+ error.errors);
       return NextResponse.json(
         { 
           error: 'Données invalides',
@@ -304,7 +306,7 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la récupération de l\'ordre des leçons:', error);
+    logger.error('Erreur lors de la récupération de l\'ordre des leçons:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération de l\'ordre des leçons' },
       { status: 500 }
@@ -453,7 +455,7 @@ export const POST = withAdminAuth(async (req, adminUser, { params }) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de la réorganisation automatique:', error);
+    logger.error('Erreur lors de la réorganisation automatique:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la réorganisation automatique' },
       { status: 500 }

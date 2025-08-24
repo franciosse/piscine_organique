@@ -11,6 +11,7 @@ import {
 } from '@/lib/db/schema';
 import { eq, sql, and, isNotNull, or } from 'drizzle-orm';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
 
 
 
@@ -193,7 +194,7 @@ export const GET = withUserAuth(async (request, user) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des données du dashboard:', error);
+    logger.error('Erreur lors de la récupération des données du dashboard:'+ error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erreur serveur' },
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }

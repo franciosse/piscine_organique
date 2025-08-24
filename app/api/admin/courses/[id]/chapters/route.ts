@@ -5,6 +5,8 @@ import { courses, courseChapters, users } from '@/lib/db/schema';
 import { eq, max } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 const createChapterSchema = z.object({
   title: z.string().min(1, 'Le titre est requis'),
@@ -57,7 +59,7 @@ export const GET = withAdminAuth(async (request, adminUser, { params }) => {
 
     return NextResponse.json({ chapters });
   } catch (error) {
-    console.error('Erreur lors de la récupération des chapitres:', error);
+    logger.error('Erreur lors de la récupération des chapitres:'+ error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erreur serveur' },
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
@@ -120,7 +122,7 @@ export const POST = withAdminAuth(async (request, adminUser, { params }) => {
       chapter: newChapter,
     }, { status: 201 });
   } catch (error) {
-    console.error('Erreur lors de la création du chapitre:', error);
+    logger.error('Erreur lors de la création du chapitre:'+ error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -171,7 +173,7 @@ export const PUT = withAdminAuth(async (request, adminUser, { params }) => {
       message: 'Chapitres réorganisés avec succès',
     });
   } catch (error) {
-    console.error('Erreur lors de la réorganisation des chapitres:', error);
+    logger.error('Erreur lors de la réorganisation des chapitres:'+ error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(

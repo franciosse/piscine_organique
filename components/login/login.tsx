@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CircleIcon, Loader2, Eye, EyeOff, Shield, AlertTriangle } from 'lucide-react';
-import { mutate } from 'swr';
+import logger from '@/lib/logger/logger';
 
 // Hook pour détecter comportement humain
 function useHumanBehavior(mode : string) {
@@ -197,7 +197,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           router.push(signinUrl);
         } else {
           // ✅ Connexion réussie - Redirection IMMÉDIATE sans mutate
-          console.log('✅ Connexion réussie côté client');
+          logger.info('✅ Connexion réussie côté client');
           
           let redirectUrl = json.redirect || callbackUrl || '/dashboard';
           
@@ -205,7 +205,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             redirectUrl = decodeURIComponent(redirectUrl);
           }
           
-          console.log('🚀 Redirection immédiate vers:', redirectUrl);
+          logger.info('🚀 Redirection immédiate vers:', redirectUrl);
           
           // ❌ PAS de mutate - cause des problèmes
           // await mutate('/api/account/user');
@@ -219,7 +219,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
         }
       }
     } catch (e) {
-      console.error('Network error:', e);
+      logger.error('Network error:'+ e);
       setError('Erreur de connexion. Vérifiez votre connexion internet.');
     } finally {
       setPending(false);

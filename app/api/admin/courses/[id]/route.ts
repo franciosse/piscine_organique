@@ -6,6 +6,8 @@ import { courses, courseChapters, lessons } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 const updateCourseSchema = z.object({
   title: z.string().min(1).optional(),
@@ -98,7 +100,7 @@ export const GET = withAdminAuth(async (req, adminUser, { params }) => {
 
     return NextResponse.json({ course: courseWithDetails });
   } catch (error) {
-    console.error('Erreur lors de la récupération du cours:', error);
+    logger.error('Erreur lors de la récupération du cours:'+ error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erreur serveur' },
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }
@@ -160,7 +162,7 @@ export const PATCH = withAdminAuth(async (request, adminUser, { params }) => {
       },
     });
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du cours:', error);
+    logger.error('Erreur lors de la mise à jour du cours:'+ error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -211,7 +213,7 @@ export const DELETE = withAdminAuth(async (request, adminUser, { params }) => {
       message: 'Cours supprimé avec succès',
     });
   } catch (error) {
-    console.error('Erreur lors de la suppression du cours:', error);
+    logger.error('Erreur lors de la suppression du cours:'+ error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erreur serveur' },
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }

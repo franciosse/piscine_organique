@@ -34,6 +34,8 @@ import {
 import {
   Badge
 } from '@/components/ui/badge';
+import logger from '@/lib/logger/logger';
+
 
 const api = {
   getAllUsers: async () => {
@@ -45,7 +47,7 @@ const api = {
       const data = await response.json();
       return data.users;
     } catch (error) {
-      console.error('Error fetching users:', error);
+      logger.error('Error fetching users:'+ error);
       throw error;
     }
   }
@@ -83,7 +85,7 @@ export function AllUsers() {
       const data = await api.getAllUsers();
       setUsers(data);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      logger.error('Failed to fetch users:'+ error);
     } finally {
       setLoading(false);
     }

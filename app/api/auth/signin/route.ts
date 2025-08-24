@@ -6,7 +6,7 @@ import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { comparePasswords, setSession } from '@/lib/auth/session';
 import { logActivity, ActivityType } from '@/lib/auth/activity';
-import { getUser } from '@/lib/db/queries';
+import logger from '@/lib/logger/logger';
 import { 
   getSecurityContext, 
   validateSecurity, 
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = signInSchema.parse(body);
 
-    console.log(`🔑 Tentative de connexion pour: ${data.email}`);
+    logger.info(`🔑 Tentative de connexion pour: ${data.email}`);
 
     // 🛡️ VALIDATION DE SÉCURITÉ CENTRALISÉE
     const context = getSecurityContext(request, 'login', body);
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`✅ Validation sécurité réussie - IP: ${context.ip}, Email: ${data.email}`);
+    logger.info(`✅ Validation sécurité réussie - IP: ${context.ip}, Email: ${data.email}`);
 
     // 🐌 Délai artificiel pour ralentir les attaques brute force
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     // ✅ Connexion réussie - Réinitialiser les tentatives échouées
     handleSuccessfulLogin(data.email);
 
-    console.log(`✅ Connexion réussie - IP: ${context.ip}, Email: ${data.email}, UserID: ${user.id}`);
+    logger.info(`✅ Connexion réussie - IP: ${context.ip}, Email: ${data.email}, UserID: ${user.id}`);
 
     // 🍪 Enregistrer session (cookie)
     await setSession(user);
@@ -129,14 +129,14 @@ export async function POST(request: NextRequest) {
     try {
       await logActivity(user.id, ActivityType.SIGN_IN);
     } catch (activityError) {
-      console.error('⚠️ Erreur log activité:', activityError);
+      logger.error('⚠️ Erreur log activité:' + activityError);
       // Ne pas faire échouer la connexion si le log échoue
     }
 
     // ✅ Déterminer l'URL de redirection - Priorité : callbackUrl > redirect > défaut
     const redirectUrl = data.callbackUrl || data.redirect || '/dashboard';
     
-    console.log('🔄 API signin - redirection vers:', redirectUrl);
+    logger.info('🔄 API signin - redirection vers:' + redirectUrl);
 
     // 🎉 Réponse de succès
     return NextResponse.json({
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     const context = getSecurityContext(request, 'login');
-    console.error(`❌ Erreur lors de la connexion - IP: ${context.ip}`, error);
+    logger.error(`❌ Erreur lors de la connexion - IP: ${context.ip}`, error);
 
     // 🔍 Gestion d'erreurs spécifiques
     if (error instanceof z.ZodError) {

@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth/session';
 import { routing } from '@/i18n/routing';
+import logger from '@/lib/logger/logger';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -33,7 +34,7 @@ export async function middleware(request: NextRequest) {
                        pathname.match(/\/(fr|en|eu|es)\/dashboard\/courses\/\d+\/success$/);
   
   if (isSuccessPage) {
-    console.log('✅ Page de succès détectée (non protégée):', pathname);
+    logger.info('✅ Page de succès détectée (non protégée):'+ pathname);
     return intlMiddleware(request);
   }
 
@@ -76,13 +77,13 @@ export async function middleware(request: NextRequest) {
 
   // ✅ Routes API protégées : retourner 401
   if (pathname.startsWith('/api/') && !sessionCookie) {
-    console.log('🚫 API route without session:', pathname);
+    logger.info('🚫 API route without session:'+ pathname);
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // ✅ Redirection si route protégée sans session
   if (isProtectedRoute && !sessionCookie) {
-    console.log('🔄 Redirecting to sign-in from protected route:', pathname);
+    logger.info('🔄 Redirecting to sign-in from protected route:'+ pathname);
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
@@ -96,11 +97,11 @@ export async function middleware(request: NextRequest) {
           pathname.match(new RegExp(`^/(fr|en|es)${routePrefix}`));
         
         if (matchesRoute) {
-          console.log('🔍 Role-protected route accessed:', routePrefix);
+          logger.info('🔍 Role-protected route accessed:'+ routePrefix);
         }
       }
     } catch (error) {
-      console.error('❌ Session verification error in middleware:', error);
+      logger.error('❌ Session verification error in middleware:'+ error);
       response.cookies.delete('session');
       if (isProtectedRoute) {
         return NextResponse.redirect(new URL('/sign-in', request.url));

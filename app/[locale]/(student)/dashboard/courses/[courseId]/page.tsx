@@ -4,6 +4,8 @@ import { CourseErrorPage } from '@/components/student/courseErrorPage';
 import { getCourseWithContentOptimized } from '@/lib/db/courseQueries';
 import { getUser } from '@/lib/auth/session';
 import { notFound, redirect } from 'next/navigation';
+import logger from '@/lib/logger/logger';
+
 
 export default async function CourseDetailPage({
   params
@@ -15,13 +17,13 @@ export default async function CourseDetailPage({
   
   // Valider le courseId plus strictement
   if (isNaN(courseId) || courseId <= 0) {
-    console.log(`❌ Invalid courseId: ${resolvedParams.courseId}`);
+    logger.info(`❌ Invalid courseId: ${resolvedParams.courseId}`);
     notFound();
   }
 
   // Filtrer les fichiers de développement
   if (resolvedParams.courseId.includes('.js') || resolvedParams.courseId.includes('.map')) {
-    console.log(`❌ Invalid courseId (dev file): ${resolvedParams.courseId}`);
+    logger.info(`❌ Invalid courseId (dev file): ${resolvedParams.courseId}`);
     notFound();
   }
 
@@ -32,13 +34,13 @@ export default async function CourseDetailPage({
       redirect(`/sign-in?redirect=/dashboard/courses/${courseId}`);
     }
 
-    console.log(`🌱 Loading course ${courseId} for user ${user.id}`);
+    logger.info(`🌱 Loading course ${courseId} for user ${user.id}`);
     
     // OPTIMISATION : Une seule requête au lieu de multiples
     const course = await getCourseWithContentOptimized(courseId, user.id);
     
     if (!course) {
-      console.log(`❌ Course ${courseId} not found or not published`);
+      logger.info(`❌ Course ${courseId} not found or not published`);
       notFound();
     }
 
@@ -46,13 +48,13 @@ export default async function CourseDetailPage({
 
     // Redirection vers page d'achat si pas d'accès
     if (!hasAccess && course.price > 0) {
-      console.log(`🔒 No access to course ${courseId}, redirecting to purchase`);
+      logger.info(`🔒 No access to course ${courseId}, redirecting to purchase`);
       redirect(`/dashboard/courses/${courseId}/purchase`);
     }
 
     const stats = calculateCourseStats(course);
 
-    console.log(`✅ Course ${courseId} loaded successfully for user ${user.id}`, {
+    logger.info(`✅ Course ${courseId} loaded successfully for user ${user.id}`+ {
       hasAccess,
       isPurchased: course.isPurchased,
       price: course.price,
@@ -69,7 +71,7 @@ export default async function CourseDetailPage({
     );
 
   } catch (error) {
-    console.error('❌ Error in CourseDetailPage:', error);
+    logger.error('❌ Error in CourseDetailPage:'+ error);
     
     // Si c'est une redirection Next.js, la laisser passer
     if (error && typeof error === 'object' && 'digest' in error && 

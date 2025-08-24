@@ -11,6 +11,8 @@ import {
   LessonAttachment,
   StudentProgress 
 } from '@/lib/db/schema';
+import logger from '@/lib/logger/logger';
+
 
 interface LessonWithDetails extends Lesson {
   attachments: LessonAttachment[];
@@ -94,7 +96,7 @@ export default function CoursePlayer({ course, chapters, currentLessonId }: Cour
         }),
       });
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du progrès:', error);
+      logger.error('Erreur lors de la mise à jour du progrès:'+ error);
     }
   };
 

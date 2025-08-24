@@ -18,6 +18,8 @@ import { User } from '@/lib/db/schema';
 import useSWR, { mutate } from 'swr';
 import LanguageSwitcher from '@/components/language/languageSwitcher';
 import { useTranslations } from 'next-intl';
+import logger from '@/lib/logger/logger';
+
 
 const fetcher = async (url: string) => {
   try {
@@ -36,7 +38,7 @@ const fetcher = async (url: string) => {
     return data?.user || null;
     
   } catch (error) {
-    console.error('Error fetching user:', error);
+    logger.error('Error fetching user:'+ error);
     return null;
   }
 };

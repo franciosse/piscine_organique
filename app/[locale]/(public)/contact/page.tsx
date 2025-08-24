@@ -1,6 +1,8 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 import { Send, Shield } from 'lucide-react';
+import logger from '@/lib/logger/logger';
+
 
 // Hook pour détecter si l'utilisateur est humain (temps de frappe)
 function useHumanDetection() {
@@ -170,7 +172,7 @@ function ContactForm() {
       });
       
     } catch (error) {
-      console.error('Erreur envoi:', error);
+      logger.error('Erreur envoi:' + error);
       setStatus('error');
     }
   };

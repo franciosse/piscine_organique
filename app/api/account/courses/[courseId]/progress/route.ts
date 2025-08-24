@@ -9,6 +9,7 @@ import {
 } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
 
 
 interface RouteParams {
@@ -106,7 +107,7 @@ export const GET = withUserAuth(async (request, user, { params }) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération du progrès:', error);
+    logger.error('Erreur lors de la récupération du progrès:'+ error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erreur serveur' },
       { status: error instanceof Error && error.message.includes('auth') ? 401 : 500 }

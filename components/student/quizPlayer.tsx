@@ -4,6 +4,8 @@
 
 import { useState, useEffect } from 'react';
 import { Quiz, QuizQuestion, QuizAnswer } from '@/lib/db/schema';
+import logger from '@/lib/logger/logger';
+
 
 interface QuizPlayerProps {
   quiz: Quiz & {
@@ -145,7 +147,7 @@ export default function QuizPlayer({ quiz, onComplete }: QuizPlayerProps) {
 
       onComplete(finalScore, passed);
     } catch (error) {
-      console.error('Erreur lors de la soumission du quiz:', error);
+      logger.error('Erreur lors de la soumission du quiz:' + error);
     } finally {
       setIsSubmitting(false);
     }

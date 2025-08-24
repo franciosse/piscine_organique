@@ -4,6 +4,8 @@ import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { hash } from 'bcryptjs';
 import { randomBytes } from 'crypto';
+import logger from '@/lib/logger/logger';
+
 
 export interface CreateUserResult {
   userId: number;
@@ -25,7 +27,7 @@ export async function findOrCreateUser(options: CreateUserOptions): Promise<Crea
   const { email, name, createdViaStripe = false, isVerified = false } = options;
 
   try {
-    console.log('🔍 Recherche utilisateur avec email:', email);
+    logger.info('🔍 Recherche utilisateur avec email:' + email);
 
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await db
@@ -35,7 +37,7 @@ export async function findOrCreateUser(options: CreateUserOptions): Promise<Crea
       .limit(1);
 
     if (existingUser.length > 0) {
-      console.log('✅ Utilisateur existant trouvé:', existingUser[0].id);
+      logger.info('✅ Utilisateur existant trouvé:'+ existingUser[0].id);
       return {
         userId: existingUser[0].id,
         isNewUser: false,
@@ -43,7 +45,7 @@ export async function findOrCreateUser(options: CreateUserOptions): Promise<Crea
     }
 
     // Créer un nouveau compte
-    console.log('🆕 Création d\'un nouveau compte pour:', email);
+    logger.info('🆕 Création d\'un nouveau compte pour:' +  email);
     
     const temporaryPassword = randomBytes(16).toString('hex');
     const hashedPassword = await hash(temporaryPassword, 12);
@@ -63,7 +65,7 @@ export async function findOrCreateUser(options: CreateUserOptions): Promise<Crea
       })
       .returning();
 
-    console.log('✅ Nouveau compte créé avec ID:', newUser[0].id);
+    logger.info('✅ Nouveau compte créé avec ID:' +  newUser[0].id);
 
     return {
       userId: newUser[0].id,
@@ -72,7 +74,7 @@ export async function findOrCreateUser(options: CreateUserOptions): Promise<Crea
     };
 
   } catch (error) {
-    console.error('❌ Erreur lors de la création/recherche utilisateur:', error);
+    logger.error('❌ Erreur lors de la création/recherche utilisateur:' + error);
     throw new Error('Erreur lors de la gestion du compte utilisateur');
   }
 }
@@ -90,7 +92,7 @@ export async function findUserById(userId: number) {
 
     return user[0] || null;
   } catch (error) {
-    console.error('Erreur lors de la recherche utilisateur par ID:', error);
+    logger.error('Erreur lors de la recherche utilisateur par ID:' + error);
     return null;
   }
 }
@@ -105,6 +107,6 @@ export async function updatePasswordResetFlag(userId: number, needsReset: boolea
       .set({ needsPasswordReset: needsReset })
       .where(eq(users.id, userId));
   } catch (error) {
-    console.error('Erreur mise à jour flag password reset:', error);
+    logger.error('Erreur mise à jour flag password reset:' +  error);
   }
 }

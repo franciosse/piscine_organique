@@ -1,6 +1,8 @@
 import { toggleUserVerification } from '@/lib/db/queries';
 import { NextRequest, NextResponse } from 'next/server';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
+import logger from '@/lib/logger/logger';
+
 
 // PATCH - Toggle le statut de vérification
 export const PATCH = withAdminAuth(async (req, adminUser, context) => {
@@ -39,7 +41,7 @@ export const PATCH = withAdminAuth(async (req, adminUser, context) => {
     });
     
   } catch (error) {
-    console.error('Erreur lors du toggle de vérification:', error);
+    logger.error('Erreur lors du toggle de vérification:'+ error);
     return NextResponse.json(
       { error: 'Erreur lors de la modification du statut de vérification' },
       { status: 500 }
