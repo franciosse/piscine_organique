@@ -49,9 +49,7 @@ export function CourseCard({
   isPurchased = false,
   canAccess = false,
   buttonText,
-  buttonVariant = 'default',
   statusBadge,
-  userId,
   courseStatus
 }: CourseCardProps) {
   const router = useRouter();
@@ -59,7 +57,11 @@ export function CourseCard({
   // Utiliser courseStatus en priorité, sinon fallback sur les anciennes props
   const actualIsPurchased = courseStatus?.isPurchased ?? isPurchased;
   const actualIsFree = courseStatus?.isFree ?? (course.price === 0);
-  const actualCanAccess = courseStatus?.canAccess ?? canAccess ?? actualIsFree ?? actualIsPurchased;
+  const actualCanAccess = 
+    courseStatus?.canAccess === true ||
+    canAccess === true ||
+    actualIsFree === true ||
+    actualIsPurchased === true;
   const actualButtonAction = courseStatus?.buttonAction ?? (actualCanAccess ? 'access' : 'purchase');
 
   const isPublished = course.published !== null;
@@ -219,7 +221,9 @@ export function CourseCard({
       } else if (hasProgress) {
         return 'Continuer le cours';
       } else if (actualCanAccess) {
-        return actualIsFree ? 'Commencer gratuitement' : 'Accéder au cours';
+        return  'Accéder au cours';
+      } else if (actualIsFree) {
+        return 'Commencer gratuitement';
       } else {
         return `Acheter - ${formatPrice(course.price)}`;
       }

@@ -1,248 +1,180 @@
-// /lib/payments/stripe.ts - Version nettoyée
+// /lib/payments/stripe.ts - 
+import { db } from '@/lib/db/drizzle';
+import { coursePurchases } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 import Stripe from 'stripe';
-import { findOrCreateUser } from '@/lib/services/userService';
-import { createOrUpdatePurchase, getCourseById } from '@/lib/services/purchaseService';
-import { sendWelcomeEmail, sendPurchaseConfirmationEmail } from '@/lib/email/emailService';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-07-30.basil', // Version stable
 });
 
-/**
- * Traite un paiement Stripe réussi (appelé par le webhook)
- */
-export async function handlePaymentSuccess(session: Stripe.Checkout.Session) {
-  try {
-    console.log('=== 🚀 DÉBUT TRAITEMENT PAIEMENT RÉUSSI ===');
-    console.log('Session ID:', session.id);
-    console.log('Customer email:', session.customer_details?.email);
+export async function handlePaymentSuccess(session: any) {
+  console.log('🎯 ======================');
+  console.log('🎯 DÉBUT handlePaymentSuccess');
+  console.log('🎯 ======================');
 
-    // === VALIDATION DES DONNÉES ===
-    const { courseId, userId } = session.metadata || {};
+  try {
+    // Extraire les informations de la session
+    const sessionId = session.id;
+    const paymentIntentId = session.payment_intent;
     const customerEmail = session.customer_details?.email;
-
-    if (!courseId || !customerEmail) {
-      console.error('❌ Métadonnées manquantes:', { courseId, customerEmail });
-      throw new Error('Métadonnées invalides dans la session Stripe');
-    }
-
-    const courseIdNum = parseInt(courseId);
-    const userIdNum = userId ? parseInt(userId) : null;
-
-    // === VÉRIFICATION DU COURS ===
-    console.log('📚 Vérification du cours...');
-    const course = await getCourseById(courseIdNum);
+    const amountPaid = session.amount_total;
     
-    if (!course) {
-      console.error('❌ Cours introuvable:', courseIdNum);
-      throw new Error('Cours introuvable');
-    }
+    console.log('📊 Données de session:', {
+      sessionId,
+      paymentIntentId,
+      customerEmail,
+      amountPaid,
+      metadata: session.metadata
+    });
 
-    console.log('✅ Cours trouvé:', course.title);
-
-    // === GESTION DE L'UTILISATEUR ===
-    console.log('👤 Gestion de l\'utilisateur...');
+    // Rechercher l'achat en pending par session ID
+    console.log('🔍 Recherche de l\'achat pending...');
     
-    let finalUserId = userIdNum;
-    let isNewUser = false;
-    let temporaryPassword: string | undefined;
+    const existingPurchases = await db
+      .select({
+        id: coursePurchases.id,
+        userId: coursePurchases.userId,
+        courseId: coursePurchases.courseId,
+        status: coursePurchases.status,
+        stripeSessionId: coursePurchases.stripeSessionId,
+        stripePaymentIntentId: coursePurchases.stripePaymentIntentId,
+      })
+      .from(coursePurchases)
+      .where(
+        and(
+          eq(coursePurchases.stripeSessionId, sessionId),
+          eq(coursePurchases.status, 'pending')
+        )
+      );
 
-    if (!finalUserId) {
-      // Utilisateur non connecté - créer ou trouver le compte
-      const userResult = await findOrCreateUser({
-        email: customerEmail,
-        createdViaStripe: true,
-        isVerified: true, // Email vérifié car paiement effectué
-      });
+    console.log('🔍 Achats trouvés:', existingPurchases.length);
 
-      finalUserId = userResult.userId;
-      isNewUser = userResult.isNewUser;
-      temporaryPassword = userResult.temporaryPassword;
+    if (existingPurchases.length === 0) {
+      // Essayer de trouver par payment_intent_id si pas trouvé par session
+      if (paymentIntentId) {
+        console.log('🔍 Recherche par Payment Intent ID...');
+        
+        const purchasesByPI = await db
+          .select({
+            id: coursePurchases.id,
+            userId: coursePurchases.userId,
+            courseId: coursePurchases.courseId,
+            status: coursePurchases.status,
+            stripeSessionId : coursePurchases.stripeSessionId,
+            stripePaymentIntentId : coursePurchases.stripePaymentIntentId
+          })
+          .from(coursePurchases)
+          .where(
+            and(
+              eq(coursePurchases.stripePaymentIntentId, paymentIntentId),
+              eq(coursePurchases.status, 'pending')
+            )
+          );
 
-      if (isNewUser) {
-        console.log('🆕 Nouveau compte créé pour:', customerEmail);
-      } else {
-        console.log('✅ Compte existant trouvé pour:', customerEmail);
+        if (purchasesByPI.length > 0) {
+          existingPurchases.push(...purchasesByPI);
+        }
       }
-    } else {
-      console.log('✅ Utilisateur connecté existant:', finalUserId);
     }
 
-    // === ENREGISTREMENT DE L'ACHAT ===
-    console.log('💰 Enregistrement de l\'achat...');
-    
-    const purchaseResult = await createOrUpdatePurchase({
-      userId: finalUserId,
-      courseId: courseIdNum,
-      stripeSessionId: session.id,
-      stripePaymentIntentId: session.payment_intent as string,
-      amount: session.amount_total || 0,
-    });
-
-    if (purchaseResult.isNewPurchase) {
-      console.log('✅ Nouvel achat enregistré');
-    } else {
-      console.log('ℹ️ Achat existant mis à jour');
+    if (existingPurchases.length === 0) {
+      console.error('❌ Aucun achat pending trouvé pour:', { sessionId, paymentIntentId });
+      
+      // Option: Créer l'achat si metadata disponibles
+      if (session.metadata?.courseId && session.metadata?.userId) {
+        console.log('🆕 Création d\'un nouvel achat depuis les metadata...');
+        await createPurchaseFromMetadata(session);
+        return;
+      }
+      
+      throw new Error('Aucun achat pending trouvé et metadata insuffisantes');
     }
 
-    // === ENVOI DES EMAILS ===
-    console.log('📧 Envoi des notifications...');
-    
-    // Email de bienvenue pour les nouveaux comptes
-    if (isNewUser && temporaryPassword) {
-      await sendWelcomeEmail({
-        email: customerEmail,
-        name: customerEmail.split('@')[0],
-        temporaryPassword,
+    // Mettre à jour tous les achats trouvés
+    for (const purchase of existingPurchases) {
+      console.log(`✅ Mise à jour de l'achat ${purchase.id}:`, {
+        userId: purchase.userId,
+        courseId: purchase.courseId,
+        oldStatus: purchase.status
       });
+
+      await db
+        .update(coursePurchases)
+        .set({
+          status: 'completed',
+          stripePaymentIntentId: paymentIntentId,
+          // Optionnel: mettre à jour le montant si différent
+          ...(amountPaid && { amount: Math.round(amountPaid / 100) }) // Convertir centimes en euros
+        })
+        .where(eq(coursePurchases.id, purchase.id));
+
+      console.log(`✅ Achat ${purchase.id} mis à jour vers 'completed'`);
+
+      // Optionnel: Envoyer email de confirmation
+      // await sendPurchaseConfirmationEmail(purchase.userId, purchase.courseId);
     }
 
-    // Email de confirmation d'achat
-    await sendPurchaseConfirmationEmail({
-      email: customerEmail,
-      course: {
-        id: course.id,
-        title: course.title,
-        price: course.price,
-      },
-    });
-
-    console.log('=== ✅ TRAITEMENT TERMINÉ AVEC SUCCÈS ===');
-    console.log(`Résumé: User ${finalUserId} - Course ${courseIdNum} - New User: ${isNewUser}`);
+    console.log('🎉 SUCCÈS: Tous les achats ont été mis à jour');
 
   } catch (error) {
-    console.error('=== ❌ ERREUR LORS DU TRAITEMENT ===');
-    console.error('Session ID:', session.id);
-    console.error('Error:', error);
+    console.error('💥 ERREUR dans handlePaymentSuccess:', error);
     throw error;
   }
+
+  console.log('🎯 ======================');
+  console.log('🎯 FIN handlePaymentSuccess');
+  console.log('🎯 ======================');
 }
 
-/**
- * Récupère les prix Stripe actifs
- */
-export async function getStripePrices() {
+// Créer un achat depuis les metadata si pas trouvé en base
+async function createPurchaseFromMetadata(session: any) {
   try {
-    const prices = await stripe.prices.list({
-      expand: ['data.product'],
-      active: true,
-      type: 'one_time', // Pour les paiements uniques des cours
+    const { courseId, userId } = session.metadata;
+    const sessionId = session.id;
+    const paymentIntentId = session.payment_intent;
+    const amountPaid = Math.round(session.amount_total / 100); // Convertir en euros
+
+    console.log('🆕 Création achat depuis metadata:', {
+      courseId: parseInt(courseId),
+      userId: parseInt(userId),
+      amount: amountPaid
     });
 
-    return prices.data.map((price) => ({
-      id: price.id,
-      productId: typeof price.product === 'string' ? price.product : price.product.id,
-      unitAmount: price.unit_amount,
-      currency: price.currency,
-      courseId: price.metadata?.courseId,
-    }));
-  } catch (error) {
-    console.error('Error fetching Stripe prices:', error);
-    throw error;
-  }
-}
-
-/**
- * Récupère les produits Stripe actifs
- */
-export async function getStripeProducts() {
-  try {
-    const products = await stripe.products.list({
-      active: true,
-      expand: ['data.default_price'],
-    });
-
-    return products.data.map((product) => ({
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      defaultPriceId: typeof product.default_price === 'string'
-        ? product.default_price
-        : product.default_price?.id,
-      courseId: product.metadata?.courseId,
-    }));
-  } catch (error) {
-    console.error('Error fetching Stripe products:', error);
-    throw error;
-  }
-}
-
-/**
- * Crée un produit et un prix Stripe pour un cours
- */
-export async function createStripeProductAndPrice(course: {
-  id: number;
-  title: string;
-  description?: string;
-  price: number;
-  imageUrl?: string;
-}) {
-  try {
-    console.log('Création produit Stripe pour le cours:', course.title);
-
-    // Créer le produit
-    const product = await stripe.products.create({
-      name: course.title,
-      description: course.description || undefined,
-      images: course.imageUrl ? [course.imageUrl] : undefined,
-      metadata: {
-        courseId: course.id.toString(),
-        type: 'course',
-      },
-    });
-
-    // Créer le prix
-    const price = await stripe.prices.create({
-      unit_amount: course.price,
-      currency: 'eur',
-      product: product.id,
-      metadata: {
-        courseId: course.id.toString(),
-      },
-    });
-
-    console.log('✅ Produit et prix créés:', { productId: product.id, priceId: price.id });
-
-    return {
-      productId: product.id,
-      priceId: price.id,
-    };
-  } catch (error) {
-    console.error('Error creating Stripe product and price:', error);
-    throw error;
-  }
-}
-
-/**
- * Met à jour le prix d'un cours dans Stripe
- * (désactive l'ancien prix et crée un nouveau)
- */
-export async function updateStripePrice(course: {
-  id: number;
-  title: string;
-  description?: string;
-  price: number;
-  stripePriceId?: string;
-}) {
-  try {
-    console.log('Mise à jour prix Stripe pour le cours:', course.title);
-
-    if (course.stripePriceId) {
-      // Désactiver l'ancien prix
-      await stripe.prices.update(course.stripePriceId, {
-        active: false,
+    await db
+      .insert(coursePurchases)
+      .values({
+        userId: parseInt(userId),
+        courseId: parseInt(courseId),
+        stripeSessionId: sessionId,
+        stripePaymentIntentId: paymentIntentId,
+        amount: amountPaid,
+        currency: session.currency?.toUpperCase() || 'EUR',
+        status: 'completed', // Directement completed puisque le paiement est confirmé
+        purchasedAt: new Date(),
       });
-      console.log('Ancien prix désactivé:', course.stripePriceId);
-    }
 
-    // Créer un nouveau prix (les prix Stripe ne peuvent pas être modifiés)
-    const { priceId } = await createStripeProductAndPrice(course);
-    
-    console.log('✅ Nouveau prix créé:', priceId);
-    
-    return priceId;
+    console.log('✅ Achat créé avec succès depuis les metadata');
+
   } catch (error) {
-    console.error('Error updating Stripe price:', error);
+    console.error('💥 Erreur création achat depuis metadata:', error);
     throw error;
+  }
+}
+
+export async function handlePaymentFailed(paymentIntent: any) {
+  console.log('❌ Traitement échec de paiement:', paymentIntent.id);
+  
+  // Optionnel: marquer l'achat comme failed
+  try {
+    await db
+      .update(coursePurchases)
+      .set({
+        status: 'failed',
+        // Optionnel: ajouter info sur l'erreur
+      })
+      .where(eq(coursePurchases.stripePaymentIntentId, paymentIntent.id));
+  } catch (error) {
+    console.error('Erreur mise à jour échec paiement:', error);
   }
 }
