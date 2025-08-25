@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 
 interface Props {
-  params: {
+  params: Promise<{
     locale: string
-  }
+  }>
 }
 
-export default function LocalizedUnauthorizedPage({ params }: Props) {
+export default async function LocalizedUnauthorizedPage({ params }: Props) {
+  // ✅ Await params dans Next.js 15
+  const { locale } = await params;
   // Si vous avez des traductions
    const t = useTranslations('unauthorized')
   
@@ -46,7 +48,7 @@ export default function LocalizedUnauthorizedPage({ params }: Props) {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
-              href={`/${params.locale}/dashboard`}
+              href={`/${locale}/dashboard`}
               className="inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors font-medium"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -54,7 +56,7 @@ export default function LocalizedUnauthorizedPage({ params }: Props) {
             </Link>
             
             <Link 
-              href={`/${params.locale}`}
+              href={`/${locale}`}
               className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg transition-colors font-medium"
             >
               {t('home')}
