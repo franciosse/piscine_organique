@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
   // 🔒 Vérification de session
   const sessionCookie = request.cookies.get('session');
   const isProtectedRoute = protectedRoutes.some(route =>
-    pathname.startsWith(route) || pathname.match(new RegExp(`^/(fr|en|es|eu)${route}`))
+    pathname.startsWith(route) || pathname.match(new RegExp(`^/(fr|en|eu|es)${route}`))
   );
 
   // 🚫 Pas de session sur route protégée
@@ -110,7 +110,7 @@ export async function middleware(request: NextRequest) {
   if (sessionCookie && !pathname.startsWith('/api/')) {
     for (const [routePrefix, allowedRoles] of Object.entries(roleProtectedRoutes)) {
       const matchesRoute = pathname.startsWith(routePrefix) ||
-        pathname.match(new RegExp(`^/(fr|en|es|eu)${routePrefix}`));
+        pathname.match(new RegExp(`^/(fr|en|eu|es)${routePrefix}`));
 
       if (matchesRoute) {
         try {
@@ -121,7 +121,7 @@ export async function middleware(request: NextRequest) {
             logger.warn(`🚫 Page Admin: Accès refusé pour utilisateur ${sessionData.user.id} (rôle: ${sessionData.user.role})`);
             
             const unauthorizedUrl = new URL('/unauthorized', request.url);
-            const localeMatch = pathname.match(/^\/((fr|en|es|eu))/);
+            const localeMatch = pathname.match(/^\/((fr|en|eu|es))/);
             if (localeMatch) {
               unauthorizedUrl.pathname = `/${localeMatch[1]}/unauthorized`;
             }
