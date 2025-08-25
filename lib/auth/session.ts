@@ -24,7 +24,10 @@ export async function comparePasswords(
 }
 
 type SessionData = {
-  user: { id: number };
+  user: { 
+    id: number;
+    role: string; 
+  };
   expires: string;
 };
 
@@ -42,7 +45,6 @@ export async function verifyToken(input: string) {
   });
   return payload as SessionData;
 }
-
 export async function getSession() {
   try {
     const cookieStore = await cookies();
@@ -52,14 +54,14 @@ export async function getSession() {
       logger.info('🍪 Aucun cookie de session trouvé');
       return null;
     }
-
+    
     logger.info('🍪 Cookie de session trouvé, vérification...');
     const verified = await verifyToken(session);
-    
-    logger.info('✅ Session valide pour utilisateur:'+ verified.user.id);
+    logger.info('✅ Session valide pour utilisateur:' + verified.user.id + ' (rôle: ' + verified.user.role + ')');
     return verified;
-  } catch (error : any) {
+  } catch (error: any) {
     console.warn('❌ Session invalide:', error.message);
+    
     // Nettoyer le cookie invalide
     try {
       const cookieStore = await cookies();
@@ -71,31 +73,52 @@ export async function getSession() {
   }
 }
 
-// ✅ setSession mise à jour - PAS de redirection automatique
 export async function setSession(user: NewUser) {
-  const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  const session: SessionData = {
-    user: { id: user.id! },
-    expires: expiresInOneDay.toISOString(),
-  };
+  try {
+    // 🆕 Récupérer le rôle utilisateur depuis la DB
+    const [userWithRole] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(
+        and(
+          eq(users.id, user.id!),
+          isNull(users.deletedAt)
+        )
+      )
+      .limit(1);
 
-  const encryptedSession = await signToken(session);
-  
-  // ✅ Juste créer la session, PAS de redirection
-  const cookieStore = await cookies();
-  cookieStore.set('session', encryptedSession, {
-    expires: expiresInOneDay,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/', // ✅ Important : définir le path
-  });
+    if (!userWithRole) {
+      throw new Error('Utilisateur introuvable lors de la création de session');
+    }
 
-  logger.info('🍪 Session créée pour utilisateur:'+ user.id);
-  
-  // ❌ PAS de redirect() ici !
-  // La redirection est gérée côté client
+    const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const session: SessionData = {
+      user: { 
+        id: user.id!,
+        role: userWithRole.role // 🆕 Inclure le rôle dans le token
+      },
+      expires: expiresInOneDay.toISOString(),
+    };
+
+    const encryptedSession = await signToken(session);
+    
+    const cookieStore = await cookies();
+    cookieStore.set('session', encryptedSession, {
+      expires: expiresInOneDay,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    logger.info('🍪 Session créée pour utilisateur:' + user.id + ' (rôle: ' + userWithRole.role + ')');
+  } catch (error) {
+    logger.error('❌ Erreur création session:', error);
+    throw error;
+  }
 }
+
+
 
 export async function getUser() {
   const session = await getSession();
@@ -108,20 +131,26 @@ export async function getUser() {
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.id, session.user.id))
+      .where(
+        and(
+          eq(users.id, session.user.id),
+          isNull(users.deletedAt)
+        )
+      )
       .limit(1);
 
     if (!user) {
-      logger.info('❌ Utilisateur introuvable en base pour ID:' +  session.user.id);
+      logger.info('❌ Utilisateur introuvable en base pour ID:' + session.user.id);
       return null;
     }
 
-    logger.info('✅ Utilisateur récupéré:'+ user.email);
+    logger.info('✅ Utilisateur récupéré:' + user.email);
     return user;
   } catch (error) {
-    logger.error('❌ Erreur récupération utilisateur:'+ error);
+    logger.error('❌ Erreur récupération utilisateur:' + error);
     return null;
   }
+}
 }
 
 // ✅ Fonction utilitaire pour supprimer la session
@@ -135,26 +164,7 @@ export async function destroySession() {
   }
 }
 
-export async function isCurrentUserAdmin(): Promise<boolean> {
-  try {
-    const user = await getUser();
-    return user?.role === 'admin';
-  } catch (error) {
-    logger.error('Erreur vérification admin:', error);
-    return false;
-  }
-}
 
-// 🆕 Fonction pour obtenir le rôle de l'utilisateur actuel
-export async function getCurrentUserRole(): Promise<string | null> {
-  try {
-    const user = await getUser();
-    return user?.role || null;
-  } catch (error) {
-    logger.error('Erreur récupération rôle:', error);
-    return null;
-  }
-}
 
 // 🆕 Fonction pour vérifier un rôle spécifique par ID utilisateur
 export async function getUserRole(userId: number): Promise<string | null> {
@@ -177,29 +187,6 @@ export async function getUserRole(userId: number): Promise<string | null> {
   }
 }
 
-// 🆕 Fonction pour vérifier les permissions d'une route
-export async function canAccessRoute(route: string): Promise<boolean> {
-  try {
-    const userRole = await getCurrentUserRole();
-    
-    // Routes admin
-    if (route.startsWith('/admin') && userRole !== 'admin') {
-      return false;
-    }
-    
-    // Ajoutez d'autres vérifications de routes si nécessaire
-    // if (route.startsWith('/teacher') && !['admin', 'teacher'].includes(userRole)) {
-    //   return false;
-    // }
-    
-    return true;
-  } catch (error) {
-    logger.error('Erreur vérification accès route:', error);
-    return false;
-  }
-}
-
-// 🆕 Fonction pour obtenir les informations complètes de l'utilisateur avec session
 export async function getUserWithSession() {
   const session = await getSession();
   if (!session) {
@@ -241,11 +228,22 @@ export async function getUserWithSession() {
   }
 }
 
-// 🆕 Hook/fonction pour les composants côté client
-export async function requireAdmin() {
-  const isAdmin = await isCurrentUserAdmin();
-  if (!isAdmin) {
-    throw new Error('Admin access required');
+export async function isCurrentUserAdmin(): Promise<boolean> {
+  try {
+    const session = await getSession();
+    return session?.user.role === 'admin';
+  } catch (error) {
+    logger.error('Erreur vérification admin:', error);
+    return false;
   }
-  return true;
+}
+
+export async function getCurrentUserRole(): Promise<string | null> {
+  try {
+    const session = await getSession();
+    return session?.user.role || null;
+  } catch (error) {
+    logger.error('Erreur récupération rôle:', error);
+    return null;
+  }
 }
