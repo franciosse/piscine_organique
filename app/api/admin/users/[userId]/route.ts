@@ -13,14 +13,14 @@ const updateUserSchema = z.object({
 });
 
 interface RouteParams {
-  id: string;
+  userId: string;
 }
 
 // GET - Détails d'un utilisateur
 export const GET = withAdminAuth(async (req, adminUser, context) => {
   try {
     const params = await context?.params;
-    const userId = parseInt(params?.id);
+    const userId = parseInt(params?.userId);
     
     if (isNaN(userId)) {
       return NextResponse.json(

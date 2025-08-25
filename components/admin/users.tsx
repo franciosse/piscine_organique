@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Users, 
   Search, 
@@ -15,7 +16,9 @@ import {
   Edit,
   Trash2,
   CheckCircle,
-  XCircle
+  XCircle,
+  AlertTriangle,
+  ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +27,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-// Suppression de l'import Table
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,8 +36,19 @@ import {
 import {
   Badge
 } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription
+} from '@/components/ui/dialog';
+import {
+  Alert,
+  AlertDescription
+} from '@/components/ui/alert';
 import logger from '@/lib/logger/logger';
-
 
 const api = {
   getAllUsers: async () => {
@@ -48,6 +61,21 @@ const api = {
       return data.users;
     } catch (error) {
       logger.error('Error fetching users:'+ error);
+      throw error;
+    }
+  },
+  
+  deleteUser: async (userId: number) => {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete user');
+      }
+      return true;
+    } catch (error) {
+      logger.error('Error deleting user:'+ error);
       throw error;
     }
   }
@@ -64,12 +92,22 @@ interface User {
 }
 
 export function AllUsers() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [verificationFilter, setVerificationFilter] = useState<string>('all');
+  
+  // États pour la modal de suppression
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  
+  // États pour les actions
+  const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -86,6 +124,7 @@ export function AllUsers() {
       setUsers(data);
     } catch (error) {
       logger.error('Failed to fetch users:'+ error);
+      setError('Erreur lors du chargement des utilisateurs');
     } finally {
       setLoading(false);
     }
@@ -94,7 +133,6 @@ export function AllUsers() {
   const filterUsers = () => {
     let filtered = users;
 
-    // Filtrage par recherche
     if (searchTerm) {
       filtered = filtered.filter(user =>
         user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,12 +140,10 @@ export function AllUsers() {
       );
     }
 
-    // Filtrage par rôle
     if (roleFilter !== 'all') {
       filtered = filtered.filter(user => user.role === roleFilter);
     }
 
-    // Filtrage par vérification
     if (verificationFilter !== 'all') {
       filtered = filtered.filter(user => 
         verificationFilter === 'verified' ? user.isVerified : !user.isVerified
@@ -115,6 +151,43 @@ export function AllUsers() {
     }
 
     setFilteredUsers(filtered);
+  };
+
+  const handleViewUser = (userId: number) => {
+    router.push(`/admin/users/${userId}`);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    setActionLoading(true);
+    setError(null);
+    
+    try {
+      await api.deleteUser(userToDelete.id);
+      
+      // Supprimer de la liste
+      setUsers(users.filter(user => user.id !== userToDelete.id));
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+      setSuccess('Utilisateur supprimé avec succès');
+      
+    } catch (error) {
+      setError('Erreur lors de la suppression de l\'utilisateur');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openDeleteModal = (user: User) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setUserToDelete(null);
+    setError(null);
   };
 
   const getRoleIcon = (role: string) => {
@@ -145,6 +218,21 @@ export function AllUsers() {
   return (
     <div className="flex-1 min-h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
       <div className="p-6 lg:p-8 space-y-6">
+        {/* Messages d'erreur et de succès */}
+        {error && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">{error}</AlertDescription>
+          </Alert>
+        )}
+        
+        {success && (
+          <Alert className="border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">{success}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Header */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-emerald-600/10 rounded-2xl"></div>
@@ -341,28 +429,45 @@ export function AllUsers() {
                               <span>{formatDate(user.createdAt)}</span>
                             </div>
                           </td>
-                          <td className="py-4 px-4 text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreVertical className="w-4 h-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Voir le profil
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Edit className="w-4 h-4 mr-2" />
-                                  Modifier
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-red-600">
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Supprimer
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-2 justify-end">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewUser(user.id)}
+                                className="flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                                Gérer
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent 
+                                  align="end"
+                                  className="w-48 mt-2 bg-white/95 backdrop-blur-md border-0 shadow-2xl rounded-2xl overflow-hidden z-[9999]"
+                                >
+                                  <DropdownMenuItem onClick={() => handleViewUser(user.id)}>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Voir le profil
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleViewUser(user.id)}>
+                                    <Edit className="w-4 h-4 mr-2" />
+                                    Modifier
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-red-600"
+                                    onClick={() => openDeleteModal(user)}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Supprimer
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -381,6 +486,41 @@ export function AllUsers() {
             )}
           </CardContent>
         </Card>
+
+        {/* Modal de confirmation de suppression */}
+        <Dialog open={showDeleteModal} onOpenChange={closeDeleteModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                Confirmer la suppression
+              </DialogTitle>
+              <DialogDescription>
+                Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+                <span className="font-semibold">{userToDelete?.name || userToDelete?.email}</span> ?
+                Cette action est irréversible et supprimera également tous ses achats de cours et sa progression.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={closeDeleteModal}>
+                Annuler
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteUser}
+                disabled={actionLoading}
+              >
+                {actionLoading ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4 mr-2" />
+                )}
+                Supprimer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
