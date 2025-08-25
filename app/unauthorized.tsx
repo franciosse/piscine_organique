@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { CircleIcon } from 'lucide-react';
 import LogoOnly from '@/components/login/logOnly';
 
-export default function NotFound() {
+export default function Unauthorized() {
   return (
     <div className="flex items-center justify-center min-h-[100dvh]">
       <LogoOnly />
