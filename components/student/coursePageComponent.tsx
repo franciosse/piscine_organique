@@ -14,6 +14,8 @@ interface coursePageComponentProps {
   mode: 'public' | 'dashboard';
   title?: string;
   description?: string;
+  showOnlyPurchased?: boolean; 
+  showProgressSections?: boolean;
 }
 
 export function CoursePageComponent({ 

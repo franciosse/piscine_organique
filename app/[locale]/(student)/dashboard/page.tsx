@@ -2,8 +2,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CourseCard } from '@/components/student/courseCard';
+import { Card, CardContent } from '@/components/ui/card';
+import { CoursePageComponent } from '@/components/student/coursePageComponent';
 import { Course, CoursePurchase, User } from '@/lib/db/schema';
 import useSWR from 'swr';
 import { Suspense } from 'react';
@@ -14,24 +14,34 @@ import {
   Trophy, 
   TrendingUp, 
   Search, 
-  Award, 
   User as UserIcon,
-  Sparkles,
-  ArrowRight,
-  Play
+  ArrowRight
 } from 'lucide-react';
 
 interface DashboardData {
-  user: User;
+  user: {
+    id: number;
+    name: string | null;
+    email: string;
+    role: string;
+  };
   purchasedCourses: (Course & {
-    progress?: {
+    progress: {
       completed_lessons: number;
       total_lessons: number;
       completion_percentage: number;
+      total_watch_time: number;
       last_accessed?: Date;
     };
   })[];
-  recentPurchases: CoursePurchase[];
+  recentPurchases: {
+    id: number;
+    courseId: number;
+    courseTitle: string;
+    amount: number;
+    currency: string;
+    purchasedAt: Date;
+  }[];
   stats: {
     totalCourses: number;
     completedCourses: number;
@@ -106,7 +116,6 @@ function StatsCards({ stats }: { stats: DashboardData['stats'] }) {
       title: 'Cours achetés',
       value: stats.totalCourses,
       icon: BookOpen,
-      color: 'from-blue-500 to-blue-600',
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-600'
     },
@@ -114,7 +123,6 @@ function StatsCards({ stats }: { stats: DashboardData['stats'] }) {
       title: 'Cours terminés',
       value: stats.completedCourses,
       icon: Trophy,
-      color: 'from-green-500 to-green-600',
       bgColor: 'bg-green-50',
       textColor: 'text-green-600'
     },
@@ -122,7 +130,6 @@ function StatsCards({ stats }: { stats: DashboardData['stats'] }) {
       title: 'En cours',
       value: stats.inProgressCourses,
       icon: TrendingUp,
-      color: 'from-orange-500 to-orange-600',
       bgColor: 'bg-orange-50',
       textColor: 'text-orange-600'
     },
@@ -130,7 +137,6 @@ function StatsCards({ stats }: { stats: DashboardData['stats'] }) {
       title: 'Temps d\'étude',
       value: formatTime(stats.totalWatchTime),
       icon: Clock,
-      color: 'from-purple-500 to-purple-600',
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-600'
     }
@@ -157,119 +163,6 @@ function StatsCards({ stats }: { stats: DashboardData['stats'] }) {
   );
 }
 
-function MyCourses({ courses }: { courses: DashboardData['purchasedCourses'] }) {
-  if (courses.length === 0) {
-    return (
-      <div className="bg-white rounded-xl p-8 text-center">
-        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl mx-auto mb-4 flex items-center justify-center">
-          <BookOpen className="h-8 w-8 text-white" />
-        </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Commencez votre apprentissage !
-        </h3>
-        <p className="text-gray-600 mb-6 max-w-md mx-auto">
-          Découvrez notre catalogue de cours et développez de nouvelles compétences dès aujourd'hui.
-        </p>
-        <Button asChild className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
-          <Link href="/dashboard/courses">
-            <Search className="w-4 h-4 mr-2" />
-            Parcourir les cours
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
-  // Séparer les cours par statut
-  const inProgressCourses = courses.filter(
-    course => course.progress && course.progress.completion_percentage > 0 && course.progress.completion_percentage < 100
-  );
-  const completedCourses = courses.filter(
-    course => course.progress && course.progress.completion_percentage === 100
-  );
-  const notStartedCourses = courses.filter(
-    course => !course.progress || course.progress.completion_percentage === 0
-  );
-
-  return (
-    <div className="space-y-8">
-      {/* Cours en cours */}
-      {inProgressCourses.length > 0 && (
-        <div className="bg-white rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Play className="h-5 w-5 text-orange-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Continuer l'apprentissage</h2>
-            </div>
-            <span className="text-sm text-gray-500">{inProgressCourses.length} cours</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {inProgressCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                showProgress={true}
-                progressData={course.progress}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Cours non commencés */}
-      {notStartedCourses.length > 0 && (
-        <div className="bg-white rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Sparkles className="h-5 w-5 text-blue-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Prêt à commencer</h2>
-            </div>
-            <span className="text-sm text-gray-500">{notStartedCourses.length} cours</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {notStartedCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                showProgress={false}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Cours terminés */}
-      {completedCourses.length > 0 && (
-        <div className="bg-white rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Trophy className="h-5 w-5 text-green-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Cours terminés</h2>
-            </div>
-            <span className="text-sm text-gray-500">{completedCourses.length} cours</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {completedCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                showProgress={true}
-                progressData={course.progress}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function QuickActions() {
   const actions = [
     {
@@ -279,13 +172,6 @@ function QuickActions() {
       icon: Search,
       color: 'from-blue-500 to-blue-600'
     },
-    // {
-    //   title: 'Mes certificats',
-    //   description: 'Consultez vos réussites',
-    //   href: '/dashboard/certificates',
-    //   icon: Award,
-    //   color: 'from-green-500 to-green-600'
-    // },
     {
       title: 'Mon profil',
       description: 'Gérez vos informations',
@@ -354,7 +240,16 @@ function DashboardContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <MyCourses courses={dashboardData.purchasedCourses} />
+          {/* Utilisation du CoursePageComponent unifié */}
+          <CoursePageComponent
+            courses={dashboardData.purchasedCourses}
+            purchasedCourseIds={dashboardData.purchasedCourses.map(course => course.id)}
+            mode="dashboard"
+            title="Mes cours"
+            description="Continuez votre apprentissage là où vous vous êtes arrêté"
+            showOnlyPurchased={true}
+            showProgressSections={true}
+          />
         </div>
         <div>
           <QuickActions />
