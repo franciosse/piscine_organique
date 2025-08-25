@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth/session';
 import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
-import { eq, isNull } from 'drizzle-orm';
+import { eq, isNull, and } from 'drizzle-orm';
 import { routing } from '@/i18n/routing';
 import logger from '@/lib/logger/logger';
 
