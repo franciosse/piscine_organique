@@ -151,7 +151,7 @@ export async function getUser() {
     return null;
   }
 }
-}
+
 
 // ✅ Fonction utilitaire pour supprimer la session
 export async function destroySession() {
