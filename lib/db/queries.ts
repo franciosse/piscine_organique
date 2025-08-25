@@ -1,4 +1,4 @@
-import { desc, and, eq, isNull, like, or, ilike, count, sum, avg, gte, sql } from 'drizzle-orm';
+import { desc, and, eq, isNull, like, or, ilike, count, sum, avg, gte, sql, isNotNull } from 'drizzle-orm';
 import { db } from './drizzle';
 import { activityLogs, users, coursePurchases, courses, lessons, courseChapters, studentProgress } from './schema';
 import { cookies } from 'next/headers';
@@ -534,4 +534,174 @@ export async function getRecentUsers(days: number = 7, limit: number = 10) {
     .limit(limit);
   
   return result;
+}
+
+export async function getCourseStats() {
+  try {
+    logger.info('📊 Début de la récupération des statistiques de cours');
+
+    // 1. Total de cours
+    logger.info('🔍 Récupération du total de cours...');
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(courses);
+
+    const total = Number(totalResult.count);
+    logger.info(`✅ Total cours: ${total}`);
+
+    // 2. Cours publiés vs non publiés
+    logger.info('🔍 Récupération du statut de publication...');
+    const [publishedResult] = await db
+      .select({ count: count() })
+      .from(courses)
+      .where(isNotNull(courses.published));
+
+    const [unpublishedResult] = await db
+      .select({ count: count() })
+      .from(courses)
+      .where(isNull(courses.published));
+
+    const published = Number(publishedResult.count);
+    const unpublished = Number(unpublishedResult.count);
+    logger.info(`✅ Cours publiés: ${published}, non publiés: ${unpublished}`);
+
+    // 3. Distribution par niveau de difficulté
+    logger.info('🔍 Récupération de la distribution par difficulté...');
+    const difficultyDistribution = await db
+      .select({ 
+        difficulty: courses.difficultyLevel, 
+        count: count() 
+      })
+      .from(courses)
+      .groupBy(courses.difficultyLevel);
+
+    const byDifficulty = {
+      beginner: Number(difficultyDistribution.find(d => d.difficulty === 'beginner')?.count || 0),
+      intermediate: Number(difficultyDistribution.find(d => d.difficulty === 'intermediate')?.count || 0),
+      advanced: Number(difficultyDistribution.find(d => d.difficulty === 'advanced')?.count || 0),
+    };
+    logger.info(`✅ Distribution par difficulté:`, byDifficulty);
+
+    // 4. Revenus totaux (si vous avez la table coursePurchases)
+    let totalRevenue = 0;
+    let totalPurchases = 0;
+    try {
+      const [revenueResult] = await db
+        .select({ 
+          totalRevenue: sum(coursePurchases.amount),
+          totalPurchases: count()
+        })
+        .from(coursePurchases)
+        .where(eq(coursePurchases.status, 'completed'));
+
+      totalRevenue = Number(revenueResult.totalRevenue || 0);
+      totalPurchases = Number(revenueResult.totalPurchases || 0);
+      logger.info(`✅ Revenus totaux: ${totalRevenue / 100}€, Achats: ${totalPurchases}`);
+    } catch (error) {
+      logger.warn('⚠️ Table coursePurchases non disponible, revenus = 0');
+    }
+
+    // 5. Cours récemment créés (7 derniers jours)
+    logger.info('🔍 Récupération des cours récents...');
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const [recentResult] = await db
+      .select({ count: count() })
+      .from(courses)
+      .where(gte(courses.createdAt, sevenDaysAgo));
+
+    const recentlyCreated = Number(recentResult.count);
+    logger.info(`✅ Cours créés dans les 7 derniers jours: ${recentlyCreated}`);
+
+    // 6. Cours avec chapitres vs sans chapitres (si vous avez la table courseChapters)
+    let withChapters = 0;
+    let withoutChapters = 0;
+    try {
+      const [withChaptersResult] = await db
+        .select({ count: count(sql`DISTINCT ${courses.id}`) })
+        .from(courses)
+        .innerJoin(courseChapters, eq(courses.id, courseChapters.courseId));
+
+      withChapters = Number(withChaptersResult.count);
+      withoutChapters = total - withChapters;
+      logger.info(`✅ Cours avec chapitres: ${withChapters}, sans chapitres: ${withoutChapters}`);
+    } catch (error) {
+      logger.warn('⚠️ Table courseChapters non disponible');
+      withChapters = 0;
+      withoutChapters = total;
+    }
+
+    const stats = {
+      total,
+      published,
+      unpublished,
+      byDifficulty,
+      revenue: {
+        total: totalRevenue,
+        totalPurchases,
+        averagePrice: totalPurchases > 0 ? Math.round(totalRevenue / totalPurchases) : 0
+      },
+      recentlyCreated,
+      structure: {
+        withChapters,
+        withoutChapters
+      }
+    };
+
+    logger.info('✅ Statistiques cours générées avec succès:', stats);
+    return stats;
+
+  } catch (error) {
+    logger.error('❌ Erreur dans getCourseStats:', error);
+    
+    // Log détaillé de l'erreur pour debug
+    if (error instanceof Error) {
+      logger.error('❌ Message d\'erreur:', error.message);
+      logger.error('❌ Stack trace:', error.stack);
+    }
+    
+    // Retourner des valeurs par défaut en cas d'erreur
+    logger.warn('⚠️ Retour de valeurs par défaut pour les statistiques de cours');
+    return {
+      total: 0,
+      published: 0,
+      unpublished: 0,
+      byDifficulty: {
+        beginner: 0,
+        intermediate: 0,
+        advanced: 0,
+      },
+      revenue: {
+        total: 0,
+        totalPurchases: 0,
+        averagePrice: 0
+      },
+      recentlyCreated: 0,
+      structure: {
+        withChapters: 0,
+        withoutChapters: 0
+      }
+    };
+  }
+}
+
+// 🆕 Version simplifiée pour debug si besoin
+export async function getCourseStatsSimple() {
+  try {
+    const allCourses = await db.select().from(courses).limit(5);
+    
+    return {
+      total: allCourses.length,
+      sample: allCourses.map(c => ({ 
+        id: c.id, 
+        title: c.title, 
+        published: !!c.published,
+        difficulty: c.difficultyLevel 
+      }))
+    };
+  } catch (error) {
+    logger.error('❌ Erreur getCourseStatsSimple:', error);
+    throw error;
+  }
 }
