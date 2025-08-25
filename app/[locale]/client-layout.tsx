@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Icon, ChevronDown, Leaf, Droplet, Menu, X, Settings, User2, Sprout, TreePine } from 'lucide-react';
+import { Home, LogOut, Icon, ChevronDown, Leaf, Droplet, Menu, X, Settings, User2, Sprout, TreePine, Contact, BookOpenCheck } from 'lucide-react';
 import { flowerLotus } from "@lucide/lab";
 import {
   DropdownMenu,
@@ -297,6 +297,7 @@ function MobileMenu() {
                 className="flex items-center py-3 px-4 hover:bg-emerald-50 rounded-xl transition-all duration-200 group"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
+                <BookOpenCheck className="h-5 w-5 text-emerald-600 mr-3" />
                 <span className="font-medium text-gray-700 group-hover:text-emerald-700">{t('courses')}</span>
               </Link>
               
@@ -305,6 +306,7 @@ function MobileMenu() {
                 className="flex items-center py-3 px-4 hover:bg-emerald-50 rounded-xl transition-all duration-200 group"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
+                <Contact className="h-5 w-5 text-emerald-600 mr-3" />
                 <span className="font-medium text-gray-700 group-hover:text-emerald-700">{t('contact')}</span>
               </Link>
             </div>
