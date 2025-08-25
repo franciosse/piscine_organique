@@ -4,6 +4,7 @@ import { activityLogs, users, coursePurchases, courses, lessons, courseChapters,
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
 import { hashPassword } from '@/lib/auth/session';
+import logger from '../logger/logger';
 
 export async function getUser() {
   try {
@@ -336,171 +337,129 @@ export async function bulkDeleteUsers(
  * Statistiques des utilisateurs
  */
 export async function getUserStats() {
-  // Total utilisateurs actifs
-  const totalResult = await db
-    .select({ count: count() })
-    .from(users)
-    .where(isNull(users.deletedAt));
-  
-  // Par rôle
-  const byRoleResult = await db
-    .select({
-      role: users.role,
-      count: count()
-    })
-    .from(users)
-    .where(isNull(users.deletedAt))
-    .groupBy(users.role);
-  
-  // Vérifiés vs non-vérifiés
-  const verifiedResult = await db
-    .select({ count: count() })
-    .from(users)
-    .where(and(isNull(users.deletedAt), eq(users.isVerified, true)));
-  
-  const unverifiedResult = await db
-    .select({ count: count() })
-    .from(users)
-    .where(and(isNull(users.deletedAt), eq(users.isVerified, false)));
-  
-  // Créés dans les 7 derniers jours
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  
-  const recentResult = await db
-    .select({ count: count() })
-    .from(users)
-    .where(
-      and(
-        isNull(users.deletedAt),
-        sql`${users.createdAt} >= ${sevenDaysAgo}`
-      )
-    );
-  
-  // Supprimés (soft deleted)
-  const deletedResult = await db
-    .select({ count: count() })
-    .from(users)
-    .where(sql`${users.deletedAt} IS NOT NULL`);
-  
-  return {
-    total: totalResult[0].count,
-    byRole: byRoleResult.reduce((acc, item) => {
-      acc[item.role] = item.count;
-      return acc;
-    }, {} as Record<string, number>),
-    verified: verifiedResult[0].count,
-    unverified: unverifiedResult[0].count,
-    recentlyCreated: recentResult[0].count,
-    deletedCount: deletedResult[0].count
-  };
-}
+  try {
+    logger.info('📊 Début de la récupération des statistiques utilisateurs');
 
-/** Stats des courses */
+    // 1. Total d'utilisateurs (non supprimés)
+    logger.info('🔍 Récupération du total d\'utilisateurs...');
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(isNull(users.deletedAt));
 
-export async function getCourseStats() {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const total = Number(totalResult.count);
+    logger.info(`✅ Total utilisateurs: ${total}`);
 
-  // Stats générales des cours
-  const [totalCourses] = await db
-    .select({ count: count() })
-    .from(courses);
+    // 2. Distribution par rôle
+    logger.info('🔍 Récupération de la distribution par rôle...');
+    const roleDistribution = await db
+      .select({ 
+        role: users.role, 
+        count: count() 
+      })
+      .from(users)
+      .where(isNull(users.deletedAt))
+      .groupBy(users.role);
 
-  const [publishedCourses] = await db
-    .select({ count: count() })
-    .from(courses)
-    .where(sql`${courses.published} IS NOT NULL`);
+    const byRole = {
+      admin: Number(roleDistribution.find(r => r.role === 'admin')?.count || 0),
+      student: Number(roleDistribution.find(r => r.role === 'student')?.count || 0),
+    };
+    logger.info(`✅ Distribution par rôle:`, byRole);
 
-  const [draftCourses] = await db
-    .select({ count: count() })
-    .from(courses)
-    .where(sql`${courses.published} IS NULL`);
+    // 3. Utilisateurs vérifiés
+    logger.info('🔍 Récupération des utilisateurs vérifiés...');
+    const [verifiedResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(
+        and(
+          isNull(users.deletedAt),
+          eq(users.isVerified, true)
+        )
+      );
 
-  const [freeCourses] = await db
-    .select({ count: count() })
-    .from(courses)
-    .where(eq(courses.price, 0));
+    const verified = Number(verifiedResult.count);
+    logger.info(`✅ Utilisateurs vérifiés: ${verified}`);
 
-  const [paidCourses] = await db
-    .select({ count: count() })
-    .from(courses)
-    .where(sql`${courses.price} > 0`);
+    // 4. Utilisateurs non vérifiés
+    logger.info('🔍 Récupération des utilisateurs non vérifiés...');
+    const [unverifiedResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(
+        and(
+          isNull(users.deletedAt),
+          eq(users.isVerified, false)
+        )
+      );
 
-  // Stats des achats
-  const [purchaseStats] = await db
-    .select({ 
-      totalPurchases: count(),
-      totalRevenue: sum(coursePurchases.amount),
-    })
-    .from(coursePurchases)
-    .where(eq(coursePurchases.status, 'completed'));
+    const unverified = Number(unverifiedResult.count);
+    logger.info(`✅ Utilisateurs non vérifiés: ${unverified}`);
 
-  const [averagePriceResult] = await db
-    .select({ 
-      avgPrice: avg(courses.price)
-    })
-    .from(courses)
-    .where(sql`${courses.price} > 0`);
+    // 5. Utilisateurs récemment créés (7 derniers jours)
+    logger.info('🔍 Récupération des utilisateurs récents...');
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  // Cours créés récemment
-  const [recentCoursesCount] = await db
-    .select({ count: count() })
-    .from(courses)
-    .where(gte(courses.createdAt, sevenDaysAgo));
+    const [recentResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(
+        and(
+          isNull(users.deletedAt),
+          gte(users.createdAt, sevenDaysAgo)
+        )
+      );
 
-  // Taux de completion moyen
-  const completionRateQuery = await db
-    .select({
-      totalLessons: count(lessons.id),
-      completedLessons: count(studentProgress.id),
-    })
-    .from(lessons)
-    .leftJoin(courseChapters, eq(lessons.chapterId, courseChapters.id))
-    .leftJoin(courses, eq(courseChapters.courseId, courses.id))
-    .leftJoin(studentProgress, eq(lessons.id, studentProgress.lessonId))
-    .where(sql`${courses.published} IS NOT NULL AND ${studentProgress.completed} = true`);
+    const recentlyCreated = Number(recentResult.count);
+    logger.info(`✅ Utilisateurs créés dans les 7 derniers jours: ${recentlyCreated}`);
 
-  // Top 5 des cours les plus populaires
-  const popularCourses = await db
-    .select({
-      id: courses.id,
-      title: courses.title,
-      purchaseCount: count(coursePurchases.id),
-      revenue: sum(coursePurchases.amount),
-    })
-    .from(courses)
-    .leftJoin(coursePurchases, eq(courses.id, coursePurchases.courseId))
-    .where(eq(coursePurchases.status, 'completed'))
-    .groupBy(courses.id, courses.title)
-    .orderBy(desc(count(coursePurchases.id)))
-    .limit(5);
+    // 6. Utilisateurs supprimés (avec deletedAt non null)
+    logger.info('🔍 Récupération des utilisateurs supprimés...');
+    const [deletedResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(sql`${users.deletedAt} IS NOT NULL`);
 
-  // Calcul du taux de completion
-  const totalLessonsInSystem = completionRateQuery[0]?.totalLessons || 0;
-  const totalCompletedLessons = completionRateQuery[0]?.completedLessons || 0;
-  const completionRate = totalLessonsInSystem > 0 
-    ? Math.round((totalCompletedLessons / totalLessonsInSystem) * 100) 
-    : 0;
+    const deletedCount = Number(deletedResult.count);
+    logger.info(`✅ Utilisateurs supprimés: ${deletedCount}`);
 
-  return {
-    total: totalCourses.count,
-    published: publishedCourses.count,
-    draft: draftCourses.count,
-    free: freeCourses.count,
-    paid: paidCourses.count,
-    totalPurchases: purchaseStats.totalPurchases || 0,
-    totalRevenue: Number(purchaseStats.totalRevenue) || 0,
-    averagePrice: Math.round(Number(averagePriceResult.avgPrice)) || 0,
-    recentlyCreated: recentCoursesCount.count,
-    completionRate,
-    popularCourses: popularCourses.map(course => ({
-      id: course.id,
-      title: course.title,
-      purchases: course.purchaseCount,
-      revenue: Number(course.revenue) || 0,
-    })),
-  };
+    const stats = {
+      total,
+      byRole,
+      verified,
+      unverified,
+      recentlyCreated,
+      deletedCount,
+    };
+
+    logger.info('✅ Statistiques générées avec succès:', stats);
+    return stats;
+
+  } catch (error) {
+    logger.error('❌ Erreur dans getUserStats:', error);
+    
+    // Log détaillé de l'erreur pour debug
+    if (error instanceof Error) {
+      logger.error('❌ Message d\'erreur:', error.message);
+      logger.error('❌ Stack trace:', error.stack);
+    }
+    
+    // Retourner des valeurs par défaut en cas d'erreur
+    logger.warn('⚠️ Retour de valeurs par défaut pour les statistiques');
+    return {
+      total: 0,
+      byRole: {
+        admin: 0,
+        student: 0,
+      },
+      verified: 0,
+      unverified: 0,
+      recentlyCreated: 0,
+      deletedCount: 0,
+    };
+  }
 }
 
 /**

@@ -118,5 +118,12 @@
     "natural": "Matériaux Naturels",
     "biodiversity": "Biodiversité",
     "home": "Aller à la page d'accueil"
+  },
+  "Unauthorized" : {
+    "denied" : "Accès refusé",
+    "noPermissions" : "Vous n/'avez pas les permissions nécessaires pour accéder à cette ressource.",
+    "adminOnly" : "Cette section est réservée aux administrateurs.",
+    "home" : "Retour à l/'accueil",
+    "dashboard" : "Retour au tableau de bord'"
   }
 }

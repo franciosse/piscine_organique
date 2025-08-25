@@ -118,5 +118,12 @@
       "communityDescription": "Personalized support to help everyone build and maintain their organic pool.",
       "offer": "Get Started",
       "home": "Go to the home page"
+  },
+    "Unauthorized" : {
+    "denied" : "Access denied",
+    "noPermissions" : "You do not have the necessary permissions to access this resource.",
+    "adminOnly" : "This section is for administrators only",
+    "home" : "Back to Home",
+    "dashboard" : "Back to Dashboard"
   }
 }
