@@ -241,6 +241,7 @@ function MobileMenu() {
   }
 
   const isAdmin = user?.role === 'admin';
+  const coursesHref = user ? "/dashboard/courses" : "/courses";  
 
   return (
     <div className="md:hidden">
@@ -293,7 +294,7 @@ function MobileMenu() {
               </Link>
               
               <Link 
-                href="/courses" 
+                href={coursesHref}
                 className="flex items-center py-3 px-4 hover:bg-emerald-50 rounded-xl transition-all duration-200 group"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -383,6 +384,9 @@ function MobileMenu() {
 
 function Header() {
   const t = useTranslations('Menu');
+  const { data: user } = useSWR<User>('/api/account/user', fetcher);
+
+  const coursesHref = user ? "/dashboard/courses" : "/courses";
 
   return (
     <header className="border-b border-emerald-100 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
@@ -428,7 +432,7 @@ function Header() {
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link 
-              href="/courses" 
+              href={coursesHref} 
               className="flex items-center hover:text-emerald-600 transition-all duration-300 font-medium relative group py-2"
             >
               {t('courses')}
