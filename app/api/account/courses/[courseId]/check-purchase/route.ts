@@ -1,6 +1,5 @@
 // =============================================================================
-// METTEZ À JOUR : app/api/courses/[courseId]/check-purchase/route.ts
-// Vérifier l'achat d'un cours (avec votre auth personnalisé)
+// app/accountapi/courses/[courseId]/check-purchase/route.ts
 // =============================================================================
 
 import { eq, and } from 'drizzle-orm';

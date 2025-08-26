@@ -1,11 +1,12 @@
-// app/api/courses/[courseId]/progress/route.ts
+// app/api/account/courses/[courseId]/progress/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle'; // Votre instance Drizzle
 import { 
   courseChapters, 
   lessons, 
   studentProgress, 
-  coursePurchases 
+  coursePurchases, 
+  courses 
 } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
@@ -17,36 +18,58 @@ interface RouteParams {
 }
 
 
-// GET /api/courses/[courseId]/progress - Récupérer le progrès de l'étudiant
+// GET /api/account/courses/[courseId]/progress - Récupérer le progrès de l'étudiant
 export const GET = withUserAuth(async (request, user, { params }) => {
   const resolvedParams = await params;
   const courseId = parseInt(resolvedParams.courseId);
+  logger.debug('Get Course progress. CourseId:' + courseId);
+  try {
 
-    try {
-
+    logger.info('CourseId :' + courseId);
     if (isNaN(courseId)) {
       return NextResponse.json(
         { error: 'ID de cours invalide' },
         { status: 400 }
       );
     }
-
-    // Vérifier que l'utilisateur a accès au cours
-    const purchase = await db
-      .select({ id: coursePurchases.id })
-      .from(coursePurchases)
-      .where(and(
-        eq(coursePurchases.userId, user.id),
-        eq(coursePurchases.courseId, courseId)
-      ))
+    logger.info('CourseId valide:' + courseId);
+    const courseInfo = await db
+      .select({ 
+        id: courses.id, 
+        price: courses.price,
+        isPublished: courses.published 
+      })
+      .from(courses)
+      .where(eq(courses.id, courseId))
       .limit(1);
 
-    if (purchase.length === 0) {
+    if (courseInfo.length === 0) {
       return NextResponse.json(
-        { error: 'Vous n\'avez pas accès à ce cours' },
-        { status: 403 }
+        { error: 'Cours non trouvé' },
+        { status: 404 }
       );
     }
+
+    const course = courseInfo[0];
+
+    // Vérifier que l'utilisateur a accès au cours
+    if (course.price > 0) {
+      const purchase = await db
+          .select({ id: coursePurchases.id })
+          .from(coursePurchases)
+          .where(and(
+            eq(coursePurchases.userId, user.id),
+            eq(coursePurchases.courseId, courseId)
+          ))
+          .limit(1);
+
+        if (purchase.length === 0) {
+          return NextResponse.json(
+            { error: 'Vous n\'avez pas accès à ce cours' },
+            { status: 403 }
+          );
+        }
+      }
 
     // Récupérer les statistiques de progrès
     const progressStats = await db

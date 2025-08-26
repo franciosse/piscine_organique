@@ -1,4 +1,4 @@
-// /app/api/courses/[courseId]/checkout/route.ts - VERSION CORRIGÉE
+// /app/api/account/courses/[courseId]/checkout/route.ts - VERSION CORRIGÉE
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { users, coursePurchases, courses } from '@/lib/db/schema';

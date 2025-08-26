@@ -57,7 +57,7 @@ export default function CoursePurchasePage() {
 
   // Récupération des données du cours
   const { data: course, error } = useSWR<Course>(
-    courseId ? `/api/courses/${courseId}` : null,
+    courseId ? `/api/account/courses/${courseId}` : null,
     fetcher
   );
 
@@ -105,7 +105,7 @@ export default function CoursePurchasePage() {
 
       } else {
         // Cours payant - créer une session Stripe
-        const response = await fetch(`/api/courses/${courseId}/purchase`, {
+        const response = await fetch(`/api/account/courses/${courseId}/purchase`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

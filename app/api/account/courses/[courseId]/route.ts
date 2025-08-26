@@ -1,4 +1,4 @@
-// app/api/courses/[courseId]/route.ts
+// app/api/account/courses/[courseId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';

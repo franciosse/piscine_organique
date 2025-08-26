@@ -1,5 +1,5 @@
 // =============================================================================
-// METTEZ À JOUR : app/api/courses/[courseId]/enroll/route.ts
+// METTEZ À JOUR : app/account/api/courses/[courseId]/enroll/route.ts
 // Inscription gratuite (avec votre auth personnalisé)
 // =============================================================================
 

@@ -10,11 +10,15 @@ import logger from '@/lib/logger/logger';
 export default async function CourseDetailPage({
   params
 }: {
-  params: Promise<{ courseId: string }>
+  params: Promise<{ locale: string; courseId: string }>
 }) {
   const resolvedParams = await params;
+  logger.debug('resolvedParams: ' + JSON.stringify(resolvedParams));
+
   const courseId = parseInt(resolvedParams.courseId);
   
+  logger.debug('Course page, courseId : ' + courseId);
+
   // Valider le courseId plus strictement
   if (isNaN(courseId) || courseId <= 0) {
     logger.info(`❌ Invalid courseId: ${resolvedParams.courseId}`);

@@ -4,35 +4,17 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import * as LucideIcons from 'lucide-react';
+import { ModernVideoPlayer } from './ModernVideoPlayer';
+import { QuizComponent } from './QuizComponent';
+import { LessonContentDisplay } from './LessonContentDisplay';
+import { LessonProgressComponent } from './LessonProgressComponent';
+import { ProgressService } from '@/lib/services/progressService';
 import { checkLessonAccess } from '@/lib/course/lesson-sequencing';
 import logger from '@/lib/logger/logger';
-
-
-// Import explicite des icônes pour éviter les conflits
-const {
-  Play,
-  Lock,
-  CheckCircle,
-  Clock,
-  Users,
-  Award,
-  BookOpen,
-  FileText,
-  ChevronDown,
-  ChevronRight,
-  Leaf,
-  TreePine,
-  Sprout,
-  Globe,
-  Star,
-  Video,
-  AlertCircle,
-  Check,
-  ArrowRight,
-  PlayCircle,
-  RotateCcw
-} = LucideIcons;
+import {
+  Play, Lock, CheckCircle, Clock, Users, Award, BookOpen,
+  ChevronDown, ChevronRight, Leaf, TreePine, Sprout, Globe, Star
+} from 'lucide-react';
 
 // Types
 interface CourseWithContent {
@@ -41,11 +23,7 @@ interface CourseWithContent {
   description: string | null;
   price: number;
   imageUrl: string | null;
-  author: {
-    id: number;
-    name: string | null;
-    email: string | null;
-  };
+  author: { id: number; name: string | null; email: string | null; };
   chapters: ChapterWithLessons[];
   userProgress?: UserCourseProgress;
   isPurchased?: boolean;
@@ -72,7 +50,7 @@ interface LessonWithQuiz {
     title: string;
     questions: any[];
     isCompleted?: boolean;
-    passingScore : number;
+    passingScore: number;
   };
 }
 
@@ -100,535 +78,6 @@ interface CourseDetailComponentProps {
   user: any;
   onLessonComplete?: (lessonId: number) => void;
   onQuizComplete?: (lessonId: number, quizId: number, score: number) => void;
-}
-
-// Composant Quiz amélioré
-function QuizComponent({ 
-  quiz, 
-  lessonId, 
-  onComplete 
-}: { 
-  quiz: any; 
-  lessonId: number; 
-  onComplete: (score: number) => void;
-}) {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, any>>({});
-  const [showResults, setShowResults] = useState(false);
-  const [score, setScore] = useState(0);
-  const [isStarted, setIsStarted] = useState(false);
-
-  const handleAnswerSelect = (questionId: number, answer: any) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answer }));
-  };
-
-  const handleSubmitQuiz = () => {
-    // Calculer le score
-    let correctAnswers = 0;
-    quiz.questions.forEach((question: any) => {
-      const userAnswer = answers[question.id];
-      const correctAnswer = question.answers.find((a: any) => a.isCorrect);
-      if (userAnswer?.id === correctAnswer?.id) {
-        correctAnswers++;
-      }
-    });
-
-    const finalScore = Math.round((correctAnswers / quiz.questions.length) * 100);
-    setScore(finalScore);
-    setShowResults(true);
-    onComplete(finalScore);
-  };
-
-  if (!isStarted) {
-    return (
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl overflow-hidden mt-6">
-        <CardContent className="p-8 text-center">
-          <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Award className="h-8 w-8 text-white" />
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">{quiz.title}</h3>
-          <p className="text-gray-600 mb-6">
-            {quiz.questions.length} questions • Testez vos connaissances
-          </p>
-          <Button 
-            onClick={() => setIsStarted(true)}
-            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold"
-          >
-            <PlayCircle className="h-5 w-5 mr-2" />
-            Commencer le quiz
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (showResults) {
-    const passed = score >= (quiz.passingScore || 70);
-    return (
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl overflow-hidden mt-6">
-        <CardContent className="p-8 text-center">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-            passed ? 'bg-emerald-500' : 'bg-orange-500'
-          }`}>
-            {passed ? (
-              <CheckCircle className="h-8 w-8 text-white" />
-            ) : (
-              <AlertCircle className="h-8 w-8 text-white" />
-            )}
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            {passed ? 'Félicitations !' : 'Score insuffisant'}
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Votre score : <span className="font-bold text-2xl">{score}%</span>
-          </p>
-          <p className="text-sm text-gray-500 mb-6">
-            {passed 
-              ? 'Vous avez réussi le quiz avec succès !' 
-              : `Score minimum requis : ${quiz.passingScore || 70}%. Vous devez recommencer le quiz.`
-            }
-          </p>
-          {!passed && (
-            <Button 
-              onClick={() => {
-                setIsStarted(false);
-                setShowResults(false);
-                setCurrentQuestion(0);
-                setAnswers({});
-              }}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
-              Recommencer le quiz
-            </Button>
-          )}
-          {passed && (
-            <div className="text-emerald-600 text-sm mt-4">
-              ✅ Leçon validée automatiquement
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const question = quiz.questions[currentQuestion];
-  const isLastQuestion = currentQuestion === quiz.questions.length - 1;
-  const canProceed = answers[question.id] !== undefined;
-
-  return (
-    <Card className="border-0 shadow-lg bg-white rounded-2xl overflow-hidden mt-6">
-      <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-purple-800">
-            Question {currentQuestion + 1} sur {quiz.questions.length}
-          </CardTitle>
-          <div className="text-sm text-purple-600">
-            {Math.round(((currentQuestion + 1) / quiz.questions.length) * 100)}%
-          </div>
-        </div>
-        <div className="w-full bg-purple-200 rounded-full h-2 mt-2">
-          <div
-            className="bg-purple-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((currentQuestion + 1) / quiz.questions.length) * 100}%` }}
-          />
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <h3 className="text-xl font-semibold mb-6">{question.question}</h3>
-        <div className="space-y-3">
-          {question.answers.map((answer: any) => (
-            <button
-              key={answer.id}
-              onClick={() => handleAnswerSelect(question.id, answer)}
-              className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 ${
-                answers[question.id]?.id === answer.id
-                  ? 'border-purple-500 bg-purple-50'
-                  : 'border-gray-200 hover:border-purple-300 hover:bg-purple-25'
-              }`}
-            >
-              {answer.answerText}
-            </button>
-          ))}
-        </div>
-        
-        <div className="flex justify-between mt-8">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
-            disabled={currentQuestion === 0}
-          >
-            Précédent
-          </Button>
-          
-          {isLastQuestion ? (
-            <Button
-              onClick={handleSubmitQuiz}
-              disabled={!canProceed}
-              className="bg-purple-500 hover:bg-purple-600"
-            >
-              Terminer le quiz
-            </Button>
-          ) : (
-            <Button
-              onClick={() => setCurrentQuestion(prev => prev + 1)}
-              disabled={!canProceed}
-              className="bg-purple-500 hover:bg-purple-600"
-            >
-              Suivant
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// Composant lecteur vidéo amélioré avec gestion d'erreur
-function ModernVideoPlayer({ 
-  videoUrl, 
-  title, 
-  onProgress, 
-  onComplete 
-}: { 
-  videoUrl?: string; 
-  title: string;
-  onProgress?: (progress: number) => void;
-  onComplete?: () => void;
-}) {
-  const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-    setIsLoading(true);
-  }, []);
-
-  if (!videoUrl) {
-    return (
-      <div className="aspect-video bg-gradient-to-br from-emerald-100 to-green-200 rounded-2xl flex items-center justify-center">
-        <div className="text-center">
-          <Video className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
-          <p className="text-emerald-800 font-medium">Vidéo non disponible</p>
-          <p className="text-emerald-600 text-sm">Contenu en cours de préparation</p>
-        </div>
-      </div>
-    );
-  }
-
-  const getEmbedUrl = (url: string) => {
-    try {
-      const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-      const match = url.match(youtubeRegex);
-      
-      if (match) {
-        const origin = isClient && typeof window !== 'undefined' ? window.location.origin : '';
-        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&rel=0&modestbranding=1&origin=${origin}`;
-      }
-
-      const vimeoRegex = /vimeo\.com\/(\d+)/;
-      const vimeoMatch = url.match(vimeoRegex);
-      
-      if (vimeoMatch) {
-        return `https://player.vimeo.com/video/${vimeoMatch[1]}?byline=0&portrait=0`;
-      }
-
-      return url;
-    } catch (error) {
-      logger.error('Error processing video URL:'+ error);
-      setHasError(true);
-      return url;
-    }
-  };
-
-  const embedUrl = getEmbedUrl(videoUrl);
-  const isEmbedVideo = embedUrl && (embedUrl.includes('youtube.com') || embedUrl.includes('vimeo.com'));
-
-  const handleVideoError = (error: any) => {
-    logger.error('Video error:', error);
-    setHasError(true);
-    setIsLoading(false);
-  };
-
-  const handleVideoLoad = () => {
-    setIsLoading(false);
-    setHasError(false);
-  };
-
-  if (hasError) {
-    return (
-      <div className="aspect-video bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl flex items-center justify-center border-2 border-red-200">
-        <div className="text-center p-6">
-          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <p className="text-red-800 font-medium mb-2">Erreur de chargement vidéo</p>
-          <p className="text-red-600 text-sm mb-4">
-            La vidéo ne peut pas être lue. Vérifiez votre connexion ou contactez le support.
-          </p>
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setHasError(false);
-              setIsLoading(true);
-            }}
-            className="border-red-300 text-red-600 hover:bg-red-50"
-          >
-            Réessayer
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden shadow-2xl relative">
-      {isClient && isLoading && (
-        <div className="absolute inset-0 bg-gray-800 flex items-center justify-center z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-            <p className="text-white">Chargement de la vidéo...</p>
-          </div>
-        </div>
-      )}
-      
-      {isClient && (
-        <>
-          {isEmbedVideo ? (
-            <iframe
-              src={embedUrl}
-              title={title}
-              className="w-full h-full"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-              onLoad={handleVideoLoad}
-              onError={handleVideoError}
-            />
-          ) : (
-            <video
-              controls
-              className="w-full h-full"
-              src={embedUrl}
-              onLoadedData={handleVideoLoad}
-              onTimeUpdate={(e) => {
-                const video = e.target as HTMLVideoElement;
-                if (video.duration && onProgress) {
-                  const progress = (video.currentTime / video.duration) * 100;
-                  onProgress(progress);
-                }
-              }}
-              onEnded={() => onComplete?.()}
-              onError={handleVideoError}
-            >
-              <source src={embedUrl} type="video/mp4" />
-              <p className="text-white p-4">
-                Votre navigateur ne supporte pas la lecture vidéo.
-              </p>
-            </video>
-          )}
-        </>
-      )}
-      
-      {!isClient && (
-        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-          <div className="text-center">
-            <Video className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-400">Préparation du lecteur vidéo...</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Composant de contenu de leçon
-function LessonContentDisplay({ 
-  lesson 
-}: { 
-  lesson: LessonWithQuiz;
-}) {
-  const content = lesson.content;
-  
-  if (!content) {
-    return (
-      <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden mt-6">
-        <CardContent className="p-6">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
-            <div className="text-amber-600 mb-2">📝</div>
-            <p className="text-amber-800 font-medium">Contenu en préparation</p>
-            <p className="text-amber-700 text-sm mt-1">
-              Le contenu écrit de cette leçon sera bientôt disponible.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden mt-6">
-      <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b border-emerald-100">
-        <CardTitle className="flex items-center gap-2 text-emerald-800">
-          <Sprout className="h-5 w-5" />
-          Contenu de la leçon
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="prose prose-lg max-w-none prose-emerald">
-          <div 
-            className="whitespace-pre-wrap text-gray-700 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// Composant de progression de leçon
-function LessonProgressComponent({ 
-  lesson, 
-  onComplete 
-}: { 
-  lesson: LessonWithQuiz; 
-  onComplete: () => void;
-}) {
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [isCompleting, setIsCompleting] = useState(false);
-  const [quizAttempted, setQuizAttempted] = useState(false); // ✅ Nouvel état pour savoir si le quiz a été tenté
-  
-  const handleCompleteLesson = async () => {
-    setIsCompleting(true);
-    
-    setTimeout(() => {
-      onComplete();
-      setIsCompleting(false);
-    }, 800);
-  };
-
-  const handleQuizComplete = (score: number) => {
-    const passingScore = lesson.quiz?.passingScore || 70;
-    const passed = score >= passingScore;
-    
-    setQuizAttempted(true); // ✅ Marquer que le quiz a été tenté
-    
-    if (passed) {
-      // ✅ Quiz réussi : marquer comme terminé et compléter la leçon
-      if (lesson.quiz) {
-        lesson.quiz.isCompleted = true;
-      }
-      handleCompleteLesson();
-    } else {
-      // ❌ Quiz échoué : ne pas terminer la leçon, permettre de recommencer
-      if (lesson.quiz) {
-        lesson.quiz.isCompleted = false;
-      }
-      // Le quiz se remettra automatiquement en mode "non commencé" grâce au bouton "Recommencer"
-    }
-  };
-
-  // Si la leçon est déjà terminée
-  if (lesson.isCompleted) {
-    return (
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl overflow-hidden mt-6">
-        <CardContent className="p-6 text-center">
-          <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-emerald-800 mb-2">Leçon terminée !</h3>
-          <p className="text-emerald-600">
-            Vous avez terminé cette leçon avec succès.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Si il y a un quiz et qu'il n'est pas encore affiché
-  if (lesson.quiz && !showQuiz) {
-    return (
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl overflow-hidden mt-6">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                <Award className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900">
-                  {quizAttempted ? 'Quiz à recommencer' : 'Quiz disponible'}
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  {quizAttempted 
-                    ? `Score minimum requis : ${lesson.quiz.passingScore || 70}%`
-                    : 'Terminez le quiz pour valider cette leçon'
-                  }
-                </p>
-              </div>
-            </div>
-            <Button 
-              onClick={() => setShowQuiz(true)}
-              className={quizAttempted ? "bg-orange-500 hover:bg-orange-600" : "bg-blue-500 hover:bg-blue-600"}
-            >
-              {quizAttempted ? 'Recommencer le quiz' : 'Commencer le quiz'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Si le quiz est affiché
-  if (lesson.quiz && showQuiz) {
-    return (
-      <QuizComponent 
-        quiz={lesson.quiz}
-        lessonId={lesson.id}
-        onComplete={handleQuizComplete}
-      />
-    );
-  }
-
-  // Si pas de quiz, juste un bouton terminer
-  return (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl overflow-hidden mt-6">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
-              <Check className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900">Terminer la leçon</h3>
-              <p className="text-gray-600 text-sm">
-                Marquez cette leçon comme terminée pour continuer
-              </p>
-            </div>
-          </div>
-          <Button 
-            onClick={handleCompleteLesson}
-            disabled={isCompleting}
-            className={`transition-all duration-300 ${
-              isCompleting 
-                ? 'bg-emerald-600 scale-105' 
-                : 'bg-emerald-500 hover:bg-emerald-600'
-            }`}
-          >
-            {isCompleting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Validation...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Terminer
-              </>
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
 }
 
 // Composant d'une leçon dans le curriculum
@@ -780,69 +229,14 @@ function ChapterSection({
   );
 }
 
-function LessonResetButton({ 
-  lesson, 
-  onReset 
-}: { 
-  lesson: LessonWithQuiz; 
-  onReset: () => void;
-}) {
-  const [isResetting, setIsResetting] = useState(false);
-  
-  const handleReset = async () => {
-    setIsResetting(true);
-    
-    // Animation de feedback
-    setTimeout(() => {
-      onReset();
-      setIsResetting(false);
-    }, 800);
-  };
-
-  // Ne pas afficher le bouton si la leçon n'est pas terminée
-  if (!lesson.isCompleted) {
-    return null;
+// Fonction utilitaire pour trouver l'ID du chapitre d'une leçon
+function getChapterIdByLesson(courseChapters: ChapterWithLessons[], lessonId: number): number | null {
+  for (const chapter of courseChapters) {
+    if (chapter.lessons.some(l => l.id === lessonId)) {
+      return chapter.id;
+    }
   }
-
-  return (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl overflow-hidden mt-6">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-              <RotateCcw className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900">Recommencer cette leçon</h3>
-              <p className="text-gray-600 text-sm">
-                Réinitialisez votre progression pour refaire le quiz ou revoir le contenu
-              </p>
-            </div>
-          </div>
-          <Button 
-            onClick={handleReset}
-            disabled={isResetting}
-            variant="outline"
-            className={`transition-all duration-300 border-orange-300 text-orange-600 hover:bg-orange-50 ${
-              isResetting ? 'scale-105' : ''
-            }`}
-          >
-            {isResetting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
-                Réinitialisation...
-              </>
-            ) : (
-              <>
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Recommencer
-              </>
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  return null;
 }
 
 // Composant principal
@@ -860,108 +254,118 @@ export function CourseDetailComponent({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [updateTrigger, setUpdateTrigger] = useState(0);
   const [currentStats, setCurrentStats] = useState<CourseStats>(stats);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // 🔧 Fonction pour recalculer les stats (inchangée)
-  const recalculateStats = () => {
-    const allLessons = course.chapters.flatMap(ch => ch.lessons);
-    const completedLessonsCount = allLessons.filter(l => l.isCompleted).length;
-    const totalQuizzesCount = allLessons.filter(l => l.quiz).length;
-    const completedQuizzesCount = allLessons.filter(l => l.quiz?.isCompleted).length;
-    const progressPercentage = allLessons.length > 0 
-      ? Math.round((completedLessonsCount / allLessons.length) * 100) 
-      : 0;
-    
-    const newStats: CourseStats = {
-      ...currentStats,
-      completedLessons: completedLessonsCount,
-      progressPercentage,
-      totalQuizzes: totalQuizzesCount,
-      completedQuizzes: completedQuizzesCount
-    };
-    
-    setCurrentStats(newStats);
-  };
-  
-  // 🔧 Fonction pour sauvegarder la progression (inchangée)
-  const saveProgress = () => {
-    try {
-      const progressData = {
-        completedLessons: course.userProgress?.completedLessons || [],
-        lastUpdated: new Date().toISOString()
-      };
-      
-      localStorage.setItem(`course_${course.id}_progress`, JSON.stringify(progressData));
-    } catch (error) {
-      logger.error('Erreur lors de la sauvegarde:'+ error);
-    }
-  };
-
-  // ✅ NOUVELLE fonction pour réinitialiser une leçon
-  const handleLessonReset = () => {
-    if (activeLesson) {
-      // Marquer la leçon comme non terminée
-      activeLesson.isCompleted = false;
-      
-      // Réinitialiser le quiz s'il existe
-      if (activeLesson.quiz) {
-        activeLesson.quiz.isCompleted = false;
-      }
-      
-      // Mettre à jour userProgress.completedLessons
-      if (course.userProgress) {
-        course.userProgress.completedLessons = course.userProgress.completedLessons.filter(
-          id => id !== activeLesson.id
-        );
-      }
-      
-      // Sauvegarder la progression et recalculer les stats
-      saveProgress();
-      recalculateStats();
-      
-      // Forcer le re-render
-      setActiveLesson({ ...activeLesson });
-      setUpdateTrigger(prev => prev + 1);
-      
-      logger.info(`Leçon ${activeLesson.id} réinitialisée`);
-    }
-  };
-
-  // 🔧 Charger les données sauvegardées au montage (inchangé)
+  // Charger les progrès depuis votre API
   useEffect(() => {
-    const loadSavedProgress = () => {
+    const loadProgress = async () => {
+      if (!hasAccess || !user) {
+        setIsLoading(false);
+        return;
+      }
+      
       try {
-        const savedProgress = localStorage.getItem(`course_${course.id}_progress`);
-        if (savedProgress) {
-          const { completedLessons } = JSON.parse(savedProgress);
+        const progressData = await ProgressService.getCourseProgress(course.id);
+        
+        if (progressData) {
+          // Créer un map des progrès par lesson ID
+          const progressMap = new Map();
+          progressData.lessons.forEach(lessonProgress => {
+            progressMap.set(lessonProgress.lessonId, lessonProgress);
+          });
+          
+          // Mettre à jour les leçons avec les données de progression
+          const completedLessonIds: number[] = [];
           
           course.chapters.forEach(chapter => {
             chapter.lessons.forEach(lesson => {
-              if (completedLessons.includes(lesson.id)) {
+              const progress = progressMap.get(lesson.id);
+              if (progress?.completed) {
                 lesson.isCompleted = true;
+                completedLessonIds.push(lesson.id);
+                
+                // Marquer le quiz comme terminé si applicable
+                if (lesson.quiz && progress.completed) {
+                  lesson.quiz.isCompleted = true;
+                }
               }
             });
           });
           
+          // Mettre à jour userProgress
           if (course.userProgress) {
-            course.userProgress.completedLessons = completedLessons;
+            course.userProgress.completedLessons = completedLessonIds;
+            course.userProgress.totalWatchTime = progressData.progress.totalWatchTime;
           } else {
             course.userProgress = {
-              completedLessons,
-              totalWatchTime: 0,
-              lastAccessedAt: new Date()
+              completedLessons: completedLessonIds,
+              totalWatchTime: progressData.progress.totalWatchTime,
+              lastAccessedAt: new Date(progressData.progress.lastAccessed)
             };
           }
           
-          recalculateStats();
+          // Mettre à jour les stats avec les données de l'API
+          setCurrentStats({
+            ...currentStats,
+            completedLessons: progressData.progress.completedLessons,
+            progressPercentage: progressData.progress.completionPercentage,
+            totalWatchTime: progressData.progress.totalWatchTime
+          });
+          
           setUpdateTrigger(prev => prev + 1);
         }
       } catch (error) {
-        logger.error('Erreur lors du chargement de la progression:'+ error);
+        logger.error('Erreur lors du chargement de la progression:', error);
+        
+        // Fallback vers localStorage en cas d'erreur API
+        try {
+          const savedProgress = localStorage.getItem(`course_${course.id}_progress`);
+          if (savedProgress) {
+            const { completedLessons } = JSON.parse(savedProgress);
+            
+            course.chapters.forEach(chapter => {
+              chapter.lessons.forEach(lesson => {
+                if (completedLessons.includes(lesson.id)) {
+                  lesson.isCompleted = true;
+                }
+              });
+            });
+            
+            if (course.userProgress) {
+              course.userProgress.completedLessons = completedLessons;
+            } else {
+              course.userProgress = {
+                completedLessons,
+                totalWatchTime: 0,
+                lastAccessedAt: new Date()
+              };
+            }
+            
+            // Recalculer les stats localement
+            const allLessons = course.chapters.flatMap(ch => ch.lessons);
+            const completedLessonsCount = allLessons.filter(l => l.isCompleted).length;
+            const progressPercentage = allLessons.length > 0 
+              ? Math.round((completedLessonsCount / allLessons.length) * 100) 
+              : 0;
+            
+            setCurrentStats({
+              ...currentStats,
+              completedLessons: completedLessonsCount,
+              progressPercentage
+            });
+            
+            setUpdateTrigger(prev => prev + 1);
+          }
+        } catch (localError) {
+          logger.error('Erreur lors du chargement depuis localStorage:', localError);
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    loadSavedProgress();
-  }, [course.id]);
+    loadProgress();
+  }, [course.id, hasAccess, user]);
 
   const handleLessonSelect = (lesson: LessonWithQuiz) => {
     if (hasAccess) {
@@ -986,15 +390,39 @@ export function CourseDetailComponent({
         };
       }
       
-      saveProgress();
-      recalculateStats();
+      // Sauvegarder en cache local également
+      try {
+        const progressData = {
+          completedLessons: course.userProgress.completedLessons,
+          lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem(`course_${course.id}_progress`, JSON.stringify(progressData));
+      } catch (error) {
+        logger.error('Erreur lors de la sauvegarde locale:', error);
+      }
+      
+      // Recalculer les stats
+      const allLessons = course.chapters.flatMap(ch => ch.lessons);
+      const completedLessonsCount = allLessons.filter(l => l.isCompleted).length;
+      const totalQuizzesCount = allLessons.filter(l => l.quiz).length;
+      const completedQuizzesCount = allLessons.filter(l => l.quiz?.isCompleted).length;
+      const progressPercentage = allLessons.length > 0 
+        ? Math.round((completedLessonsCount / allLessons.length) * 100) 
+        : 0;
+      
+      setCurrentStats({
+        ...currentStats,
+        completedLessons: completedLessonsCount,
+        progressPercentage,
+        totalQuizzes: totalQuizzesCount,
+        completedQuizzes: completedQuizzesCount
+      });
+      
       setActiveLesson({ ...activeLesson });
       setUpdateTrigger(prev => prev + 1);
       
       if (onLessonComplete) {
         onLessonComplete(activeLesson.id);
-      } else {
-        logger.info(`Leçon ${activeLesson.id} marquée comme terminée`);
       }
       
       // Passer à la leçon suivante automatiquement
@@ -1024,10 +452,21 @@ export function CourseDetailComponent({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-emerald-700 font-medium">Chargement de votre progression...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       <div className="max-w-8xl mx-auto p-3 sm:p-6">
-        {/* Header du cours - inchangé */}
+        {/* Header du cours */}
         <div className="mb-6 sm:mb-8">
           <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden">
             <div className="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 p-4 sm:p-8 text-white">
@@ -1068,7 +507,7 @@ export function CourseDetailComponent({
               </div>
             </div>
             
-            {/* Barre de progression - inchangée */}
+            {/* Barre de progression */}
             {hasAccess && user && (
               <div className="p-4 sm:p-6 bg-gradient-to-r from-emerald-50 to-green-50">
                 <div className="flex items-center justify-between mb-3">
@@ -1094,9 +533,9 @@ export function CourseDetailComponent({
           </Card>
         </div>
 
-        {/* Layout responsive - reste identique mais avec le nouveau bouton */}
+        {/* Layout responsive avec curriculum à gauche */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-          {/* Menu mobile - inchangé */}
+          {/* Menu mobile */}
           <div className="xl:hidden mb-4">
             <Button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -1107,7 +546,7 @@ export function CourseDetailComponent({
             </Button>
           </div>
 
-          {/* Curriculum - inchangé */}
+          {/* Curriculum à gauche */}
           <div className={`xl:col-span-1 space-y-4 sm:space-y-6 ${
             isMobileMenuOpen ? 'block' : 'hidden xl:block'
           }`}>
@@ -1139,7 +578,7 @@ export function CourseDetailComponent({
             </Card>
           </div>
 
-          {/* Contenu principal avec le nouveau bouton de réinitialisation */}
+          {/* Contenu principal à droite */}
           <div className="xl:col-span-3 space-y-4 sm:space-y-6">
             {hasAccess && activeLesson ? (
               <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
@@ -1173,41 +612,15 @@ export function CourseDetailComponent({
                   
                   <LessonContentDisplay lesson={activeLesson} />
                   
-                  {/* ✅ NOUVEAU : Bouton de réinitialisation (s'affiche seulement si la leçon est terminée) */}
-                  <LessonResetButton 
-                    lesson={activeLesson}
-                    onReset={handleLessonReset}
-                  />
-                  
-                  {/* Composant de progression/quiz - inchangé */}
                   <LessonProgressComponent 
                     lesson={activeLesson}
+                    courseId={course.id}
+                    chapterId={getChapterIdByLesson(course.chapters, activeLesson.id) || 0}
                     onComplete={handleLessonCompleteClick}
                   />
                 </CardContent>
               </Card>
-            ) : !hasAccess ? (
-              // Écran d'accès premium - inchangé
-              <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
-                <CardContent className="p-8 sm:p-12 text-center">
-                  <Lock className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500 mx-auto mb-6" />
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-                    Accès premium requis
-                  </h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    Débloquez l'accès complet à ce cours écologique pour approfondir 
-                    vos connaissances et contribuer à un avenir plus vert.
-                  </p>
-                  <Button 
-                    className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-6 sm:px-8 py-3 rounded-xl font-semibold shadow-lg"
-                    onClick={() => window.location.href = `/dashboard/courses/${course.id}/purchase`}
-                  >
-                    Débloquer le cours - {course.price}€
-                  </Button>
-                </CardContent>
-              </Card>
             ) : (
-              // Écran de sélection - inchangé
               <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden">
                 <CardContent className="p-8 sm:p-12 text-center">
                   <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500 mx-auto mb-6" />
@@ -1221,7 +634,7 @@ export function CourseDetailComponent({
               </Card>
             )}
 
-            {/* Statistiques détaillées - inchangées */}
+            {/* Statistiques détaillées */}
             {hasAccess && user && (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-green-500 text-white rounded-2xl">

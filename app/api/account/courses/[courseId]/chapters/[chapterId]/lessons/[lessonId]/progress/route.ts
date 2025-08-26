@@ -1,7 +1,7 @@
 // app/api/account/courses/[courseId]/chapters/[chapterId]/lessons/[lessonId]/progress/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
-import { lessons, studentProgress, users, coursePurchases, courseChapters } from '@/lib/db/schema';
+import { lessons, studentProgress, courses, coursePurchases, courseChapters } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';
@@ -53,6 +53,25 @@ export const PATCH = withUserAuth(async (request: NextRequest, user, { params })
       );
     }
 
+    const courseInfo = await db
+      .select({ 
+        id: courses.id, 
+        price: courses.price,
+        isPublished: courses.published 
+      })
+      .from(courses)
+      .where(eq(courses.id, courseId))
+      .limit(1);
+
+    if (courseInfo.length === 0) {
+      return NextResponse.json(
+        { error: 'Cours non trouvé' },
+        { status: 404 }
+      );
+    }
+
+    const course = courseInfo[0];
+
     // Vérifier que la leçon existe et appartient bien au chapitre et au cours spécifiés
     const lesson = await db
       .select({
@@ -78,20 +97,22 @@ export const PATCH = withUserAuth(async (request: NextRequest, user, { params })
     }
 
     // Vérifier que l'utilisateur a accès au cours
-    const purchase = await db
-      .select({ id: coursePurchases.id })
-      .from(coursePurchases)
-      .where(and(
-        eq(coursePurchases.userId, user.id),
-        eq(coursePurchases.courseId, courseId)
-      ))
-      .limit(1);
+    if(course.price > 0) {
+      const purchase = await db
+        .select({ id: coursePurchases.id })
+        .from(coursePurchases)
+        .where(and(
+          eq(coursePurchases.userId, user.id),
+          eq(coursePurchases.courseId, courseId)
+        ))
+        .limit(1);
 
-    if (purchase.length === 0) {
-      return NextResponse.json(
-        { error: 'Vous n\'avez pas accès à ce cours' },
-        { status: 403 }
-      );
+      if (purchase.length === 0) {
+        return NextResponse.json(
+          { error: 'Vous n\'avez pas accès à ce cours' },
+          { status: 403 }
+        );
+      }
     }
 
     // Vérifier si un progrès existe déjà
