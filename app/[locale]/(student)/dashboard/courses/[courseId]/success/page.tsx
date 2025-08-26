@@ -22,11 +22,11 @@ async function SuccessContent({ courseId, sessionId }: { courseId: number; sessi
     // Récupérer les détails de la session Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     
-    logger.info('💳 Session Stripe récupérée:'+ {
+    logger.info('💳 Session Stripe récupérée:'+ JSON.stringify({
       id: session.id,
       paymentStatus: session.payment_status,
       customerEmail: session.customer_details?.email
-    });
+    }));
 
     if (session.payment_status !== 'paid') {
       return <AutoLoginComponent 
@@ -72,11 +72,13 @@ async function SuccessContent({ courseId, sessionId }: { courseId: number; sessi
         message="Traitement de votre achat en cours..." 
         courseId={courseId}
         sessionId={sessionId}
+        userEmail={session.customer_details?.email!}
       />;
     }
 
     const user = purchase[0].user;
     if (!user) {
+      logger.error('Utilisateur introuvable:' + session.customer_details?.email)
       throw new Error('Utilisateur introuvable');
     }
 

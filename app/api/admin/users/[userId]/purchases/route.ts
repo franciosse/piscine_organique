@@ -119,6 +119,9 @@ export const POST = withAdminAuth(async (request, adminUser, { params }) => {
       .where(eq(users.id, userId))
       .limit(1);
 
+    const userEmail = user[0]?.email;
+
+
     if (user.length === 0) {
       return NextResponse.json(
         { error: 'Utilisateur non trouvé' },
@@ -172,6 +175,7 @@ export const POST = withAdminAuth(async (request, adminUser, { params }) => {
       .values({
         userId: userId,
         courseId: courseId,
+        customerEmail:userEmail,
         amount: course[0].price || 0,
         status: 'completed', // Admin ajoute directement
         paymentMethod: 'admin',

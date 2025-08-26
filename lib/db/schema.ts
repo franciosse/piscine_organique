@@ -107,6 +107,7 @@ export const lessonAttachments = pgTable('lesson_attachments', {
 export const coursePurchases = pgTable('course_purchases', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  customerEmail : varchar('email', { length: 255 }).notNull(),
   courseId: integer('course_id').notNull().references(() => courses.id, { onDelete: 'cascade' }),
   amount: integer('amount').notNull().default(0), // Prix en centimes
   status: varchar('status', { length: 50 }).notNull().default('pending'), // 'pending', 'completed', 'failed'

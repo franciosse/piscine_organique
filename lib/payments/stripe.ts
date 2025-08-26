@@ -1,6 +1,6 @@
 // /lib/payments/stripe.ts - 
 import { db } from '@/lib/db/drizzle';
-import { coursePurchases } from '@/lib/db/schema';
+import { coursePurchases, users } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import Stripe from 'stripe';
 import logger from '@/lib/logger/logger';
@@ -21,14 +21,47 @@ export async function handlePaymentSuccess(session: any) {
     const paymentIntentId = session.payment_intent;
     const customerEmail = session.customer_details?.email;
     const amountPaid = session.amount_total;
+    let userId = session.metadata?.userId;
+    const courseId = session.metadata?.courseId;
     
-    logger.info('📊 Données de session:' +  {
+    logger.info('📊 Données de session:', JSON.stringify({
       sessionId,
       paymentIntentId,
       customerEmail,
       amountPaid,
+      userId,
+      courseId,
       metadata: session.metadata
-    });
+    }));
+
+    // 🆕 NOUVEAU : Si pas d'userId mais on a un email, chercher l'utilisateur
+    if ((!userId || userId === '') && customerEmail) {
+      logger.info('🔍 Pas d\'userId, recherche par email...');
+      
+      const existingUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, customerEmail))
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        userId = existingUser[0].id.toString();
+        logger.info('✅ Utilisateur existant trouvé:' + userId);
+      } else {
+        // logger.info('👤 Utilisateur non trouvé, création d\'un nouveau compte...');
+        // // Créer un nouvel utilisateur
+        // const newUser = await db.insert(users).values({
+        //   email: customerEmail,
+        //   name: session.customer_details?.name || customerEmail.split('@')[0],
+        //   isVerified : true,
+        //   passwordHash: '', 
+        // }).returning();
+        
+        // userId = newUser[0].id.toString();
+        // logger.info('✅ Nouvel utilisateur créé:', userId);
+        logger.error('👤 Utilisateur non trouvé : ' + customerEmail)
+      }
+    }
 
     // Rechercher l'achat en pending par session ID
     logger.info('🔍 Recherche de l\'achat pending...');
@@ -53,7 +86,7 @@ export async function handlePaymentSuccess(session: any) {
     logger.info('🔍 Achats trouvés:'+ existingPurchases.length);
 
     if (existingPurchases.length === 0) {
-      // Essayer de trouver par payment_intent_id si pas trouvé par session
+      // Essayer de trouver par payment_intent_id
       if (paymentIntentId) {
         logger.info('🔍 Recherche par Payment Intent ID...');
         
@@ -63,8 +96,8 @@ export async function handlePaymentSuccess(session: any) {
             userId: coursePurchases.userId,
             courseId: coursePurchases.courseId,
             status: coursePurchases.status,
-            stripeSessionId : coursePurchases.stripeSessionId,
-            stripePaymentIntentId : coursePurchases.stripePaymentIntentId
+            stripeSessionId: coursePurchases.stripeSessionId,
+            stripePaymentIntentId: coursePurchases.stripePaymentIntentId
           })
           .from(coursePurchases)
           .where(
@@ -83,38 +116,36 @@ export async function handlePaymentSuccess(session: any) {
     if (existingPurchases.length === 0) {
       logger.error('❌ Aucun achat pending trouvé pour:'+ { sessionId, paymentIntentId });
       
-      // Option: Créer l'achat si metadata disponibles
-      if (session.metadata?.courseId && session.metadata?.userId) {
-        logger.info('🆕 Création d\'un nouvel achat depuis les metadata...');
-        await createPurchaseFromMetadata(session);
+      // Créer l'achat si on a les infos nécessaires
+      if (courseId && userId) {
+        logger.info('🆕 Création d\'un nouvel achat...');
+        await createPurchaseFromSession(session, userId, courseId);
         return;
       }
       
-      throw new Error('Aucun achat pending trouvé et metadata insuffisantes');
+      throw new Error('Aucun achat pending trouvé et informations insuffisantes');
     }
 
     // Mettre à jour tous les achats trouvés
     for (const purchase of existingPurchases) {
-      logger.info(`✅ Mise à jour de l'achat ${purchase.id}:`+ {
+      logger.info(`✅ Mise à jour de l'achat ${purchase.id}:`, {
         userId: purchase.userId,
         courseId: purchase.courseId,
         oldStatus: purchase.status
       });
 
+      // 🆕 NOUVEAU : Mettre à jour avec l'email client aussi
       await db
         .update(coursePurchases)
         .set({
           status: 'completed',
           stripePaymentIntentId: paymentIntentId,
-          // Optionnel: mettre à jour le montant si différent
-          ...(amountPaid && { amount: Math.round(amountPaid / 100) }) // Convertir centimes en euros
+          customerEmail: customerEmail, // 👈 Ajouter l'email
+          ...(amountPaid && { amount: Math.round(amountPaid / 100) })
         })
         .where(eq(coursePurchases.id, purchase.id));
 
       logger.info(`✅ Achat ${purchase.id} mis à jour vers 'completed'`);
-
-      // Optionnel: Envoyer email de confirmation
-      // await sendPurchaseConfirmationEmail(purchase.userId, purchase.courseId);
     }
 
     logger.info('🎉 SUCCÈS: Tous les achats ont été mis à jour');
@@ -130,17 +161,18 @@ export async function handlePaymentSuccess(session: any) {
 }
 
 // Créer un achat depuis les metadata si pas trouvé en base
-async function createPurchaseFromMetadata(session: any) {
+async function createPurchaseFromSession(session: any, userId: string, courseId: string) {
   try {
-    const { courseId, userId } = session.metadata;
     const sessionId = session.id;
     const paymentIntentId = session.payment_intent;
-    const amountPaid = Math.round(session.amount_total / 100); // Convertir en euros
+    const amountPaid = Math.round(session.amount_total / 100);
+    const customerEmail = session.customer_details?.email;
 
-    logger.info('🆕 Création achat depuis metadata:'+ {
+    logger.info('🆕 Création achat:', {
       courseId: parseInt(courseId),
       userId: parseInt(userId),
-      amount: amountPaid
+      amount: amountPaid,
+      customerEmail
     });
 
     await db
@@ -150,16 +182,17 @@ async function createPurchaseFromMetadata(session: any) {
         courseId: parseInt(courseId),
         stripeSessionId: sessionId,
         stripePaymentIntentId: paymentIntentId,
+        customerEmail: customerEmail, 
         amount: amountPaid,
         currency: session.currency?.toUpperCase() || 'EUR',
-        status: 'completed', // Directement completed puisque le paiement est confirmé
+        status: 'completed',
         purchasedAt: new Date(),
       });
 
-    logger.info('✅ Achat créé avec succès depuis les metadata');
+    logger.info('✅ Achat créé avec succès');
 
   } catch (error) {
-    logger.error('💥 Erreur création achat depuis metadata:'+ error);
+    logger.error('💥 Erreur création achat:', error);
     throw error;
   }
 }

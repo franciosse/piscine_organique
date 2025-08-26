@@ -17,6 +17,7 @@ export interface PurchaseResult {
   success: boolean;
   isNewPurchase: boolean;
   purchaseId: number;
+  userEmail: string;
 }
 
 /**
@@ -77,6 +78,7 @@ export async function createOrUpdatePurchase(data: CreatePurchaseData): Promise<
         success: true,
         isNewPurchase: false,
         purchaseId: existingBySession.id,
+        userEmail:existingBySession.customerEmail,
       };
     }
 
@@ -100,8 +102,14 @@ export async function createOrUpdatePurchase(data: CreatePurchaseData): Promise<
         success: true,
         isNewPurchase: false,
         purchaseId: existingByUser.id,
+        userEmail: existingByUser.customerEmail,
       };
     }
+
+    const getCustomerEmail = (purchase: any) => {
+      return purchase?.customerEmail;
+    };
+    const userEmail = getCustomerEmail(existingBySession) || getCustomerEmail(existingByUser);
 
     // Créer un nouvel achat
     logger.info('🆕 Création d\'un nouvel achat');
@@ -111,6 +119,7 @@ export async function createOrUpdatePurchase(data: CreatePurchaseData): Promise<
       .values({
         userId,
         courseId,
+        customerEmail: userEmail,
         stripeSessionId,
         stripePaymentIntentId,
         amount,
@@ -124,6 +133,7 @@ export async function createOrUpdatePurchase(data: CreatePurchaseData): Promise<
       success: true,
       isNewPurchase: true,
       purchaseId: newPurchase[0].id,
+      userEmail : userEmail,
     };
 
   } catch (error) {

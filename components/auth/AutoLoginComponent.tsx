@@ -80,6 +80,7 @@ export function AutoLoginComponent({
         },
         body: JSON.stringify({
           userId: user.id,
+          userEmail : userEmail,
           sessionId: sessionId,
         }),
       });

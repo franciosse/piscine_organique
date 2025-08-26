@@ -10,6 +10,7 @@ import logger from '@/lib/logger/logger';
 
 const autoLoginSchema = z.object({
   userId: z.number(),
+  userEmail : z.string(),
   sessionId: z.string().optional(), // Session Stripe pour validation
 });
 
@@ -21,12 +22,21 @@ export async function POST(request: NextRequest) {
     logger.info('🔐 Tentative de connexion automatique pour utilisateur:' + data.userId);
 
     // Vérifier que l'utilisateur existe
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, data.userId))
-      .limit(1);
-
+    let user;
+    if (data.userId) {
+      [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, data.userId))
+        .limit(1);
+    } else if (data.userEmail) {
+      [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, data.userEmail))
+        .limit(1);
+    }
+    
     if (!user) {
       logger.error('❌ Utilisateur introuvable:' + data.userId);
       return NextResponse.json(

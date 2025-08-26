@@ -30,6 +30,13 @@ export const POST = withUserAuth(async (request, user, { params }) => {
     }
 
     const userId = session.user.id;
+    const userResult = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    const userEmail = userResult[0]?.email;
 
     if (isNaN(courseId)) {
       return NextResponse.json(
@@ -96,6 +103,7 @@ export const POST = withUserAuth(async (request, user, { params }) => {
       .insert(coursePurchases)
       .values({
         userId,
+        customerEmail:userEmail,
         courseId,
         amount: 0,
         currency: 'eur',
