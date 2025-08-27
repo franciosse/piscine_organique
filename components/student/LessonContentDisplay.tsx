@@ -4,8 +4,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sprout } from 'lucide-react';
-import { sanitizeHTML } from '@/lib/security/sanitizer';
-
+import { useSanitizedHTML } from '@/lib/security/sanitizer';
 
 interface LessonWithQuiz {
   id: number;
@@ -30,7 +29,8 @@ interface LessonContentDisplayProps {
 
 export function LessonContentDisplay({ lesson }: LessonContentDisplayProps) {
   const content = lesson.content;
-  
+  const sanitizedPreview = useSanitizedHTML(content!, 'LESSON_CONTENT');
+
   if (!content) {
     return (
       <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden mt-6">
@@ -59,7 +59,7 @@ export function LessonContentDisplay({ lesson }: LessonContentDisplayProps) {
         <div className="prose prose-lg max-w-none prose-emerald">
           <div 
             className="whitespace-pre-wrap text-gray-700 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: sanitizeHTML(content, 'LESSON_CONTENT') }}
+            dangerouslySetInnerHTML={{ __html: sanitizedPreview }}
           />
         </div>
       </CardContent>

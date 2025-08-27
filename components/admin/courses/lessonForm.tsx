@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Lesson, LessonAttachment, Quiz, QuizQuestion, QuizAnswer } from '@/lib/db/schema';
 import ImageSelector from '@/components/admin/imageSelector';
 import logger from '@/lib/logger/logger';
-import { sanitizeHTML } from '@/lib/security/sanitizer';
+import { useSanitizedHTML } from '@/lib/security/sanitizer';
 
 interface LessonFormProps {
   courseId: number;
@@ -289,7 +289,8 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
       )
     }));
   };
-
+  const sanitizedPreview = useSanitizedHTML(formData.content, 'LESSON_CONTENT');
+  
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -512,7 +513,7 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Aperçu du contenu</h3>
                   <div
                     className="prose max-w-none p-4 border border-gray-200 rounded-lg bg-gray-50"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHTML(formData.content, 'LESSON_CONTENT') }}
+                    dangerouslySetInnerHTML={{ __html: sanitizedPreview }}
                   />
                 </div>
               )}

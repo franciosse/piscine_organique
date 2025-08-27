@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import logger from '@/lib/logger/logger';
-import { sanitizeHTML } from '@/lib/security/sanitizer';
+import { useSanitizedHTML } from '@/lib/security/sanitizer';
 
 
 interface LessonPlayerComponentProps {
@@ -78,6 +78,8 @@ export function LessonPlayerComponent({ lesson }: LessonPlayerComponentProps) {
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(1)} MB`;
   };
+
+    const sanitizedPreview = useSanitizedHTML(lesson.content!, 'LESSON_CONTENT');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -194,7 +196,7 @@ export function LessonPlayerComponent({ lesson }: LessonPlayerComponentProps) {
                       {lesson.content ? (
                         <div 
                           className="prose max-w-none"
-                          dangerouslySetInnerHTML={{ __html: sanitizeHTML(lesson.content, 'LESSON_CONTENT') }}
+                          dangerouslySetInnerHTML={{ __html: sanitizedPreview }}
                         />
                       ) : (
                         <p className="text-gray-500 italic">

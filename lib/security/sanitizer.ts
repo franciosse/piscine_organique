@@ -1,9 +1,9 @@
 // lib/security/sanitizer.ts
+import { useMemo, createElement } from 'react';
 import DOMPurify from 'dompurify';
 
-// Configurations prédéfinies pour différents contextes
+// ==================== CONFIGURATIONS ====================
 export const SANITIZE_CONFIGS = {
-  // Configuration pour le contenu de cours/leçons
   LESSON_CONTENT: {
     ALLOWED_TAGS: [
       'p', 'br', 'strong', 'em', 'u', 'i', 'b',
@@ -20,14 +20,8 @@ export const SANITIZE_CONFIGS = {
     ],
     FORBID_SCRIPTS: true,
     FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'iframe', 'style'],
-    ALLOW_DATA_ATTR: false,
-    FORCE_BODY: false,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
-    SANITIZE_DOM: true
+    ALLOW_DATA_ATTR: false
   },
-
-  // Configuration stricte pour les commentaires
   COMMENT: {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'i', 'b', 'a'],
     ALLOWED_ATTR: ['href', 'target', 'rel'],
@@ -35,8 +29,6 @@ export const SANITIZE_CONFIGS = {
     FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'iframe', 'img', 'style'],
     ALLOW_DATA_ATTR: false
   },
-
-  // Configuration pour les titres/descriptions courtes
   BASIC_TEXT: {
     ALLOWED_TAGS: ['strong', 'em', 'u', 'i', 'b'],
     ALLOWED_ATTR: [],
@@ -46,16 +38,41 @@ export const SANITIZE_CONFIGS = {
   }
 };
 
-// Type pour les clés de configuration
 export type SanitizeConfigType = keyof typeof SANITIZE_CONFIGS;
 
-// Fonction utilitaire principale
+// ==================== FONCTIONS UTILITAIRES ====================
 export function sanitizeHTML(html: string, configType: SanitizeConfigType = 'LESSON_CONTENT'): string {
   if (typeof window === 'undefined') {
-    // Fallback pour le SSR - vous pouvez utiliser jsdom si nécessaire
     return html;
   }
-
   const config = SANITIZE_CONFIGS[configType];
   return DOMPurify.sanitize(html, config);
+}
+
+// ==================== HOOK REACT ====================
+export function useSanitizedHTML(html: string, configType: SanitizeConfigType = 'LESSON_CONTENT'): string {
+  return useMemo(() => {
+    return sanitizeHTML(html, configType);
+  }, [html, configType]);
+}
+
+// ==================== COMPOSANT REACT ====================
+interface SafeHTMLProps {
+  html: string;
+  className?: string;
+  configType?: SanitizeConfigType;
+}
+
+export function SafeHTML({
+  html,
+  className = '',
+  configType = 'LESSON_CONTENT'
+}: SafeHTMLProps) {
+  const sanitizedHTML = useSanitizedHTML(html, configType);
+
+  // ✅ Utilisation de createElement - pas d'import React nécessaire
+  return createElement('div', {
+    className: className,
+    dangerouslySetInnerHTML: { __html: sanitizedHTML }
+  });
 }
