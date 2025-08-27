@@ -1,0 +1,89 @@
+# .semgrep.yml - Configuration Semgrep pour Next.js + DOMPurify
+
+rules:
+  # ========== SÉCURITÉ XSS & HTML ==========
+  
+  # Règle principale : détecter dangerouslySetInnerHTML non sécurisé
+  - id: react-dangerously-set-inner-html-unsafe
+    patterns:
+      - pattern: dangerouslySetInnerHTML={{ __html: $VAR }}
+      # Exclure les cas sécurisés
+      - pattern-not: dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(...) }}
+      - pattern-not: dangerouslySetInnerHTML={{ __html: "..." }}
+    message: "Utilisation non sécurisée de dangerouslySetInnerHTML. Utilisez DOMPurify.sanitize() pour prévenir XSS."
+    severity: ERROR
+    languages: [typescript, javascript]
+    
+  # ========== SÉCURITÉ PATH TRAVERSAL ==========
+  
+  - id: path-traversal-prevention
+    patterns:
+      - pattern: path.join(..., $VAR)
+      - pattern: path.resolve(..., $VAR)
+    message: "Possible path traversal. Validez l'input avant d'utiliser path.join/resolve."
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  # ========== SÉCURITÉ REGEX (ReDoS) ==========
+  
+  - id: regex-denial-of-service
+    patterns:
+      - pattern: new RegExp($VAR)
+      - pattern: RegExp($VAR)
+    message: "Regex dynamique détectée. Risque ReDoS. Utilisez des regex statiques."
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  # ========== SÉCURITÉ REDIRECTIONS ==========
+  
+  - id: unsafe-redirects
+    patterns:
+      - pattern: window.location.href = $URL
+      - pattern: router.push($URL)
+      - pattern: redirect($URL)
+    message: "Redirection non validée détectée. Validez l'URL de destination."
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  # ========== SECRETS & CREDENTIALS ==========
+  
+  - id: hardcoded-secrets
+    patterns:
+      - pattern: |
+          const $VAR = "sk_live_..."
+      - pattern: |
+          const $VAR = "sk_test_..."
+      - pattern: |
+          DATABASE_URL = "postgresql://..."
+    message: "Secret codé en dur détecté. Utilisez des variables d'environnement."
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  # ========== EXCLUSIONS ==========
+  
+  # Ignorer les variables avec des noms indiquant qu'elles sont sanitisées
+  - id: allow-sanitized-content
+    patterns:
+      - pattern: dangerouslySetInnerHTML={{ __html: $VAR }}
+      - pattern-where-python: |
+          "sanitized" in vars["$VAR"].lower() or "clean" in vars["$VAR"].lower()
+    message: "Variable sanitisée détectée - autorisée"
+    severity: INFO
+    languages: [typescript, javascript]
+
+# Configuration des chemins
+paths:
+  include:
+    - "app/**"
+    - "components/**"
+    - "lib/**"
+    - "middleware.ts"
+  exclude:
+    - "node_modules/**"
+    - ".next/**"
+    - "dist/**"
+    - "build/**"
+    - "**/*.test.ts"
+    - "**/*.test.tsx"
+    - "**/*.spec.ts"
+    - "**/*.spec.tsx"
