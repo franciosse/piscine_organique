@@ -1,0 +1,5 @@
+{
+  "semgrep.enable": true,
+  "semgrep.configPath": ".semgrep.yml",
+  "semgrep.runOnSave": true
+}

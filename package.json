@@ -8,7 +8,11 @@
     "db:seed": "npx tsx lib/db/seed.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "security:scan": "semgrep --config=.semgrep.yml .",
+    "security:scan:blocking": "semgrep --config=.semgrep.yml --error .",
+    "security:scan:full": "semgrep --config=p/security-audit --config=p/typescript --config=p/react --config=.semgrep.yml --error .",
+    "pre-commit": "npm run lint && npm run security:scan:blocking"
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",
@@ -24,19 +28,20 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dompurify": "^3.2.6",
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.43.1",
     "jose": "^6.0.11",
     "lucide-react": "^0.511.0",
-    "next": "15.4.0-canary.47",
+    "next": "^15.5.1",
     "next-intl": "^4.3.4",
     "nodemailer": "^7.0.5",
     "postcss": "^8.5.3",
     "postgres": "^3.4.5",
     "radix-ui": "^1.4.2",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "server-only": "^0.0.1",
     "stripe": "^18.1.0",
     "swr": "^2.3.3",
@@ -47,6 +52,7 @@
     "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.2.0",
     "@types/nodemailer": "^6.4.17"
   }
 }

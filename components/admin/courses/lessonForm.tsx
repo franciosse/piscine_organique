@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Lesson, LessonAttachment, Quiz, QuizQuestion, QuizAnswer } from '@/lib/db/schema';
 import ImageSelector from '@/components/admin/imageSelector';
 import logger from '@/lib/logger/logger';
-
+import { sanitizeHTML } from '@/lib/security/sanitizer';
 
 interface LessonFormProps {
   courseId: number;
@@ -510,9 +510,9 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
               {formData.content && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Aperçu du contenu</h3>
-                  <div 
+                  <div
                     className="prose max-w-none p-4 border border-gray-200 rounded-lg bg-gray-50"
-                    dangerouslySetInnerHTML={{ __html: formData.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHTML(formData.content, 'LESSON_CONTENT') }}
                   />
                 </div>
               )}

@@ -16,6 +16,23 @@ const roleProtectedRoutes: Record<string, string[]> = {
   '/admin': ['admin'],
 };
 
+const SUPPORTED_LOCALES = ['fr', 'en', 'eu', 'es'] as const;
+
+function matchesPathWithLocale(pathname: string, path: string): boolean {
+  if (pathname === path) return true;
+  return SUPPORTED_LOCALES.some(locale => 
+    pathname === `/${locale}${path}` || 
+    pathname.startsWith(`/${locale}${path}/`)
+  );
+}
+
+function matchesRouteWithLocale(pathname: string, route: string): boolean {
+  if (pathname.startsWith(route)) return true;
+  return SUPPORTED_LOCALES.some(locale => 
+    pathname.startsWith(`/${locale}${route}`)
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -46,7 +63,8 @@ export async function middleware(request: NextRequest) {
   // ⚡ Routes publiques
   const publicPaths = ['/sign-in', '/sign-up', '/register', '/verify-email', '/courses', '/unauthorized'];
   const isPublicPath = publicPaths.some(path =>
-    pathname === path || pathname.match(new RegExp(`^/(fr|en|eu|es)${path}`))
+    //pathname === path || pathname.match(new RegExp(`^/(fr|en|eu|es)${path}`))
+    matchesPathWithLocale(pathname, path)
   );
 
   if (isPublicPath) {
@@ -56,7 +74,8 @@ export async function middleware(request: NextRequest) {
   // 🔒 Vérification de session
   const sessionCookie = request.cookies.get('session');
   const isProtectedRoute = protectedRoutes.some(route =>
-    pathname.startsWith(route) || pathname.match(new RegExp(`^/(fr|en|eu|es)${route}`))
+    //pathname.startsWith(route) || pathname.match(new RegExp(`^/(fr|en|eu|es)${route}`))
+    matchesRouteWithLocale(pathname, route)
   );
 
   // 🚫 Pas de session sur route protégée

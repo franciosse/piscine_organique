@@ -43,15 +43,13 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
+          cache: 'npm'
       - name: Install deps
-        run: npm ci
-
+        run: npm ci --legacy-peer-deps
       - name: Run ESLint
         run: npx eslint . --ext .ts,.tsx
 
@@ -62,8 +60,23 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Semgrep Scan
+        
+      - name: Semgrep - Custom Rules
         uses: returntocorp/semgrep-action@v1
         with:
-          config: "p/default"
+          config: .semgrep.yml  # Vos règles personnalisées
+        continue-on-error: true  # Pour ne pas bloquer le workflow sur warnings
+          
+      - name: Semgrep - Official Rulesets
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/typescript
+            p/react
+            p/nextjs
+            p/sql-injection
+            p/secrets
+          generateSarif: "1"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}  

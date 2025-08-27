@@ -4,6 +4,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sprout } from 'lucide-react';
+import { sanitizeHTML } from '@/lib/security/sanitizer';
+
 
 interface LessonWithQuiz {
   id: number;
@@ -57,7 +59,7 @@ export function LessonContentDisplay({ lesson }: LessonContentDisplayProps) {
         <div className="prose prose-lg max-w-none prose-emerald">
           <div 
             className="whitespace-pre-wrap text-gray-700 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHTML(content, 'LESSON_CONTENT') }}
           />
         </div>
       </CardContent>

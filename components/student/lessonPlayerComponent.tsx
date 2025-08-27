@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import logger from '@/lib/logger/logger';
+import { sanitizeHTML } from '@/lib/security/sanitizer';
 
 
 interface LessonPlayerComponentProps {
@@ -195,7 +196,7 @@ export function LessonPlayerComponent({ lesson, user }: LessonPlayerComponentPro
                       {lesson.content ? (
                         <div 
                           className="prose max-w-none"
-                          dangerouslySetInnerHTML={{ __html: lesson.content }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHTML(lesson.content, 'LESSON_CONTENT') }}
                         />
                       ) : (
                         <p className="text-gray-500 italic">

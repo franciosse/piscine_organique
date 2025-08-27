@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CircleIcon, Loader2, Eye, EyeOff, Shield, AlertTriangle } from 'lucide-react';
 import logger from '@/lib/logger/logger';
+import { isValidRedirectUrl } from '@/lib/security/redirect';
 
 // Hook pour détecter comportement humain
 function useHumanBehavior(mode : string) {
@@ -212,10 +213,13 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           
           // ✅ Redirection directe avec un petit délai pour laisser le serveur traiter
           setTimeout(() => {
-            if (typeof window !== 'undefined') {
-              window.location.href = redirectUrl;
+            if (isValidRedirectUrl(redirectUrl)) {
+              router.push(redirectUrl);
+            } else {
+              console.warn('URL de redirection non autorisée:', redirectUrl);
+              router.push('/dashboard');
             }
-          }, 100); // 100ms pour laisser le temps au serveur
+          }, 100);
         }
       }
     } catch (e) {
