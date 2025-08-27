@@ -1,7 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams } from 'next/navigation';
-import ChapterForm from '@/components/admin/courses/chapterForm';
 import CourseEditor from '@/components/admin/courses/courseEditor';
 
 export default function CoursePage() {

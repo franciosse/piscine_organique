@@ -1,15 +1,12 @@
 // app/admin/page.tsx
 'use client';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Course, CoursePurchase, User } from '@/lib/db/schema';
 import useSWR from 'swr';
-import { Suspense } from 'react';
 import Link from 'next/link';
 import { 
   Users, 
@@ -21,35 +18,6 @@ import {
   ArrowUpRight,
   Activity
 } from 'lucide-react';
-
-interface AdminDashboardData {
-  userStats: {
-    total: number;
-    byRole: { [key: string]: number };
-    verified: number;
-    unverified: number;
-    recentlyCreated: number;
-    deletedCount: number;
-  };
-  courseStats: {
-    total: number;
-    published: number;
-    draft: number;
-    free: number;
-    paid: number;
-    totalPurchases: number;
-    totalRevenue: number;
-    averagePrice: number;
-    recentlyCreated: number;
-    completionRate: number;
-    popularCourses: Array<{
-      id: number;
-      title: string;
-      purchases: number;
-      revenue: number;
-    }>;
-  };
-}
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -158,7 +126,7 @@ export default function AdminDashboardPage() {
             {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(255 255 255 / 0.1)"%3e%3cpath d="m0 2 30 0 0 30-30 0z"/%3e%3c/svg%3e')] opacity-20"></div> */}
             <CardHeader className="relative pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold">Chiffre d'affaires</CardTitle>
+                <CardTitle className="text-lg font-semibold">Chiffre d&apos;affaires</CardTitle>
                 <Globe className="w-6 h-6 opacity-80" />
               </div>
             </CardHeader>

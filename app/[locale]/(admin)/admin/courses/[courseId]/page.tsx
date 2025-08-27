@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams } from 'next/navigation';
 import CourseEditor from '@/components/admin/courses/courseEditor';
 

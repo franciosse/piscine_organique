@@ -110,7 +110,7 @@ export default function NewUserPage() {
         }
       }
     } catch (err) {
-      setError('Erreur de connexion au serveur');
+      setError('Erreur de connexion au serveur' + err);
     } finally {
       setLoading(false);
     }
@@ -303,11 +303,11 @@ export default function NewUserPage() {
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <label htmlFor="isVerified" className="ml-2 text-sm text-gray-700">
-                Marquer l'email comme vérifié
+                Marquer l&apos;email comme vérifié
               </label>
             </div>
             <p className="text-xs text-gray-500 mt-1 ml-6">
-              Si coché, l'utilisateur n'aura pas besoin de vérifier son email
+              Si coché, l&apos;utilisateur n&apos;aura pas besoin de vérifier son email
             </p>
           </div>
 
@@ -353,7 +353,7 @@ export default function NewUserPage() {
         <h3 className="text-sm font-medium text-yellow-900 mb-2">💡 Informations importantes</h3>
         <ul className="text-sm text-yellow-800 space-y-1">
           <li>• L'utilisateur recevra un email de bienvenue avec ses identifiants</li>
-          <li>• Si l'email n'est pas marqué comme vérifié, l'utilisateur devra confirmer son email</li>
+          <li>• Si l&apos;email n&apos;est pas marqué comme vérifié, l&apos;utilisateur devra confirmer son email</li>
           <li>• Vous pouvez modifier les permissions plus tard depuis la liste des utilisateurs</li>
           <li>• Le mot de passe généré automatiquement est cryptographiquement sécurisé</li>
         </ul>

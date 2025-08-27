@@ -30,7 +30,7 @@ export default function PasswordResetPage() {
         setError(json.error || 'An error occurred.');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError('Network error. Please try again. Error' + err);
     } finally {
       setPending(false);
     }

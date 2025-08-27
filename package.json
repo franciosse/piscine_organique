@@ -12,7 +12,9 @@
     "security:scan": "semgrep --config=.semgrep.yml .",
     "security:scan:blocking": "semgrep --config=.semgrep.yml --error .",
     "security:scan:full": "semgrep --config=p/security-audit --config=p/typescript --config=p/react --config=.semgrep.yml --error .",
-    "pre-commit": "npm run lint && npm run security:scan:blocking"
+    "pre-commit": "npm run lint && npm run security:scan:blocking",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",
@@ -53,6 +55,10 @@
   },
   "devDependencies": {
     "@types/dompurify": "^3.2.0",
-    "@types/nodemailer": "^6.4.17"
+    "@types/nodemailer": "^6.4.17",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.5.1",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0"
   }
 }

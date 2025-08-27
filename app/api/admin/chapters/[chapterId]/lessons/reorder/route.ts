@@ -358,7 +358,7 @@ export const POST = withAdminAuth(async (req, adminUser, { params }) => {
       );
     }
 
-    let sortedLessons = [...currentLessons];
+    const sortedLessons = [...currentLessons];
 
     // Appliquer l'opération demandée
     switch (operation) {

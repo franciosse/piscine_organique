@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import CoursesList from '@/components/admin/courses/coursesList';
 
 export default function AdminPage() {

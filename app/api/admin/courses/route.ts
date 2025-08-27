@@ -75,7 +75,7 @@ export const POST = withAdminAuth(async (request, adminUser) => {
     const validatedData = createCourseSchema.parse(body);
     
     // Générer le slug
-    let baseSlug = generateSlug(validatedData.title);
+    const baseSlug = generateSlug(validatedData.title);
     let slug = baseSlug;
     let counter = 1;
     

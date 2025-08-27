@@ -6,14 +6,10 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { 
   Users, 
-  Settings, 
-  Shield, 
-  Activity, 
   Menu, 
   X,
   Home,
   BookOpen,
-  BarChart3,
   Crown,
   ChevronLeft,
   ChevronRight

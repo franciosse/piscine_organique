@@ -3,18 +3,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { UserDetailsCard } from '@/components/admin/userDetailsCard';
 import { UserCoursesManagement } from '@/components/admin/userCoursesManagement';
-import { ArrowLeft, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import { 
   adminService, 
   User, 
   Course, 
   Purchase, 
-  Progress 
 } from '@/lib/services/adminService';
 import logger from '@/lib/logger/logger';
 
@@ -185,7 +184,7 @@ export default function UserDetailPage() {
           <CardContent className="p-8 text-center">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Utilisateur non trouvé</h2>
-            <p className="text-gray-600 mb-6">L'utilisateur demandé n'existe pas ou n'est pas accessible.</p>
+            <p className="text-gray-600 mb-6">L&apos;utilisateur demandé n&apos;existe pas ou n&apos;est pas accessible.</p>
             <Button onClick={() => router.push('/admin/users')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour à la liste
