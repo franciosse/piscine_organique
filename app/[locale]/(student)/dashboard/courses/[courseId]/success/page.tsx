@@ -72,7 +72,7 @@ async function SuccessContent({ courseId, sessionId }: { courseId: number; sessi
         message="Traitement de votre achat en cours..." 
         courseId={courseId}
         sessionId={sessionId}
-        userEmail={session.customer_details?.email!}
+        userEmail={session.customer_details?.email? session.customer_details?.email : 'email unknow'}
       />;
     }
 

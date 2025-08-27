@@ -352,7 +352,7 @@ export default function NewUserPage() {
       <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <h3 className="text-sm font-medium text-yellow-900 mb-2">💡 Informations importantes</h3>
         <ul className="text-sm text-yellow-800 space-y-1">
-          <li>• L'utilisateur recevra un email de bienvenue avec ses identifiants</li>
+          <li>• L&apos;utilisateur recevra un email de bienvenue avec ses identifiants</li>
           <li>• Si l&apos;email n&apos;est pas marqué comme vérifié, l&apos;utilisateur devra confirmer son email</li>
           <li>• Vous pouvez modifier les permissions plus tard depuis la liste des utilisateurs</li>
           <li>• Le mot de passe généré automatiquement est cryptographiquement sécurisé</li>

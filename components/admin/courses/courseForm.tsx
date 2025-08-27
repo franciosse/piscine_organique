@@ -173,7 +173,7 @@ export default function CourseForm({ courseId, initialData }: CourseFormProps) {
 
           <div>
             <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
-              URL de l'image de couverture
+              URL de l&apos;image de couverture
             </label>
             <input
               type="url"

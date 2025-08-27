@@ -120,7 +120,7 @@ export default function ProfilePage() {
                           <AlertCircle className="h-5 w-5 text-red-600" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-red-800 mb-1">Une erreur s'est produite</h4>
+                          <h4 className="font-semibold text-red-800 mb-1">Une erreur s&apos;est produite</h4>
                           <p className="text-red-700">{state.error}</p>
                         </div>
                       </div>

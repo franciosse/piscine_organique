@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Icon, ChevronDown, Leaf, Droplet, Menu, X, Settings, User2, Sprout, TreePine, Contact, BookOpenCheck } from 'lucide-react';
+import { Home, LogOut, Icon, Leaf, Droplet, Menu, X, Settings, User2, Sprout, TreePine, Contact, BookOpenCheck } from 'lucide-react';
 import { flowerLotus } from "@lucide/lab";
 import {
   DropdownMenu,

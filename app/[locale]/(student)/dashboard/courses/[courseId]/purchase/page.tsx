@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   ArrowLeft,
   Check,
@@ -16,10 +16,10 @@ import {
   Loader2,
   AlertCircle,
   BookOpen,
-  Award,
-  Download
+  Award
 } from 'lucide-react';
 import useSWR from 'swr';
+import Link from 'next/link';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -136,7 +136,7 @@ export default function CoursePurchasePage() {
     } catch (error) {
       setPurchaseState({
         isLoading: false,
-        error: 'Une erreur inattendue s\'est produite'
+        error: 'Une erreur inattendue s\'est produite : ' + error
       });
     }
   };
@@ -155,7 +155,7 @@ export default function CoursePurchasePage() {
               Cours introuvable
             </h2>
             <p className="text-gray-600 mb-4">
-              Le cours que vous cherchez n'existe pas ou n'est plus disponible : {error}
+              Le cours que vous cherchez n&apos;existe pas ou n&apos;est plus disponible : {error}
             </p>
             <Button onClick={() => router.push('/dashboard/courses')}>
               Retour aux cours
@@ -196,7 +196,7 @@ export default function CoursePurchasePage() {
               Finaliser votre achat
             </h1>
             <p className="text-gray-600">
-              Vous êtes sur le point d'acheter ce cours
+              Vous êtes sur le point d&apos;acheter ce cours
             </p>
           </div>
         </div>
@@ -404,7 +404,7 @@ export default function CoursePurchasePage() {
                         ) : (
                           <>
                             <BookOpen className="mr-2 h-5 w-5" />
-                            S'inscrire gratuitement
+                            S&apos;inscrire gratuitement
                           </>
                         )}
                       </>
@@ -413,9 +413,9 @@ export default function CoursePurchasePage() {
 
                   <p className="text-xs text-gray-500 text-center">
                     En achetant ce cours, vous acceptez nos{' '}
-                    <a href="/terms" className="text-green-600 hover:underline">
-                      conditions d'utilisation
-                    </a>
+                    <Link href="/terms" className="text-green-600 hover:underline">
+                      conditions d&apos;utilisation
+                    </Link>
                   </p>
                 </div>
               </CardContent>

@@ -174,6 +174,13 @@ export const PATCH = withUserAuth(async (request: NextRequest, user, { params })
         updatedAt: new Date(),
       }).returning();
 
+      if(newProgress == null) {
+        return NextResponse.json(
+          { error: 'Cours progress failed, for userId :' + user.id },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json({
         success: true,
         message: 'Progrès créé avec succès',

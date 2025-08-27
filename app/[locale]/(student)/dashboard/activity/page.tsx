@@ -204,7 +204,7 @@ export default async function ActivityPage() {
               <ActivityIcon className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Tableau de bord d'activité
+              Tableau de bord d&apos;activité
             </h1>
           </div>
           <p className="text-gray-600 max-w-2xl">
@@ -303,7 +303,7 @@ export default async function ActivityPage() {
               <CardContent className="p-6">
                 {recentActivities.length > 0 ? (
                   <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {recentActivities.map((log, index) => {
+                    {recentActivities.map((log) => {
                       const Icon = iconMap[log.action as ActivityType] || Settings;
                       const colors = colorMap[log.action as ActivityType] || colorMap[ActivityType.UPDATE_ACCOUNT];
                       const formattedAction = formatAction(log.action as ActivityType);
@@ -341,7 +341,7 @@ export default async function ActivityPage() {
                       Aucune activité pour le moment
                     </h3>
                     <p className="text-sm text-gray-500 max-w-sm">
-                      Commencez votre parcours d'apprentissage écologique ! 
+                      Commencez votre parcours d&apos;apprentissage écologique ! 
                       Vos actions apparaîtront ici.
                     </p>
                   </div>

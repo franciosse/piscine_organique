@@ -12,12 +12,6 @@ import { eq, and, sql } from 'drizzle-orm';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';
 
-
-interface RouteParams {
-  courseId: string ;
-}
-
-
 // GET /api/account/courses/[courseId]/progress - Récupérer le progrès de l'étudiant
 export const GET = withUserAuth(async (request, user, { params }) => {
   const resolvedParams = await params;

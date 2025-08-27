@@ -7,12 +7,6 @@ import { withUserAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';
 
 
-interface RouteParams {
-  params: {
-    courseId: string;
-  };
-}
-
 export const GET = withUserAuth(async (req: NextRequest, authenticatedUser, { params }) => {
   try {
     const resolvedParams = await params;
