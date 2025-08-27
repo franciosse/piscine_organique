@@ -1,5 +1,5 @@
 // app/api/admin/courses/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle' // Votre instance Drizzle
 import { courses, users } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -30,7 +30,7 @@ function generateSlug(title: string): string {
 }
 
 // GET /api/admin/courses - Liste tous les cours
-export const GET = withUserAuth(async (request, adminUser) => {
+export const GET = withUserAuth(async () => {
   try {
 
     const allCourses = await db
@@ -67,7 +67,7 @@ export const GET = withUserAuth(async (request, adminUser) => {
 });
 
 // POST /api/admin/courses - Créer un nouveau cours
-export const POST = withAdminAuth(async (request, adminUser) => {
+export const POST = withAdminAuth(async (request) => {
   try {
     const body = await request.json();
     

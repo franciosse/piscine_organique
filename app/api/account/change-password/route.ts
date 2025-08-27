@@ -1,5 +1,5 @@
 // app/api/account/change-password/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';

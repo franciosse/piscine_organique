@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ModernVideoPlayer } from './ModernVideoPlayer';
-import { QuizComponent } from './QuizComponent';
 import { LessonContentDisplay } from './LessonContentDisplay';
 import { LessonProgressComponent } from './LessonProgressComponent';
 import { ProgressService } from '@/lib/services/progressService';
@@ -153,7 +152,7 @@ function LessonItem({
             
             {!accessCheck.isAccessible && accessCheck.reason === 'previous_incomplete' && accessCheck.requiredLesson && (
               <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                Terminez d'abord : {accessCheck.requiredLesson.title}
+                Terminez d&apos;abord : {accessCheck.requiredLesson.title}
               </div>
             )}
           </div>
@@ -246,7 +245,6 @@ export function CourseDetailComponent({
   stats, 
   user,
   onLessonComplete,
-  onQuizComplete 
 }: CourseDetailComponentProps) {
   const [activeLesson, setActiveLesson] = useState<LessonWithQuiz | undefined>(
     course.chapters[0]?.lessons[0] || undefined

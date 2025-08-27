@@ -1,10 +1,9 @@
 // app/dashboard/page.tsx
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CoursePageComponent } from '@/components/student/coursePageComponent';
-import { Course, CoursePurchase, User } from '@/lib/db/schema';
+import { Course} from '@/lib/db/schema';
 import useSWR from 'swr';
 import { Suspense } from 'react';
 import Link from 'next/link';

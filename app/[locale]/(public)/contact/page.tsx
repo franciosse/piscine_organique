@@ -319,7 +319,7 @@ function ContactForm() {
           {status === 'error' && (
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
               <p className="text-center text-red-600">
-                ❌ Erreur lors de l'envoi. Vérifiez vos informations et réessayez.
+                ❌ Erreur lors de l&apos;envoi. Vérifiez vos informations et réessayez.
               </p>
               {submitAttempts.current > 3 && (
                 <p className="text-center text-red-500 text-sm mt-2">

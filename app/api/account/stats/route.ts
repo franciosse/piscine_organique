@@ -1,8 +1,8 @@
 // app/api/account/stats/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
 import { db } from '@/lib/db/drizzle';
-import { users, courses, coursePurchases } from '@/lib/db/schema'; // Ajustez selon votre schéma
+import { coursePurchases } from '@/lib/db/schema'; // Ajustez selon votre schéma
 import { eq, and, count } from 'drizzle-orm';
 import logger from '@/lib/logger/logger';
 

@@ -241,7 +241,7 @@ export function AutoLoginComponent({
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <p className="text-green-700">
-            Votre achat du cours <strong>"{course?.title}"</strong> a été confirmé.
+            Votre achat du cours <strong>&quot;{course?.title}&quot;</strong> a été confirmé.
           </p>
           
           {isLoggingIn ? (

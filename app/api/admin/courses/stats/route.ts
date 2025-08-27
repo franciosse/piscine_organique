@@ -1,6 +1,6 @@
 // app/api/admin/courses/stats/route.ts
 import { getCourseStats } from '@/lib/db/queries';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';
 

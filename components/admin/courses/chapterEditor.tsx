@@ -63,7 +63,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
         setError(data.error || 'Erreur lors du chargement');
       }
     } catch (err) {
-      setError('Erreur de connexion');
+      setError('Erreur de connexion :' + err);
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
         setError(data.error || 'Erreur lors de la sauvegarde');
       }
     } catch (err) {
-      setError('Erreur de connexion');
+      setError('Erreur de connexion:'+err);
     } finally {
       setSavingChapter(false);
     }
@@ -124,7 +124,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
         setChapter(prev => prev ? { ...prev, published: data.chapter.published } : null);
       }
     } catch (err) {
-      setError('Erreur lors de la mise à jour');
+      setError('Erreur lors de la mise à jour:'+ err);
     }
   };
 
@@ -145,7 +145,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
         setError(data.error || 'Erreur lors de la suppression');
       }
     } catch (err) {
-      setError('Erreur de connexion');
+      setError('Erreur de connexion :' +err);
     }
   };
 
@@ -219,7 +219,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
         setError(data.error || 'Erreur lors de la suppression de la leçon');
       }
     } catch (err) {
-      setError('Erreur de connexion');
+      setError('Erreur de connexion : ' + err);
     }
   };
 
@@ -533,7 +533,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
                     onClick={() => setIsEditing(false)}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    Terminer l'édition
+                    Terminer l&apos;édition
                   </button>
                 </div>
               </div>
@@ -570,7 +570,7 @@ export default function ChapterEditor({ chapterId, courseId }: ChapterEditorProp
             <div className="space-y-4">
               {chapter.lessons
                 .sort((a, b) => a.position - b.position)
-                .map((lesson, index) => (
+                .map((lesson) => (
                   <div key={lesson.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">

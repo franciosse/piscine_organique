@@ -51,7 +51,7 @@ jobs:
       - name: Install deps
         run: npm ci --legacy-peer-deps
       - name: Run ESLint
-        run: npx eslint . --ext .ts,.tsx
+        run: npm run lint
 
   # --- Semgrep ---
   semgrep:

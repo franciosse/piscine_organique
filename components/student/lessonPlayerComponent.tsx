@@ -1,7 +1,7 @@
 // /components/pages/LessonPlayerComponent.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { 
   ChevronLeft, 
@@ -11,14 +11,12 @@ import {
   Download,
   Award,
   BookOpen,
-  PlayCircle
 } from 'lucide-react';
 import { LessonWithDetails } from '@/app/[locale]/(student)/dashboard/courses/[courseId]/lessons/[lessonId]/page';
 import { LessonAttachment } from '@/lib/db/schema';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import logger from '@/lib/logger/logger';
 import { sanitizeHTML } from '@/lib/security/sanitizer';
@@ -29,7 +27,7 @@ interface LessonPlayerComponentProps {
   user: any;
 }
 
-export function LessonPlayerComponent({ lesson, user }: LessonPlayerComponentProps) {
+export function LessonPlayerComponent({ lesson }: LessonPlayerComponentProps) {
   const [isCompleted, setIsCompleted] = useState(lesson.progress?.completed || false);
   const [watchTime, setWatchTime] = useState(lesson.progress?.watchTime || 0);
   const [isLoading, setIsLoading] = useState(false);

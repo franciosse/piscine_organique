@@ -5,7 +5,7 @@ import { readdir, stat } from 'fs/promises';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';
 
-export const GET = withAdminAuth(async (req, adminUser) => {
+export const GET = withAdminAuth(async () => {
   try {
     const imagesPath = join(process.cwd(), 'public', 'images');
     const basePath = resolve(imagesPath); // Chemin de base sécurisé
@@ -51,7 +51,7 @@ export const GET = withAdminAuth(async (req, adminUser) => {
         }
         return images;
       } catch (error) {
-        console.warn(`Dossier ${dirPath} non trouvé ou inaccessible`);
+        console.warn(`Dossier ${dirPath} non trouvé ou inaccessible. Error : ` + error);
         return [];
       }
     };

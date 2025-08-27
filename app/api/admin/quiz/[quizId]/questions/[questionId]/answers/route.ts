@@ -1,12 +1,12 @@
 // app/api/admin/quiz/questions/[questionId]/answers/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { 
   quizQuestions, 
   quizAnswers,
   quizAttempts 
 } from '@/lib/db/schema';
-import { eq, and, max } from 'drizzle-orm';
+import { eq, max } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';

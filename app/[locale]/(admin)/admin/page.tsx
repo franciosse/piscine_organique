@@ -29,7 +29,6 @@ export default function AdminDashboardPage() {
   const courseStats = courseStatsData?.stats;
 
   const isLoading = !userStatsData || !courseStatsData;
-  const hasError = userStatsError || courseStatsError;
 
   return (
     <div className="flex-1 min-h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">

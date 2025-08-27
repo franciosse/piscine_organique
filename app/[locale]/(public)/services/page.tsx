@@ -3,6 +3,7 @@
 import { Brain, NotebookPen, Hammer } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from "next/image";
+import Link from 'next/link';
 
 
 export default function ServicesPage() {
@@ -32,12 +33,12 @@ export default function ServicesPage() {
               <p className="text-gray-700 leading-relaxed mb-6">
                 {t('onlineTrainingDescription')}
               </p>
-              <a
+              <Link
                 href="/courses"
                 className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 transition-colors"
               >
                 {t('discoverOnlineTraining')}
-              </a>
+              </Link>
             </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             

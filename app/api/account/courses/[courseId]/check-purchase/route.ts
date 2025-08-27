@@ -6,14 +6,11 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { coursePurchases, courses } from '@/lib/db/schema';
 import { getSession  } from '@/lib/auth/session';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';
 
 
-interface RouteParams {
-  courseId: string ;
-}
 
 export const GET = withUserAuth(async (request, authUser, { params }) => {
   const resolvedParams = await params;

@@ -367,7 +367,7 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
                   placeholder="https://example.com/video.mp4"
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Laissez vide si cette leçon n'a pas de vidéo associée.
+                  Laissez vide si cette leçon n&apos;a pas de vidéo associée.
                 </p>
                 {formData.videoUrl && (
                   <div className="mt-2">
@@ -474,7 +474,7 @@ export default function LessonForm({ courseId, chapterId, lessonId, initialData 
                     onClick={() => insertTextAtCursor('<blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-600 my-4">\n  Citation importante\n</blockquote>')}
                     className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200"
                   >
-                    " Citation
+                    &quot; Citation
                   </button>
                   <button
                     type="button"

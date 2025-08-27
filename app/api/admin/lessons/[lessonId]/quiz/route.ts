@@ -1,5 +1,5 @@
 // app/api/admin/lessons/[lessonId]/quiz/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { 
   lessons, 
@@ -7,7 +7,6 @@ import {
   quizQuestions, 
   quizAnswers,
   quizAttempts,
-  quizAttemptAnswers 
 } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm'; // ✅ AJOUT de inArray
 import { z } from 'zod';

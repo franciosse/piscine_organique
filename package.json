@@ -1,6 +1,6 @@
 {
   "private": true,
-  "scripts": {
+    "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
@@ -13,8 +13,8 @@
     "security:scan:blocking": "semgrep --config=.semgrep.yml --error .",
     "security:scan:full": "semgrep --config=p/security-audit --config=p/typescript --config=p/react --config=.semgrep.yml --error .",
     "pre-commit": "npm run lint && npm run security:scan:blocking",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix"
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",

@@ -93,7 +93,7 @@ export async function middleware(request: NextRequest) {
       await verifyToken(sessionCookie.value);
       return NextResponse.next();
     } catch (error) {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session : ' + error }, { status: 401 });
     }
   }
 
@@ -118,12 +118,12 @@ export async function middleware(request: NextRequest) {
       logger.info(`✅ API Admin: Accès accordé pour utilisateur ${sessionData.user.id}`);
       return NextResponse.next();
     } catch (error) {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session : ' + error }, { status: 401 });
     }
   }
 
   // 🌐 Middleware i18n pour les autres routes
-  let response = intlMiddleware(request);
+  const response = intlMiddleware(request);
 
   // 🔒 Vérification des rôles pour les pages (pas API)
   if (sessionCookie && !pathname.startsWith('/api/')) {

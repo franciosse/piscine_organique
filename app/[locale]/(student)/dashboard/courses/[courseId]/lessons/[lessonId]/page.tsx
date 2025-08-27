@@ -356,7 +356,7 @@ export async function generateMetadata({
     };
   } catch (error) {
     return {
-      title: 'Leçon | Piscine Organique',
+      title: 'Leçon | Piscine Organique :' + error,
     };
   }
 }

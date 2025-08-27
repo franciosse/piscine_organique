@@ -5,8 +5,6 @@ import {
   Search, 
   Filter, 
   RefreshCw, 
-  UserCheck, 
-  UserX, 
   Crown, 
   GraduationCap,
   Mail,
@@ -173,7 +171,7 @@ export function AllUsers() {
       setSuccess('Utilisateur supprimé avec succès');
       
     } catch (error) {
-      setError('Erreur lors de la suppression de l\'utilisateur');
+      setError('Erreur lors de la suppression de l\'utilisateur :' + error);
     } finally {
       setActionLoading(false);
     }
@@ -247,7 +245,7 @@ export function AllUsers() {
                     Gestion des utilisateurs
                   </h1>
                   <p className="text-gray-600 mt-1">
-                    Administrez votre communauté d'apprenants
+                    Administrez votre communauté d&apos;apprenants
                   </p>
                 </div>
               </div>
@@ -496,7 +494,7 @@ export function AllUsers() {
                 Confirmer la suppression
               </DialogTitle>
               <DialogDescription>
-                Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+                Êtes-vous sûr de vouloir supprimer l&apos;utilisateur{' '}
                 <span className="font-semibold">{userToDelete?.name || userToDelete?.email}</span> ?
                 Cette action est irréversible et supprimera également tous ses achats de cours et sa progression.
               </DialogDescription>

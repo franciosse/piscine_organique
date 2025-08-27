@@ -1,8 +1,7 @@
 // app/api/account/dashboard/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { 
-  users, 
   courses, 
   coursePurchases, 
   studentProgress, 

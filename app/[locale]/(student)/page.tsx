@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Brain, CreditCard, Database, HeartHandshake, NotebookPen } from 'lucide-react';
+import { ArrowRight, Brain, HeartHandshake, NotebookPen } from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import { YouTubeEmbed } from "@next/third-parties/google";
+import Link from 'next/link';
 
 export default function HomePage() {
     const t = useTranslations('HomePage');
@@ -19,7 +20,7 @@ export default function HomePage() {
                 {t('description')}
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
-                <a
+                <Link
                   href="/courses"
                 >
                   <Button
@@ -30,7 +31,7 @@ export default function HomePage() {
                     {t('offer')}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                </a>
+                </Link>
               </div>
             </div>
             <div className="mt-12 z-1 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
@@ -103,7 +104,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <a href="/services">
+              <Link href="/services">
                 <Button
                   size="lg"
                   variant="outline"
@@ -112,7 +113,7 @@ export default function HomePage() {
                   {t('offer')}
                   <ArrowRight className="ml-3 h-6 w-6" />
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

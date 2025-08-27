@@ -128,7 +128,7 @@ export function AccountForm({ state, nameValue = '', emailValue = '', roleValue 
             </span>
             <div className="flex items-center gap-2 text-sm text-gray-600 bg-white/80 px-3 py-2 rounded-lg border border-gray-200">
               <AlertCircle className="h-4 w-4" />
-              <span>Contactez l'administration pour modifier</span>
+              <span>Contactez l'&apos;administration pour modifier</span>
             </div>
           </div>
           <input type="hidden" name="role" value={roleValue} />

@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
-import { getUser } from '@/lib/auth/session';
 import { logActivity, ActivityType } from '@/lib/auth/activity'; // si tu utilises ça
 import { withUserAuth } from '@/app/api/_lib/route-helpers';
 

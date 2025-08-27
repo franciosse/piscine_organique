@@ -1,6 +1,6 @@
-import { desc, and, eq, isNull, like, or, ilike, count, sum, avg, gte, sql, isNotNull } from 'drizzle-orm';
+import { desc, and, eq, isNull, like, or, ilike, count, sum, gte, sql, isNotNull } from 'drizzle-orm';
 import { db } from './drizzle';
-import { activityLogs, users, coursePurchases, courses, lessons, courseChapters, studentProgress } from './schema';
+import { activityLogs, users, coursePurchases, courses, courseChapters } from './schema';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
 import { hashPassword } from '@/lib/auth/session';
@@ -241,7 +241,7 @@ export async function toggleUserVerification(
     .update(users)
     .set({
       isVerified: !currentUser.isVerified,
-      updatedAt: new Date()
+      updatedAt: metadata.verifiedAt
     })
     .where(and(eq(users.id, id), isNull(users.deletedAt)))
     .returning();
@@ -627,7 +627,7 @@ export async function getCourseStats() {
       withoutChapters = total - withChapters;
       logger.info(`✅ Cours avec chapitres: ${withChapters}, sans chapitres: ${withoutChapters}`);
     } catch (error) {
-      logger.warn('⚠️ Table courseChapters non disponible');
+      logger.warn('⚠️ Table courseChapters non disponible. Error : ' + error);
       withChapters = 0;
       withoutChapters = total;
     }

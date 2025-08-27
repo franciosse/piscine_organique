@@ -7,8 +7,6 @@ import {
   UserCog,
   AlertCircle,
   UserMinus,
-  Mail,
-  CheckCircle,
   type LucideIcon,
   Newspaper,
   PenTool,
@@ -23,13 +21,9 @@ import {
   TrendingUp,
   Calendar,
   Star,
-  Target,
-  Zap,
   BarChart3,
   Activity as ActivityIcon,
-  Users,
   Globe,
-  Leaf,
   TreePine,
   Sprout
 } from 'lucide-react';
@@ -214,7 +208,7 @@ export default async function ActivityPage() {
             </h1>
           </div>
           <p className="text-gray-600 max-w-2xl">
-            Suivez votre progression, vos accomplissements et votre activité d'apprentissage écologique.
+            Suivez votre progression, vos accomplissements et votre activité d&apos;apprentissage écologique.
           </p>
         </div>
 

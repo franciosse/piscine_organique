@@ -38,7 +38,7 @@ async function checkStripeCLI() {
       logger.info('Stripe CLI is authenticated.');
     } catch (error) {
       logger.info(
-        'Stripe CLI is not authenticated or the authentication has expired.'
+        'Stripe CLI is not authenticated or the authentication has expired. :' + error
       );
       logger.info('Please run: stripe login');
       const answer = await question(
@@ -57,14 +57,14 @@ async function checkStripeCLI() {
         logger.info('Stripe CLI authentication confirmed.');
       } catch (error) {
         logger.error(
-          'Failed to verify Stripe CLI authentication. Please try again.'
+          'Failed to verify Stripe CLI authentication. Please try again. Error : ' + error
         );
         process.exit(1);
       }
     }
   } catch (error) {
     logger.error(
-      'Stripe CLI is not installed. Please install it and try again.'
+      'Stripe CLI is not installed. Please install it and try again. Error ' + error
     );
     logger.info('To install Stripe CLI, follow these steps:');
     logger.info('1. Visit: https://docs.stripe.com/stripe-cli');
@@ -104,7 +104,7 @@ async function setupLocalPostgres() {
     logger.info('Docker is installed.');
   } catch (error) {
     logger.error(
-      'Docker is not installed. Please install Docker and try again.'
+      'Docker is not installed. Please install Docker and try again. Error : ' + error
     );
     logger.info(
       'To install Docker, visit: https://docs.docker.com/get-docker/'
@@ -143,7 +143,7 @@ volumes:
     logger.info('Docker container started successfully.');
   } catch (error) {
     logger.error(
-      'Failed to start Docker container. Please check your Docker installation and try again.'
+      'Failed to start Docker container. Please check your Docker installation and try again. Error : ' + error
     );
     process.exit(1);
   }
@@ -169,7 +169,7 @@ async function createStripeWebhook(): Promise<string> {
     return match[0];
   } catch (error) {
     logger.error(
-      'Failed to create Stripe webhook. Check your Stripe CLI installation and permissions.'
+      'Failed to create Stripe webhook. Check your Stripe CLI installation and permissions. Error : ' + error
     );
     if (os.platform() === 'win32') {
       logger.info(

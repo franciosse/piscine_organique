@@ -1,8 +1,8 @@
 // app/api/admin/chapters/[chapterId]/lessons/reorder/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { lessons, courseChapters } from '@/lib/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { withAdminAuth } from '@/app/api/_lib/route-helpers';
 import logger from '@/lib/logger/logger';

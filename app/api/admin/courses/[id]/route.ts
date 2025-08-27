@@ -1,6 +1,6 @@
 
 // app/api/admin/courses/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { courses, courseChapters, lessons } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -19,10 +19,6 @@ const updateCourseSchema = z.object({
   published: z.string().datetime().nullable().optional(), // ISO date string ou null
 });
 
-
-interface RouteParams {
-  id: string;
-}
 
 // GET /api/admin/courses/[id] - Récupérer un cours spécifique avec ses chapitres 
 export const GET = withAdminAuth(async (req, adminUser, { params }) => {

@@ -134,7 +134,7 @@ export default function VerifyEmailPage() {
                   href="/"
                   className="w-full text-gray-600 hover:text-gray-800 font-medium py-2 px-4 transition-colors duration-200 inline-block"
                 >
-                  Retour à l'accueil
+                  Retour à l&apos;accueil
                 </Link>
               </div>
             </>
@@ -164,7 +164,7 @@ export default function VerifyEmailPage() {
                   onClick={resendVerificationEmail}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200"
                 >
-                  Renvoyer l'email de vérification
+                  Renvoyer l&apos;email de vérification
                 </button>
                 <Link 
                   href="/signup"
@@ -223,7 +223,7 @@ export default function VerifyEmailPage() {
         {/* Footer info */}
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500">
-            Besoin d'aide ? Contactez-nous à{' '}
+            Besoin d&apos;aide ? Contactez-nous à{' '}
             <a href="mailto:contact@piscineorganique.com" className="text-blue-600 hover:text-blue-700">
               contact@piscineorganique.com
             </a>

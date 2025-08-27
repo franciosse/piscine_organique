@@ -1,5 +1,5 @@
 // /app/about/page.tsx
-import { Briefcase, Leaf, MapPin, Users } from "lucide-react";
+import { Briefcase, Leaf, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 

@@ -7,7 +7,7 @@ import logger from '@/lib/logger/logger';
 // ✅ Forcer l'utilisation du Node.js runtime (pas Edge)
 export const runtime = 'nodejs';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     logger.info('📋 API /account/user appelée');
 
